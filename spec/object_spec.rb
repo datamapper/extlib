@@ -8,7 +8,7 @@ describe Object do
       end
     end
   end
-  
+
   it "should be able to get a recursive constant" do
     find_const('Foo::Bar').should == Foo::Bar
   end

@@ -4,7 +4,7 @@ module Plug
   end
 
   module ClassMethods
-    def plug(target_method, plugin_method) 
+    def plug(target_method, plugin_method)
       plugins[target_method] << plugin_method
 
       if plugins[target_method].length == 1

@@ -17,7 +17,7 @@ task :spec    => 'extlib:spec'
 desc 'Remove all package, docs and spec products'
 task :clobber_all => %w[ clobber_package clobber_doc extlib:clobber_spec ]
 
-namespace :extlib do  
+namespace :extlib do
   Spec::Rake::SpecTask.new(:spec) do |t|
     t.spec_opts << '--format' << 'specdoc' << '--colour'
     t.spec_opts << '--loadby' << 'random'

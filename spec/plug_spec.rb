@@ -194,4 +194,3 @@ describe Plug do
     end
   end
 end
-

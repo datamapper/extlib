@@ -1,1 +1,1 @@
-require File.join(File.dirname(__FILE__), '..', 'lib', 'extlib', 'pooling')
+require File.join(File.dirname(__FILE__), '..', 'lib', 'extlib')
