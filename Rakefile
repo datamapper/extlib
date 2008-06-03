@@ -17,29 +17,16 @@ task :spec    => 'extlib:spec'
 desc 'Remove all package, docs and spec products'
 task :clobber_all => %w[ clobber_package clobber_doc extlib:clobber_spec ]
 
-namespace :extlib do
-  def run_spec(name, files, rcov = true)
-    Spec::Rake::SpecTask.new(name) do |t|
-      t.spec_opts << '--format' << 'specdoc' << '--colour'
-      t.spec_opts << '--loadby' << 'random'
-      t.spec_files = Pathname.glob(ENV['FILES'] || files)
-      t.rcov = ENV.has_key?('NO_RCOV') ? ENV['NO_RCOV'] != 'true' : rcov
-      t.rcov_opts << '--exclude' << 'spec,environment.rb'
-      t.rcov_opts << '--text-summary'
-      t.rcov_opts << '--sort' << 'coverage' << '--sort-reverse'
-      t.rcov_opts << '--only-uncovered'
-    end
-  end
-
-  desc "Run all specifications"
-  run_spec('spec', ROOT + 'spec/**/*_spec.rb')
-
-  namespace :spec do
-    desc "Run unit specifications"
-    run_spec('unit', ROOT + 'spec/unit/**/*_spec.rb')
-
-    desc "Run integration specifications"
-    run_spec('integration', ROOT + 'spec/integration/**/*_spec.rb', false)
+namespace :extlib do  
+  Spec::Rake::SpecTask.new(:spec) do |t|
+    t.spec_opts << '--format' << 'specdoc' << '--colour'
+    t.spec_opts << '--loadby' << 'random'
+    t.spec_files = Pathname.glob(ENV['FILES'] || 'spec/**/*_spec.rb')
+    t.rcov = ENV['NO_RCOV'] != 'false'
+    t.rcov_opts << '--exclude' << 'spec,environment.rb'
+    t.rcov_opts << '--text-summary'
+    t.rcov_opts << '--sort' << 'coverage' << '--sort-reverse'
+    t.rcov_opts << '--only-uncovered'
   end
 end
 
@@ -73,10 +60,6 @@ task :doc do
   begin
     require 'yard'
     exec 'yardoc'
-    # TODO: options to port over
-    #  rdoc.title = "DataMapper -- An Object/Relational Mapper for Ruby"
-    #  rdoc.options << '--line-numbers' << '--inline-source' << '--main' << 'README'
-    #  rdoc.rdoc_files.include(*DOCUMENTED_FILES.map { |file| file.to_s })
   rescue LoadError
     puts 'You will need to install the latest version of Yard to generate the
           documentation for extlib.'
@@ -93,7 +76,7 @@ gem_spec = Gem::Specification.new do |s|
   s.authors = "Sam Smoot"
   s.email = "ssmoot@gmail.com"
   s.rubyforge_project = PROJECT
-  s.homepage = "http://datamapper.org"
+  s.homepage = "http://extlib.rubyforge.org"
 
   s.files = PACKAGE_FILES.map { |f| f.to_s }
 
@@ -101,7 +84,6 @@ gem_spec = Gem::Specification.new do |s|
   s.requirements << "none"
   s.add_dependency("english", ">=0.2.0")
   s.add_dependency("rspec", ">=1.1.3")
-  s.add_dependency("addressable", ">=1.0.4")
 
   s.has_rdoc    = false
   #s.rdoc_options << "--line-numbers" << "--inline-source" << "--main" << "README"
@@ -195,10 +177,6 @@ namespace :ci do
   task :doc do
     require 'yardoc'
     sh 'yardoc'
-    #  rdoc.rdoc_dir = 'ci/rdoc'
-    #  rdoc.title = "DataMapper -- An Object/Relational Mapper for Ruby"
-    #  rdoc.options << '--line-numbers' << '--inline-source' << '--main' << 'README'
-    #  rdoc.rdoc_files.include(*DOCUMENTED_FILES.map { |file| file.to_s })
   end
 
   task :saikuro => :prepare do
