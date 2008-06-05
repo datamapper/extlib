@@ -3,7 +3,7 @@ class LazyArray  # borrowed partially from StrokeDB
   # these methods should return self or nil
   RETURN_SELF = [ :<<, :clear, :concat, :collect!, :each, :each_index,
     :each_with_index, :insert, :map!, :push, :reject!, :reverse!,
-    :reverse_each, :replace, :sort!, :unshift ]
+    :reverse_each, :sort!, :unshift ]
 
   # these methods should return an instance of this class when an Array
   # would normally be returned
@@ -50,6 +50,12 @@ class LazyArray  # borrowed partially from StrokeDB
     lazy_load!
     true_results, false_results = @array.partition(&block)
     [ wrap(true_results), wrap(false_results) ]
+  end
+
+  def replace(other)
+    @load_with_proc = nil
+    @array.replace(other)
+    self
   end
 
   def eql?(other)

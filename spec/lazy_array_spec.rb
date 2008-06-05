@@ -452,6 +452,27 @@ describe LazyArray do
     end
   end
 
+  it 'should provide #replace' do
+    @lazy_array.should respond_to(:replace)
+  end
+
+  describe '#replace' do
+    it 'should return self' do
+      @lazy_array.replace(@other).object_id.should == @lazy_array.object_id
+    end
+
+    it 'should replace itself with the other object' do
+      replaced = @lazy_array.replace(@other)
+      replaced.length.should == 1
+      replaced.should == @other
+    end
+
+    it 'should be loaded' do
+      replaced = @lazy_array.replace(@other)
+      replaced.should be_loaded
+    end
+  end
+
   it 'should provide #reverse' do
     @lazy_array.should respond_to(:reverse)
   end
