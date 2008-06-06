@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), '..', 'lib', 'plug')
+require File.join(File.dirname(__FILE__), '..', 'lib', 'extlib', 'plug')
 
 describe Plug do
   describe "should allow inclusion" do
