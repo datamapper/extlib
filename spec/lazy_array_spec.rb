@@ -1,6 +1,24 @@
 require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 
 describe LazyArray do
+  def self.it_should_return_self(method)
+    it 'should delegate to the array and return self' do
+      LazyArray::RETURN_SELF.should include(method)
+    end
+  end
+
+  def self.it_should_return_new(method)
+    it 'should delegate to the array and return the results wrapped in a LazyArray if an Array' do
+      LazyArray::RETURN_NEW.should include(method)
+    end
+  end
+
+  def self.it_should_return_plain(method)
+    it 'should delegate to the array and return the results directly' do
+      LazyArray::RETURN_PLAIN.should include(method)
+    end
+  end
+
   before do
     @nancy  = 'nancy'
     @bessie = 'bessie'
@@ -18,6 +36,8 @@ describe LazyArray do
   end
 
   describe '#at' do
+    it_should_return_plain(:at)
+
     it 'should lookup the element by index' do
       @lazy_array.at(0).should == @nancy
     end
@@ -28,12 +48,22 @@ describe LazyArray do
   end
 
   describe '#clear' do
+    it_should_return_self(:clear)
+
     it 'should return self' do
       @lazy_array.clear.object_id.should == @lazy_array.object_id
     end
 
     it 'should make the lazy array become empty' do
       @lazy_array.clear.should be_empty
+    end
+
+    it 'should be loaded afterwards' do
+      @lazy_array.should_not be_loaded
+      @lazy_array.should_not_receive(:lazy_load!)
+
+      cleared = @lazy_array.clear
+      cleared.should be_loaded
     end
   end
 
@@ -42,6 +72,8 @@ describe LazyArray do
   end
 
   describe '#collect!' do
+    it_should_return_self(:collect!)
+
     it 'should return self' do
       @lazy_array.collect! { |element| element }.object_id.should == @lazy_array.object_id
     end
@@ -62,6 +94,8 @@ describe LazyArray do
   end
 
   describe '#concat' do
+    it_should_return_self(:concat)
+
     it 'should return self' do
       @lazy_array.concat(@other).object_id.should == @lazy_array.object_id
     end
@@ -80,6 +114,8 @@ describe LazyArray do
   end
 
   describe '#delete' do
+    it_should_return_plain(:delete)
+
     it 'should delete the matching element from the lazy array' do
       @lazy_array.delete(@nancy).should == @nancy
       @lazy_array.size.should == 1
@@ -98,6 +134,8 @@ describe LazyArray do
   end
 
   describe '#delete_at' do
+    it_should_return_plain(:delete_at)
+
     it 'should delete the element from the lazy array with the index' do
       @lazy_array.delete_at(0).should == @nancy
       @lazy_array.size.should == 1
@@ -110,6 +148,8 @@ describe LazyArray do
   end
 
   describe '#each' do
+    it_should_return_self(:each)
+
     it 'should return self' do
       @lazy_array.each { |element| }.object_id.should == @lazy_array.object_id
     end
@@ -126,6 +166,8 @@ describe LazyArray do
   end
 
   describe '#each_index' do
+    it_should_return_self(:each_index)
+
     it 'should return self' do
       @lazy_array.each_index { |element| }.object_id.should == @lazy_array.object_id
     end
@@ -142,6 +184,8 @@ describe LazyArray do
   end
 
   describe '#empty?' do
+    it_should_return_plain(:empty?)
+
     it 'should return true if the lazy array has entries' do
       @lazy_array.length.should == 2
       @lazy_array.empty?.should be_false
@@ -159,6 +203,8 @@ describe LazyArray do
   end
 
   describe '#entries' do
+    it_should_return_plain(:entries)
+
     it 'should return an Array' do
       @lazy_array.entries.should be_kind_of(Array)
     end
@@ -192,6 +238,8 @@ describe LazyArray do
   end
 
   describe '#fetch' do
+    it_should_return_plain(:fetch)
+
     it 'should lookup the element with an index' do
       @lazy_array.fetch(0).should == @nancy
     end
@@ -216,6 +264,8 @@ describe LazyArray do
   end
 
   describe '#first' do
+    it_should_return_new(:first)
+
     describe 'with no arguments' do
       it 'should return the first element in the lazy array' do
         @lazy_array.first.should == @nancy
@@ -239,6 +289,8 @@ describe LazyArray do
   end
 
   describe '#index' do
+    it_should_return_plain(:index)
+
     it 'should return an Integer' do
       @lazy_array.index(@nancy).should be_kind_of(Integer)
     end
@@ -253,6 +305,8 @@ describe LazyArray do
   end
 
   describe '#insert' do
+    it_should_return_self(:insert)
+
     it 'should return self' do
       @lazy_array.insert(1, @steve).object_id.should == @lazy_array.object_id
     end
@@ -270,6 +324,8 @@ describe LazyArray do
   end
 
   describe '#last' do
+    it_should_return_new(:last)
+
     describe 'with no arguments' do
       it 'should return the last element in the lazy array' do
         @lazy_array.last.should == @bessie
@@ -293,6 +349,8 @@ describe LazyArray do
   end
 
   describe '#length' do
+    it_should_return_plain(:length)
+
     it 'should return an Integer' do
       @lazy_array.length.should be_kind_of(Integer)
     end
@@ -379,6 +437,8 @@ describe LazyArray do
   end
 
   describe '#pop' do
+    it_should_return_plain(:pop)
+
     it 'should remove the last element' do
       @lazy_array.pop.should == @bessie
       @lazy_array.length.should == 1
@@ -391,6 +451,8 @@ describe LazyArray do
   end
 
   describe '#push' do
+    it_should_return_self(:push)
+
     it 'should return self' do
       @lazy_array.push(@steve).object_id.should == @lazy_array.object_id
     end
@@ -409,6 +471,8 @@ describe LazyArray do
   end
 
   describe '#reject' do
+    it_should_return_new(:reject)
+
     it 'should return a LazyArray with elements that did not match the block' do
       rejected = @lazy_array.reject { |element| false }
       rejected.should be_kind_of(LazyArray)
@@ -431,6 +495,8 @@ describe LazyArray do
   end
 
   describe '#reject!' do
+    it_should_return_self(:reject!)
+
     it 'should return self if elements matched the block' do
       @lazy_array.reject! { |element| true }.object_id.should == @lazy_array.object_id
     end
@@ -457,6 +523,8 @@ describe LazyArray do
   end
 
   describe '#replace' do
+    it_should_return_self(:replace)
+
     it 'should return self' do
       @lazy_array.replace(@other).object_id.should == @lazy_array.object_id
     end
@@ -467,7 +535,10 @@ describe LazyArray do
       replaced.should == @other
     end
 
-    it 'should be loaded' do
+    it 'should be loaded afterwards' do
+      @lazy_array.should_not be_loaded
+      @lazy_array.should_not_receive(:lazy_load!)
+
       replaced = @lazy_array.replace(@other)
       replaced.should be_loaded
     end
@@ -478,6 +549,8 @@ describe LazyArray do
   end
 
   describe '#reverse' do
+    it_should_return_new(:reverse)
+
     it 'should return a LazyArray with reversed entries' do
       reversed = @lazy_array.reverse
       reversed.should be_kind_of(LazyArray)
@@ -491,6 +564,8 @@ describe LazyArray do
   end
 
   describe '#reverse!' do
+    it_should_return_self(:reverse!)
+
     it 'should return self' do
       @lazy_array.reverse!.object_id.should == @lazy_array.object_id
     end
@@ -507,6 +582,8 @@ describe LazyArray do
   end
 
   describe '#reverse_each' do
+    it_should_return_self(:reverse_each)
+
     it 'should return self' do
       @lazy_array.reverse_each { |element| }.object_id.should == @lazy_array.object_id
     end
@@ -523,6 +600,8 @@ describe LazyArray do
   end
 
   describe '#rindex' do
+    it_should_return_plain(:rindex)
+
     it 'should return an Integer' do
       @lazy_array.rindex(@nancy).should be_kind_of(Integer)
     end
@@ -537,6 +616,8 @@ describe LazyArray do
   end
 
   describe '#select' do
+    it_should_return_new(:select)
+
     it 'should return a LazyArray with elements that matched the block' do
       selected = @lazy_array.select { |element| true }
       selected.should be_kind_of(LazyArray)
@@ -557,6 +638,8 @@ describe LazyArray do
   end
 
   describe '#shift' do
+    it_should_return_plain(:shift)
+
     it 'should remove the first element' do
       @lazy_array.shift.should == @nancy
       @lazy_array.length.should == 1
@@ -569,6 +652,8 @@ describe LazyArray do
   end
 
   describe '#slice' do
+    it_should_return_new(:slice)
+
     describe 'with an index' do
       it 'should not modify the lazy array' do
         @lazy_array.slice(0)
@@ -613,6 +698,8 @@ describe LazyArray do
   end
 
   describe '#slice!' do
+    it_should_return_new(:slice!)
+
     describe 'with an index' do
       it 'should modify the lazy array' do
         @lazy_array.slice!(0)
@@ -657,6 +744,8 @@ describe LazyArray do
   end
 
   describe '#sort' do
+    it_should_return_new(:sort)
+
     it 'should return a LazyArray' do
       sorted = @lazy_array.sort { |a,b| a <=> b }
       sorted.should be_kind_of(LazyArray)
@@ -674,6 +763,8 @@ describe LazyArray do
   end
 
   describe '#sort!' do
+    it_should_return_self(:sort!)
+
     it 'should return self' do
       @lazy_array.sort! { |a,b| 0 }.object_id.should == @lazy_array.object_id
     end
@@ -692,6 +783,8 @@ describe LazyArray do
   end
 
   describe '#to_a' do
+    it_should_return_plain(:to_a)
+
     it 'should return an Array' do
       @lazy_array.to_a.should be_kind_of(Array)
     end
@@ -702,6 +795,8 @@ describe LazyArray do
   end
 
   describe '#to_ary' do
+    it_should_return_plain(:to_ary)
+
     it 'should return an Array' do
       @lazy_array.to_ary.should be_kind_of(Array)
     end
@@ -712,6 +807,8 @@ describe LazyArray do
   end
 
   describe '#unshift' do
+    it_should_return_self(:unshift)
+
     it 'should return self' do
       @lazy_array.unshift(@steve).object_id.should == @lazy_array.object_id
     end
@@ -730,6 +827,8 @@ describe LazyArray do
   end
 
   describe '#values_at' do
+    it_should_return_new(:values_at)
+
     it 'should return a LazyArray' do
       values = @lazy_array.values_at(0)
       values.class.should == LazyArray

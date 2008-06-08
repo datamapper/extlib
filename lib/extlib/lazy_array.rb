@@ -2,8 +2,8 @@ class LazyArray  # borrowed partially from StrokeDB
 
   # these methods should return self or nil
   RETURN_SELF = [ :<<, :clear, :concat, :collect!, :each, :each_index,
-    :each_with_index, :insert, :map!, :push, :reject!, :reverse!,
-    :reverse_each, :sort!, :unshift ]
+    :each_with_index, :insert, :map!, :push, :replace, :reject!,
+    :reverse!, :reverse_each, :sort!, :unshift ]
 
   # these methods should return an instance of this class when an Array
   # would normally be returned
@@ -53,8 +53,14 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def replace(other)
-    @load_with_proc = nil
+    mark_loaded
     @array.replace(other)
+    self
+  end
+
+  def clear
+    mark_loaded
+    @array.clear
     self
   end
 
@@ -87,14 +93,18 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def initialize_copy(original)
     @array = original.entries
-    @load_with_proc = nil if @array.any?
+    mark_loaded if @array.any?
   end
 
   def lazy_load!
     if proc = @load_with_proc
-      @load_with_proc = nil
+      mark_loaded
       proc[self]
     end
+  end
+
+  def mark_loaded
+    @load_with_proc = nil
   end
 
   # subclasses may override this to wrap the results in an

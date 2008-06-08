@@ -3,7 +3,7 @@ class String
   def self.translate(value)
     translations[value] || value
   end
- 
+
   def self.translations
     @translations ||= {}
   end
@@ -41,5 +41,5 @@ class String
   # "%3$s %2$s %1$s" % %w(one two three) #=> "three two one"
   def t(*values)
     self.class::translate(self) % values
-  end  
+  end
 end # class String
