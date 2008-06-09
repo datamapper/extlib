@@ -5,17 +5,14 @@ class LazyArray  # borrowed partially from StrokeDB
     :each_with_index, :insert, :map!, :push, :replace, :reject!,
     :reverse!, :reverse_each, :sort!, :unshift ]
 
-  # these methods should return an instance of this class when an Array
-  # would normally be returned
-  RETURN_NEW = [ :&, :|, :+, :-, :[], :delete_if, :find_all, :first,
-    :grep, :last, :reject, :reverse, :select, :slice, :slice!, :sort,
-    :sort_by, :values_at ]
-
   # these methods should return their results as-is to the caller
-  RETURN_PLAIN = [ :[]=, :all?, :any?, :at, :blank?, :collect, :delete,
-    :delete_at, :detect, :empty?, :entries, :fetch, :find, :include?,
-    :inspect, :index, :inject, :length, :map, :member?, :pop, :rindex,
-    :shift, :size, :to_a, :to_ary, :to_s, :to_set, :zip ]
+  RETURN_PLAIN = [ :&, :|, :+, :-, :[], :[]=, :all?, :any?, :at,
+    :blank?, :collect, :delete, :delete_at, :delete_if, :detect,
+    :empty?, :entries, :fetch, :find, :find_all, :first, :grep,
+    :include?, :index, :inject, :inspect, :last, :length, :map,
+    :member?, :pop, :reject, :reverse, :rindex, :select, :shift, :size,
+    :slice, :slice!, :sort, :sort_by, :to_a, :to_ary, :to_s, :to_set,
+    :values_at, :zip ]
 
   RETURN_SELF.each do |method|
     class_eval <<-EOS, __FILE__, __LINE__
@@ -23,16 +20,6 @@ class LazyArray  # borrowed partially from StrokeDB
         lazy_load!
         results = @array.#{method}(*args, &block)
         results.kind_of?(Array) ? self : results
-      end
-    EOS
-  end
-
-  RETURN_NEW.each do |method|
-    class_eval <<-EOS, __FILE__, __LINE__
-      def #{method}(*args, &block)
-        lazy_load!
-        results = @array.#{method}(*args, &block)
-        results.kind_of?(Array) ? wrap(results) : results
       end
     EOS
   end
@@ -49,7 +36,7 @@ class LazyArray  # borrowed partially from StrokeDB
   def partition(&block)
     lazy_load!
     true_results, false_results = @array.partition(&block)
-    [ wrap(true_results), wrap(false_results) ]
+    [ true_results, false_results ]
   end
 
   def replace(other)
@@ -105,12 +92,6 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def mark_loaded
     @load_with_proc = nil
-  end
-
-  # subclasses may override this to wrap the results in an
-  # instance of their class
-  def wrap(results)
-    self.class.new(results)
   end
 
   # delegate any not-explicitly-handled methods to @array, if possible.
