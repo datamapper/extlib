@@ -82,7 +82,7 @@ module Extlib
           if ThreadGroup::Default.list.size == 1 && @reserved.size >= @max_size
             raise ThreadStopError.new(size)
           else
-            Thread.pass
+            sleep(0.01)
             new
           end
         else
@@ -105,7 +105,7 @@ module Extlib
       alias length size
       
       def inspect
-        "#<Extlib::Pooling::Pool available=#{@available.size} reserved=#{@reserved.size}>"
+        "#<Extlib::Pooling::Pool<#{@resource.name}>available=#{@available.size} reserved=#{@reserved.size}>"
       end
       
       private

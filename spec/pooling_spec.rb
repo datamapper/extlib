@@ -100,6 +100,20 @@ describe "Extlib::Pooling" do
       end      
     end.should raise_error(Extlib::Pooling::ThreadStopError)
   end
+  
+  it "should allow multiple threads to access the pool" do
+    t1 = Thread.new do
+      bob = Person.new('Bob')
+      sleep(0.1)
+      bob.release
+    end
+    
+    lambda do
+      bob = Person.new('Bob')
+      t1.join
+      bob.release
+    end.should_not raise_error(Extlib::Pooling::ThreadStopError)
+  end
 end
 
 # describe Extlib::Pooling::ResourcePool do
