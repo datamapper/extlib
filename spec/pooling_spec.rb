@@ -5,7 +5,7 @@ require 'timeout'
 # and works perfectly with
 # pooling.
 class DisposableResource
-  include Object::Pooling
+  include Extlib::Pooling
   attr_reader :name
 
   def initialize(name = "")
@@ -23,9 +23,9 @@ end
 class UndisposableResource
 end
 
-describe Object::Pooling::ResourcePool do
+describe Extlib::Pooling::ResourcePool do
   before :each do
-    @pool = Object::Pooling::ResourcePool.new(7, DisposableResource, :expiration_period => 50)
+    @pool = Extlib::Pooling::ResourcePool.new(7, DisposableResource, :expiration_period => 50)
   end
 
   it "responds to flush!" do
@@ -66,33 +66,33 @@ describe Object::Pooling::ResourcePool do
 
   it "raises exception when given anything but class for resources class" do
     lambda {
-      @pool = Object::Pooling::ResourcePool.new(7, "Hooray!", {})
+      @pool = Extlib::Pooling::ResourcePool.new(7, "Hooray!", {})
     }.should raise_error(ArgumentError, /class/)
   end
 
   it "requires class of resources (objects) it works with to have a dispose instance method" do
     lambda {
-      @pool = Object::Pooling::ResourcePool.new(3, UndisposableResource, {})
+      @pool = Extlib::Pooling::ResourcePool.new(3, UndisposableResource, {})
     }.should raise_error(ArgumentError, /dispose/)
   end
 
   it "may take initialization arguments" do
-    @pool = Object::Pooling::ResourcePool.new(7, DisposableResource, { :initialization_args => ["paper"] })
+    @pool = Extlib::Pooling::ResourcePool.new(7, DisposableResource, { :initialization_args => ["paper"] })
     @pool.instance_variable_get("@initialization_args").should == ["paper"]
   end
 
   it "may take expiration period option" do
-    @pool = Object::Pooling::ResourcePool.new(7, DisposableResource, { :expiration_period => 100 })
+    @pool = Extlib::Pooling::ResourcePool.new(7, DisposableResource, { :expiration_period => 100 })
     @pool.expiration_period.should == 100
   end
 
   it "has default expiration period of one minute" do
-    @pool = Object::Pooling::ResourcePool.new(7, DisposableResource, {})
+    @pool = Extlib::Pooling::ResourcePool.new(7, DisposableResource, {})
     @pool.expiration_period.should == 60
   end
 
   it "spawns a thread to dispose objects haven't been used for a while" do
-    @pool = Object::Pooling::ResourcePool.new(7, DisposableResource, {})
+    @pool = Extlib::Pooling::ResourcePool.new(7, DisposableResource, {})
     @pool.instance_variable_get("@pool_expiration_thread").should be_an_instance_of(Thread)
   end
 end
@@ -180,13 +180,6 @@ describe "Releasing from contant size pool" do
     lambda { DisposableResource.pool.release(@t2) }.should raise_error(RuntimeError)
   end
 
-  it "disposes released object" do
-    @t1 = DisposableResource.pool.aquire
-
-    @t1.should_receive(:dispose)
-    DisposableResource.pool.release(@t1)
-  end
-
   it "removes released object from reserved set" do
     @t1 = DisposableResource.pool.aquire
 
@@ -222,7 +215,7 @@ end
 
 
 
-describe Object::Pooling::ResourcePool, "#available?" do
+describe Extlib::Pooling::ResourcePool, "#available?" do
   before :each do
     DisposableResource.initialize_pool(2)
     DisposableResource.new
@@ -334,7 +327,7 @@ end
 
 
 
-describe Object::Pooling::ResourcePool, "#time_to_dispose?" do
+describe Extlib::Pooling::ResourcePool, "#time_to_dispose?" do
   before :each do
     DisposableResource.initialize_pool(7, :expiration_period => 2)
   end
@@ -354,7 +347,7 @@ end
 
 
 
-describe Object::Pooling::ResourcePool, "#dispose_outdated" do
+describe Extlib::Pooling::ResourcePool, "#dispose_outdated" do
   before :each do
     DisposableResource.initialize_pool(7, :expiration_period => 2)
   end
@@ -368,6 +361,6 @@ describe Object::Pooling::ResourcePool, "#dispose_outdated" do
     DisposableResource.pool.should_receive(:time_to_release?).with(@t1).and_return(true)
     DisposableResource.pool.should_receive(:release).with(@t1)
 
-    DisposableResource.pool.release_outdated
+    DisposableResource.pool.dispose_outdated
   end
 end

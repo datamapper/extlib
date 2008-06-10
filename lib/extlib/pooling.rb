@@ -1,6 +1,6 @@
 require 'set'
 
-class Object
+module Extlib
   # ==== Notes
   # Provides pooling support to class it got included in.
   #
@@ -23,10 +23,18 @@ class Object
   # Pool obviously has to be thread safe because state of
   # object is reset when it is released.
   module Pooling
-    def self.included(base)
-      base.send(:extend, ClassMethods)
+    def self.included(target)
+      class << target
+        alias __new new
+      end
+      
+      target.send(:extend, ClassMethods)
     end
 
+    def release
+      self.class.pool.release(self)
+    end
+    
     module ClassMethods
       # ==== Notes
       # Initializes the pool and returns it.
@@ -103,7 +111,7 @@ class Object
 
         @pool_expiration_thread = Thread.new do
           while true
-            release_outdated
+            dispose_outdated
 
             sleep (@expiration_period + 1)
           end
@@ -158,7 +166,6 @@ class Object
             @reserved.delete(instance)
             # TODO: objects should only be disposed when the pool is being
             # flushed, not simply when the object is released
-            instance.dispose
             @available << instance
           else
             raise RuntimeError
@@ -174,6 +181,7 @@ class Object
       def flush!
         @reserved.each do |instance|
           self.release(instance)
+          instance.dispose
         end
         nil
       end
@@ -189,12 +197,12 @@ class Object
       end
 
       # ==== Notes
-      # Releases instances that haven't been in use and
+      # Disposes of instances that haven't been in use and
       # hit the expiration period.
       #
       # ==== Returns
       # nil
-      def release_outdated
+      def dispose_outdated
         @reserved.each do |instance|
           release(instance) if time_to_release?(instance)
         end
@@ -225,8 +233,7 @@ class Object
 
           res
         else
-          res = @class_of_resources.allocate
-          res.send(:initialize, *@initialization_args)
+          res = @class_of_resources.__new(*@initialization_args)
           res.instance_variable_set("@__pool_aquire_timestamp", Time.now)
 
           res
