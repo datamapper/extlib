@@ -41,7 +41,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def replace(other)
     mark_loaded
-    @array.replace(other)
+    @array.replace(other.entries)
     self
   end
 
