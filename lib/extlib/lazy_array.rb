@@ -67,7 +67,7 @@ class LazyArray  # borrowed partially from StrokeDB
     @load_with_proc.nil?
   end
 
-  def respond_to?(method)
+  def respond_to?(method, include_private = false)
     super || @array.respond_to?(method)
   end
 
