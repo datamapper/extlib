@@ -22,10 +22,15 @@ namespace :extlib do
     t.spec_opts << '--format' << 'specdoc' << '--colour'
     t.spec_opts << '--loadby' << 'random'
     t.spec_files = Pathname.glob(ENV['FILES'] || 'spec/**/*_spec.rb')
-    t.rcov = ENV.has_key?('NO_RCOV') ? ENV['NO_RCOV'] != 'true' : rcov
-    t.rcov_opts << '--exclude' << 'spec'
-    t.rcov_opts << '--text-summary'
-    t.rcov_opts << '--sort' << 'coverage' << '--sort-reverse'
+
+    begin
+      t.rcov = ENV.has_key?('NO_RCOV') ? ENV['NO_RCOV'] != 'true' : rcov
+      t.rcov_opts << '--exclude' << 'spec'
+      t.rcov_opts << '--text-summary'
+      t.rcov_opts << '--sort' << 'coverage' << '--sort-reverse'
+    rescue Exception
+      # rcov not installed
+    end
   end
 end
 
