@@ -1,30 +1,15 @@
 require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 require 'timeout'
 
-# This implements dispose
-# and works perfectly with
-# pooling.
-class DisposableResource
-  include Extlib::Pooling
-  attr_reader :name
-
-  def initialize(name = "")
-    @name = name
-  end
-
-  def dispose
-    @name = nil
-  end
-end
-
-# This baby causes exceptions
-# to be raised when you use
-# it with pooling.
-class UndisposableResource
-end
-
 describe "Extlib::Pooling" do
   before(:all) do
+    
+    module Extlib::Pooling
+      def self.scavenger_interval
+        0.1
+      end
+    end
+    
     class Person
       include Extlib::Pooling
       
@@ -36,6 +21,10 @@ describe "Extlib::Pooling" do
       
       def dispose
         @name = nil
+      end
+      
+      def self.scavenge_interval
+        0.2
       end
     end
     
@@ -66,6 +55,18 @@ describe "Extlib::Pooling" do
       end
       
     end
+  end
+  
+  it "should track the initialized pools" do
+    bob = Person.new('Bob') # Ensure the pool is "primed"
+    bob.instance_variable_get(:@__pool).should_not be_nil
+    Person.__pools.size.should == 1
+    bob.release
+    Person.__pools.size.should == 1
+    
+    Extlib::Pooling::pools.should_not be_empty
+    sleep(1)
+    Extlib::Pooling::pools.should be_empty
   end
   
   it "should maintain a size of 1" do

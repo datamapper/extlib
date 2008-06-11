@@ -25,6 +25,50 @@ module Extlib
   # object is reset when it is released.
   module Pooling
     
+    def self.scavenger
+      @scavenger || begin
+        @scavenger = Thread.new do
+          begin
+            loop do
+              lock.synchronize do
+                pools.each do |pool|
+                  if pool.expired?
+                    pool.lock.synchronize do
+                      if pool.size == 0
+                        pool.dispose
+                      end
+                    end
+                  end
+                end
+              end
+              sleep(scavenger_interval)
+            end # loop
+          rescue
+            puts $!, $!.backtrace
+            raise
+          end
+        end
+        
+        @scavenger.priority = -10
+        @scavenger
+      end
+    end
+    
+    def self.pools
+      @pools ||= Set.new
+    end
+    
+    def self.append_pool(pool)
+      lock.synchronize do
+        pools << pool
+      end
+      Extlib::Pooling::scavenger
+    end
+    
+    def self.lock
+      @lock ||= Mutex.new
+    end
+    
     class CrossPoolError < StandardError
     end
     
@@ -40,7 +84,12 @@ module Extlib
           alias __new new
         end
         
-        @__pools = Hash.new { |h,k| h[k] = Pool.new(target.pool_size, target, k) }
+        @__pools = Hash.new { |h,k| __pool_lock.synchronize { h[k] = Pool.new(target.pool_size, target, k) } }
+        @__pool_lock = Mutex.new
+        
+        def self.__pool_lock
+          @__pool_lock
+        end
         
         def self.new(*args)
           @__pools[args].new
@@ -53,6 +102,10 @@ module Extlib
         def self.pool_size
           1
         end
+        
+        def self.scavenge_interval
+          10
+        end
       end
     end
 
@@ -62,24 +115,37 @@ module Extlib
     
     class Pool
       def initialize(max_size, resource, args)
+        raise ArgumentError.new("+max_size+ should be a Fixnum but was #{max_size.inspect}") unless Fixnum === max_size
+        raise ArgumentError.new("+resource+ should be a Class but was #{resource.inspect}") unless Class === resource
+        
         @max_size = max_size
         @resource = resource
         @args = args
         
-        @lock = Mutex.new
         @available = []
         @reserved = Set.new
+        
+        Extlib::Pooling::append_pool(self)
+      end
+      
+      def lock
+        @resource.__pool_lock
+      end
+      
+      def scavenge_interval
+        @resource.scavenge_interval
       end
       
       def new
         instance = nil
         
-        @lock.synchronize do
+        lock.synchronize do
           instance = aquire
         end
         
         if instance.nil?
-          if ThreadGroup::Default.list.size == 1 && @reserved.size >= @max_size
+          # Account for the current thread, and the pool scavenger.
+          if ThreadGroup::Default.list.size == 2 && @reserved.size >= @max_size
             raise ThreadStopError.new(size)
           else
             sleep(0.01)
@@ -91,7 +157,7 @@ module Extlib
       end
       
       def release(instance)
-        @lock.synchronize do
+        lock.synchronize do
           raise OrphanedObjectError.new(instance) unless @reserved.delete?(instance)
           instance.instance_variable_set(:@__pool, nil)
           @available.push(instance)
@@ -105,7 +171,25 @@ module Extlib
       alias length size
       
       def inspect
-        "#<Extlib::Pooling::Pool<#{@resource.name}>available=#{@available.size} reserved=#{@reserved.size}>"
+        "#<Extlib::Pooling::Pool<#{@resource.name}> available=#{@available.size} reserved=#{@reserved.size}>"
+      end
+      
+      def dispose
+        @resource.__pools.delete(@args)
+        !Extlib::Pooling::pools.delete?(self).nil?
+      end
+      
+      def expired?
+        lock.synchronize do
+          @available.each do |instance|
+            if instance.instance_variable_get(:@__allocated_in_pool) + scavenge_interval < Time.now
+              instance.dispose
+              @available.delete(instance)
+            end
+          end
+          
+          size == 0
+        end
       end
       
       private
@@ -125,197 +209,15 @@ module Extlib
           raise CrossPoolError.new(instance) if instance.instance_variable_get(:@__pool)
           @reserved << instance
           instance.instance_variable_set(:@__pool, self)
+          instance.instance_variable_set(:@__allocated_in_pool, Time.now)
           instance
         end
       end
     end
     
-  #   module ClassMethods
-  #     # ==== Notes
-  #     # Initializes the pool and returns it.
-  #     #
-  #     # ==== Parameters
-  #     # size_limit<Fixnum>:: maximum size of the pool.
-  #     #
-  #     # ==== Returns
-  #     # <ResourcePool>:: initialized pool
-  #     def initialize_pool(size_limit, options = {})
-  #       @__pool.flush! if @__pool
-  # 
-  #       @__pool = ResourcePool.new(size_limit, self, options)
-  #     end
-  # 
-  #     # ==== Notes
-  #     # Instances of poolable resource are aquired from
-  #     # pool. This quires a new instance from pool and
-  #     # returns it.
-  #     #
-  #     # ==== Returns
-  #     # Resource instance aquired from the pool.
-  #     #
-  #     # ==== Raises
-  #     # ArgumentError:: when pool is exhausted and no instance
-  #     #                 can be aquired.
-  #     def new(*args)
-  #       pool.aquire(*args)
-  #     end
-  # 
-  #     # ==== Notes
-  #     # Returns pool for this resource class.
-  #     # Initialization is done when necessary.
-  #     # Default size limit of the pool is 10.
-  #     #
-  #     # ==== Returns
-  #     # <Object::Pooling::ResourcePool>:: pool for this resource class.
-  #     def pool
-  #       @__pool ||= ResourcePool.new(10, self)
-  #     end
-  #   end
-  # 
-  #   # ==== Notes
-  #   # Pool
-  #   #
-  #   class ResourcePool
-  #     attr_reader :size_limit, :class_of_resources, :expiration_period
-  # 
-  #     # ==== Notes
-  #     # Initializes resource pool.
-  #     #
-  #     # ==== Parameters
-  #     # size_limit<Fixnum>:: maximum number of resources in the pool.
-  #     # class_of_resources<Class>:: class of resource.
-  #     #
-  #     # ==== Raises
-  #     # ArgumentError:: when class of resource does not implement
-  #     #                 dispose instance method or is not a Class.
-  #     def initialize(size_limit, class_of_resources, options)
-  #       raise ArgumentError.new("Expected class of resources to be instance of Class, got: #{class_of_resources.class}") unless class_of_resources.is_a?(Class)
-  #       raise ArgumentError.new("Class #{class_of_resources} must implement dispose instance method to be poolable.") unless class_of_resources.instance_methods.include?("dispose")
-  # 
-  #       @size_limit         = size_limit
-  #       @class_of_resources = class_of_resources
-  # 
-  #       @reserved  = Set.new
-  #       @available = Hash.new { |h,k| h[k] = [] }
-  #       @lock      = Mutex.new
-  # 
-  #       initialization_args  = options.delete(:initialization_args) || []
-  # 
-  #       @expiration_period   = options.delete(:expiration_period) || 60
-  #       @initialization_args = [*initialization_args]
-  # 
-  #       @pool_expiration_thread = Thread.new do
-  #         while true
-  #           dispose_outdated
-  # 
-  #           sleep (@expiration_period + 1)
-  #         end
-  #       end
-  #     end
-  # 
-  #     # ==== Notes
-  #     # Current size of pool: number of already reserved
-  #     # resources.
-  #     def size
-  #       @reserved.size
-  #     end
-  # 
-  #     # ==== Notes
-  #     # Indicates if pool has resources to aquire.
-  #     #
-  #     # ==== Returns
-  #     # <Boolean>:: true if pool has resources can be aquired,
-  #     #             false otherwise.
-  #     def available?
-  #       @reserved.size < size_limit
-  #     end
-  # 
-  #     # ==== Notes
-  #     # Aquires last used available resource and returns it.
-  #     # If no resources available, current implementation
-  #     # throws an exception.
-  #     def aquire(*args)
-  #       @lock.synchronize do
-  #         resource = if @available[args].size > 0
-  #           @available[args].pop
-  #         else
-  #           @class_of_resources.__new(*@initialization_args)
-  #         end
-  #         
-  #         resource.instance_variable_set("@__pool_aquire_timestamp", Time.now)
-  #         @reserved << resource
-  #         resource
-  #       end
-  #     end
-  # 
-  #     # ==== Notes
-  #     # Releases previously aquired instance.
-  #     #
-  #     # ==== Parameters
-  #     # instance <Anything>:: previosly aquired instance.
-  #     #
-  #     # ==== Raises
-  #     # RuntimeError:: when given not pooled instance.
-  #     def release(instance)
-  #       @lock.synchronize do
-  #         if @reserved.include?(instance)
-  #           @reserved.delete(instance)
-  #           # TODO: objects should only be disposed when the pool is being
-  #           # flushed, not simply when the object is released
-  #           @available << instance
-  #         else
-  #           raise RuntimeError
-  #         end
-  #       end
-  #     end
-  # 
-  #     # ==== Notes
-  #     # Releases all objects in the pool.
-  #     #
-  #     # ==== Returns
-  #     # nil
-  #     def flush!
-  #       @reserved.each do |instance|
-  #         self.release(instance)
-  #         instance.dispose
-  #       end
-  #       nil
-  #     end
-  # 
-  #     # ==== Notes
-  #     # Check if instance has been aquired from the pool.
-  #     #
-  #     # ==== Returns
-  #     # <Boolean>:: true if given resource instance has been aquired from pool,
-  #     #             false otherwise.
-  #     def aquired?(instance)
-  #       @reserved.include?(instance)
-  #     end
-  # 
-  #     # ==== Notes
-  #     # Disposes of instances that haven't been in use and
-  #     # hit the expiration period.
-  #     #
-  #     # ==== Returns
-  #     # nil
-  #     def dispose_outdated
-  #       @reserved.each do |instance|
-  #         release(instance) if time_to_release?(instance)
-  #       end
-  # 
-  #       nil
-  #     end
-  # 
-  #     # ==== Notes
-  #     # Checks if pooled resource instance is outdated and
-  #     # should be released.
-  #     #
-  #     # ==== Returns
-  #     # <Boolean>:: true if instance should be released, false otherwise.
-  #     def time_to_release?(instance)
-  #       (Time.now - instance.instance_variable_get("@__pool_aquire_timestamp")) > @expiration_period
-  #     end
-  # 
-  #   end # ResourcePool
+    private
+    def self.scavenger_interval
+      60
+    end
   end # module Pooling
 end # module Extlib
