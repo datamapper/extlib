@@ -59,6 +59,7 @@ describe "Extlib::Pooling" do
   
   it "should track the initialized pools" do
     bob = Person.new('Bob') # Ensure the pool is "primed"
+    bob.name.should == 'Bob'
     bob.instance_variable_get(:@__pool).should_not be_nil
     Person.__pools.size.should == 1
     bob.release
@@ -67,6 +68,7 @@ describe "Extlib::Pooling" do
     Extlib::Pooling::pools.should_not be_empty
     sleep(1)
     Extlib::Pooling::pools.should be_empty
+    bob.name.should be_nil
   end
   
   it "should maintain a size of 1" do
