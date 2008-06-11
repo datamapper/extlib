@@ -24,7 +24,7 @@ namespace :extlib do
     t.spec_files = Pathname.glob(ENV['FILES'] || 'spec/**/*_spec.rb')
 
     begin
-      t.rcov = ENV.has_key?('NO_RCOV') ? ENV['NO_RCOV'] != 'true' : rcov
+      t.rcov = ENV.has_key?('NO_RCOV') ? ENV['NO_RCOV'] != 'true' : true
       t.rcov_opts << '--exclude' << 'spec'
       t.rcov_opts << '--text-summary'
       t.rcov_opts << '--sort' << 'coverage' << '--sort-reverse'
