@@ -54,6 +54,13 @@ describe "Extlib::Pooling" do
         @overwritten = value
       end
       
+      def self.pool_size
+        2
+      end
+      
+      def dispose
+        @name = nil
+      end
     end
   end
   
@@ -90,7 +97,9 @@ describe "Extlib::Pooling" do
   end
   
   it "should allow you to overwrite Class#new" do
-    Overwriter.new('Bob').should be_overwritten
+    bob = Overwriter.new('Bob')
+    bob.should be_overwritten
+    bob.release
   end
   
   it "should raise a ThreadStopError when the pool is exhausted in a single thread" do
@@ -116,6 +125,20 @@ describe "Extlib::Pooling" do
       t1.join
       bob.release
     end.should_not raise_error(Extlib::Pooling::ThreadStopError)
+  end
+  
+  it "should allow you to flush a pool" do
+    bob = Overwriter.new('Bob')    
+    Overwriter.new('Bob').release
+    bob.release
+    
+    bob.name.should == 'Bob'
+    
+    Overwriter.__pools[['Bob']].size.should == 2
+    Overwriter.__pools[['Bob']].flush!
+    Overwriter.__pools[['Bob']].size.should == 0
+    
+    bob.name.should be_nil
   end
 end
 

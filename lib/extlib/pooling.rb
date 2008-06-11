@@ -174,6 +174,15 @@ module Extlib
         "#<Extlib::Pooling::Pool<#{@resource.name}> available=#{@available.size} reserved=#{@reserved.size}>"
       end
       
+      def flush!
+        lock.synchronize do
+          @available.each do |instance|
+            instance.dispose
+          end
+          @available.clear
+        end
+      end
+      
       def dispose
         @resource.__pools.delete(@args)
         !Extlib::Pooling::pools.delete?(self).nil?
