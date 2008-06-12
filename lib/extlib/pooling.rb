@@ -28,25 +28,20 @@ module Extlib
     def self.scavenger
       @scavenger || begin
         @scavenger = Thread.new do
-          begin
-            loop do
-              lock.synchronize do
-                pools.each do |pool|
-                  if pool.expired?
-                    pool.lock.synchronize do
-                      if pool.size == 0
-                        pool.dispose
-                      end
+          loop do
+            lock.synchronize do
+              pools.each do |pool|
+                if pool.expired?
+                  pool.lock.synchronize do
+                    if pool.size == 0
+                      pool.dispose
                     end
                   end
                 end
               end
-              sleep(scavenger_interval)
-            end # loop
-          rescue
-            puts $!, $!.backtrace
-            raise
-          end
+            end
+            sleep(scavenger_interval)
+          end # loop
         end
 
         @scavenger.priority = -10
