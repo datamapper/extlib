@@ -55,7 +55,12 @@ describe "Extlib::Pooling" do
       end
 
       def self.pool_size
-        2
+        pool_size = if RUBY_PLATFORM =~ /java/
+          20
+        else
+          2
+        end
+        pool_size
       end
 
       def dispose
