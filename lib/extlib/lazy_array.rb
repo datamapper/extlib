@@ -5,15 +5,6 @@ class LazyArray  # borrowed partially from StrokeDB
     :each_with_index, :insert, :map!, :push, :replace, :reject!,
     :reverse!, :reverse_each, :sort!, :unshift ]
 
-  # these methods should return their results as-is to the caller
-  RETURN_PLAIN = [ :&, :|, :+, :-, :[], :[]=, :all?, :any?, :at,
-    :blank?, :collect, :delete, :delete_at, :delete_if, :detect,
-    :empty?, :entries, :fetch, :find, :find_all, :first, :grep,
-    :include?, :index, :inject, :inspect, :last, :length, :map,
-    :member?, :pop, :reject, :reverse, :rindex, :select, :shift, :size,
-    :slice, :slice!, :sort, :sort_by, :to_a, :to_ary, :to_s, :to_set,
-    :values_at, :zip ]
-
   RETURN_SELF.each do |method|
     class_eval <<-EOS, __FILE__, __LINE__
       def #{method}(*args, &block)
@@ -24,19 +15,13 @@ class LazyArray  # borrowed partially from StrokeDB
     EOS
   end
 
-  RETURN_PLAIN.each do |method|
+  [ :inspect, :to_a ].each do |method|
     class_eval <<-EOS, __FILE__, __LINE__
       def #{method}(*args, &block)
         lazy_load!
         @array.#{method}(*args, &block)
       end
     EOS
-  end
-
-  def partition(&block)
-    lazy_load!
-    true_results, false_results = @array.partition(&block)
-    [ true_results, false_results ]
   end
 
   def replace(other)
@@ -52,6 +37,7 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def eql?(other)
+    lazy_load!
     @array.eql?(other.entries)
   end
 
@@ -63,35 +49,45 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def loaded?
-    # proc will be nil if the array was loaded
-    @load_with_proc.nil?
+    @loaded == true
+  end
+
+  def unload
+    clear
+    @loaded = false
+    self
   end
 
   def respond_to?(method, include_private = false)
     super || @array.respond_to?(method, include_private)
   end
 
+  def to_proc
+    @load_with_proc
+  end
+
   private
 
   def initialize(*args, &block)
+    @loaded         = false
     @load_with_proc = proc { |v| v }
     @array          = Array.new(*args, &block)
   end
 
   def initialize_copy(original)
     @array = original.entries
+    load_with(&original)
     mark_loaded if @array.any?
   end
 
   def lazy_load!
-    if proc = @load_with_proc
-      mark_loaded
-      proc[self]
-    end
+    return if loaded?
+    mark_loaded
+    @load_with_proc[self]
   end
 
   def mark_loaded
-    @load_with_proc = nil
+    @loaded = true
   end
 
   # delegate any not-explicitly-handled methods to @array, if possible.

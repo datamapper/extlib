@@ -1,14 +1,6 @@
 require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 
 describe LazyArray do
-  def self.describe_method(method, &block)
-    it "should provide ##{method}" do
-      @lazy_array.should respond_to(method)
-    end
-
-    describe("##{method}") { yield }
-  end
-
   def self.it_should_return_self(method)
     it 'should delegate to the array and return self' do
       LazyArray::RETURN_SELF.should include(method)
@@ -17,7 +9,7 @@ describe LazyArray do
 
   def self.it_should_return_plain(method)
     it 'should delegate to the array and return the results directly' do
-      LazyArray::RETURN_PLAIN.should include(method)
+      LazyArray::RETURN_SELF.should_not include(method)
     end
   end
 
@@ -33,7 +25,11 @@ describe LazyArray do
     @other.load_with { |la| la.push(@steve) }
   end
 
-  describe_method(:at) do
+  it 'should provide #at' do
+    @lazy_array.should respond_to(:at)
+  end
+
+  describe '#at' do
     it_should_return_plain(:at)
 
     it 'should lookup the entry by index' do
@@ -41,7 +37,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:clear) do
+  it 'should provide #clear' do
+    @lazy_array.should respond_to(:clear)
+  end
+
+  describe '#clear' do
     it_should_return_self(:clear)
 
     it 'should return self' do
@@ -61,7 +61,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:collect!) do
+  it 'should provide #collect!' do
+    @lazy_array.should respond_to(:collect!)
+  end
+
+  describe '#collect!' do
     it_should_return_self(:collect!)
 
     it 'should return self' do
@@ -79,7 +83,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:concat) do
+  it 'should provide #concat' do
+    @lazy_array.should respond_to(:concat)
+  end
+
+  describe '#concat' do
     it_should_return_self(:concat)
 
     it 'should return self' do
@@ -92,7 +100,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:delete) do
+  it 'should provide #delete' do
+    @lazy_array.should respond_to(:delete)
+  end
+
+  describe '#delete' do
     it_should_return_plain(:delete)
 
     it 'should delete the matching entry from the lazy array' do
@@ -108,7 +120,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:delete_at) do
+  it 'should provide #delete_at' do
+    @lazy_array.should respond_to(:delete_at)
+  end
+
+  describe '#delete_at' do
     it_should_return_plain(:delete_at)
 
     it 'should delete the entry from the lazy array with the index' do
@@ -118,7 +134,29 @@ describe LazyArray do
     end
   end
 
-  describe_method(:each) do
+  it 'should provide #dup' do
+    @lazy_array.should respond_to(:dup)
+  end
+
+  describe '#dup' do
+    it_should_return_plain(:dup)
+
+    it 'should copy the original array' do
+      dup = @lazy_array.dup
+      dup.entries.should == @lazy_array.entries
+    end
+
+    it 'should copy the original load proc' do
+      dup = @lazy_array.dup
+      dup.to_proc.object_id.should == @lazy_array.to_proc.object_id
+    end
+  end
+
+  it 'should provide #each' do
+    @lazy_array.should respond_to(:each)
+  end
+
+  describe '#each' do
     it_should_return_self(:each)
 
     it 'should return self' do
@@ -132,7 +170,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:each_index) do
+  it 'should provide #each_index' do
+    @lazy_array.should respond_to(:each_index)
+  end
+
+  describe '#each_index' do
     it_should_return_self(:each_index)
 
     it 'should return self' do
@@ -146,7 +188,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:empty?) do
+  it 'should provide #empty?' do
+    @lazy_array.should respond_to(:empty?)
+  end
+
+  describe '#empty?' do
     it_should_return_plain(:empty?)
 
     it 'should return true if the lazy array has entries' do
@@ -161,7 +207,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:entries) do
+  it 'should provide #entries' do
+    @lazy_array.should respond_to(:entries)
+  end
+
+  describe '#entries' do
     it_should_return_plain(:entries)
 
     it 'should return an Array' do
@@ -169,7 +219,13 @@ describe LazyArray do
     end
   end
 
-  describe_method(:eql?) do
+  it 'should provide #eql?' do
+    @lazy_array.should respond_to(:eql?)
+  end
+
+  describe '#eql?' do
+    it_should_return_plain(:eql?)
+
     it 'should return true if for the same lazy array' do
       @lazy_array.object_id.should == @lazy_array.object_id
       @lazy_array.entries.should == @lazy_array.entries
@@ -188,7 +244,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:fetch) do
+  it 'should provide #fetch' do
+    @lazy_array.should respond_to(:fetch)
+  end
+
+  describe '#fetch' do
     it_should_return_plain(:fetch)
 
     it 'should lookup the entry with an index' do
@@ -210,7 +270,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:first) do
+  it 'should provide #first' do
+    @lazy_array.should respond_to(:first)
+  end
+
+  describe '#first' do
     it_should_return_plain(:first)
 
     describe 'with no arguments' do
@@ -228,7 +292,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:index) do
+  it 'should provide #index' do
+    @lazy_array.should respond_to(:index)
+  end
+
+  describe '#index' do
     it_should_return_plain(:index)
 
     it 'should return an Integer' do
@@ -240,7 +308,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:insert) do
+  it 'should provide #insert' do
+    @lazy_array.should respond_to(:insert)
+  end
+
+  describe '#insert' do
     it_should_return_self(:insert)
 
     it 'should return self' do
@@ -253,7 +325,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:last) do
+  it 'should provide #last' do
+    @lazy_array.should respond_to(:last)
+  end
+
+  describe '#last' do
     it_should_return_plain(:last)
 
     describe 'with no arguments' do
@@ -271,7 +347,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:length) do
+  it 'should provide #length' do
+    @lazy_array.should respond_to(:length)
+  end
+
+  describe '#length' do
     it_should_return_plain(:length)
 
     it 'should return an Integer' do
@@ -283,7 +363,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:loaded?) do
+  it 'should provide #loaded?' do
+    @lazy_array.should respond_to(:loaded?)
+  end
+
+  describe '#loaded?' do
     it 'should return true for an initialized lazy array' do
       @lazy_array.at(0)  # initialize the array
       @lazy_array.should be_loaded
@@ -295,7 +379,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:partition) do
+  it 'should provide #partition' do
+    @lazy_array.should respond_to(:partition)
+  end
+
+  describe '#partition' do
     describe 'return value' do
       before do
         @array = @lazy_array.partition { |e| e == @nancy }
@@ -347,7 +435,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:pop) do
+  it 'should provide #pop' do
+    @lazy_array.should respond_to(:pop)
+  end
+
+  describe '#pop' do
     it_should_return_plain(:pop)
 
     it 'should remove the last entry' do
@@ -356,7 +448,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:push) do
+  it 'should provide #push' do
+    @lazy_array.should respond_to(:push)
+  end
+
+  describe '#push' do
     it_should_return_self(:push)
 
     it 'should return self' do
@@ -369,7 +465,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:reject) do
+  it 'should provide #reject' do
+    @lazy_array.should respond_to(:reject)
+  end
+
+  describe '#reject' do
     it_should_return_plain(:reject)
 
     it 'should return an Array with entries that did not match the block' do
@@ -385,7 +485,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:reject!) do
+  it 'should provide #reject!' do
+    @lazy_array.should respond_to(:reject!)
+  end
+
+  describe '#reject!' do
     it_should_return_self(:reject!)
 
     it 'should return self if entries matched the block' do
@@ -407,7 +511,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:replace) do
+  it 'should provide #replace' do
+    @lazy_array.should respond_to(:replace)
+  end
+
+  describe '#replace' do
     it_should_return_self(:replace)
 
     it 'should return self' do
@@ -428,7 +536,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:reverse) do
+  it 'should provide #reverse' do
+    @lazy_array.should respond_to(:reverse)
+  end
+
+  describe '#reverse' do
     it_should_return_plain(:reverse)
 
     it 'should return an Array with reversed entries' do
@@ -438,7 +550,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:reverse!) do
+  it 'should provide #reverse!' do
+    @lazy_array.should respond_to(:reverse!)
+  end
+
+  describe '#reverse!' do
     it_should_return_self(:reverse!)
 
     it 'should return self' do
@@ -452,7 +568,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:reverse_each) do
+  it 'should provide #reverse_each' do
+    @lazy_array.should respond_to(:reverse_each)
+  end
+
+  describe '#reverse_each' do
     it_should_return_self(:reverse_each)
 
     it 'should return self' do
@@ -466,7 +586,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:rindex) do
+  it 'should provide #rindex' do
+    @lazy_array.should respond_to(:rindex)
+  end
+
+  describe '#rindex' do
     it_should_return_plain(:rindex)
 
     it 'should return an Integer' do
@@ -478,7 +602,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:select) do
+  it 'should provide #select' do
+    @lazy_array.should respond_to(:select)
+  end
+
+  describe '#select' do
     it_should_return_plain(:select)
 
     it 'should return an Array with entries that matched the block' do
@@ -494,7 +622,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:shift) do
+  it 'should provide #shift' do
+    @lazy_array.should respond_to(:shift)
+  end
+
+  describe '#shift' do
     it_should_return_plain(:shift)
 
     it 'should remove the first entry' do
@@ -503,7 +635,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:slice) do
+  it 'should provide #slice' do
+    @lazy_array.should respond_to(:slice)
+  end
+
+  describe '#slice' do
     it_should_return_plain(:slice)
 
     describe 'with an index' do
@@ -540,7 +676,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:slice!) do
+  it 'should provide #slice!' do
+    @lazy_array.should respond_to(:slice!)
+  end
+
+  describe '#slice!' do
     it_should_return_plain(:slice!)
 
     describe 'with an index' do
@@ -577,7 +717,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:sort) do
+  it 'should provide #sort' do
+    @lazy_array.should respond_to(:sort)
+  end
+
+  describe '#sort' do
     it_should_return_plain(:sort)
 
     it 'should return an Array' do
@@ -591,7 +735,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:sort!) do
+  it 'should provide #sort!' do
+    @lazy_array.should respond_to(:sort!)
+  end
+
+  describe '#sort!' do
     it_should_return_self(:sort!)
 
     it 'should return self' do
@@ -607,7 +755,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:to_a) do
+  it 'should provide #to_a' do
+    @lazy_array.should respond_to(:to_a)
+  end
+
+  describe '#to_a' do
     it_should_return_plain(:to_a)
 
     it 'should return an Array' do
@@ -615,7 +767,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:to_ary) do
+  it 'should provide #to_ary' do
+    @lazy_array.should respond_to(:to_ary)
+  end
+
+  describe '#to_ary' do
     it_should_return_plain(:to_ary)
 
     it 'should return an Array' do
@@ -623,7 +779,49 @@ describe LazyArray do
     end
   end
 
-  describe_method(:unshift) do
+  it 'should provide #to_proc' do
+    @lazy_array.should respond_to(:to_proc)
+  end
+
+  describe '#to_proc' do
+    it 'should return a Prox' do
+      @lazy_array.to_proc.class.should == Proc
+    end
+
+    it 'should return the proc supplied to load_with' do
+      proc = lambda { |a| }
+      @lazy_array.load_with(&proc)
+      @lazy_array.to_proc.object_id.should == proc.object_id
+    end
+  end
+
+  it 'should provide #unload' do
+    @lazy_array.should respond_to(:unload)
+  end
+
+  describe '#unload' do
+    it 'should return self' do
+      @lazy_array.unload.object_id.should == @lazy_array.object_id
+    end
+
+    it 'should make the lazy array become empty' do
+      @lazy_array.should_not be_empty
+      @lazy_array.load_with {}  # ensure it's not lazy-loaded by be_empty
+      @lazy_array.unload.should be_empty
+    end
+
+    it 'should not be loaded afterwards' do
+      @lazy_array.should_not be_loaded
+      unloaded = @lazy_array.unload
+      unloaded.should_not be_loaded
+    end
+  end
+
+  it 'should provide #unshift' do
+    @lazy_array.should respond_to(:unshift)
+  end
+
+  describe '#unshift' do
     it_should_return_self(:unshift)
 
     it 'should return self' do
@@ -636,7 +834,11 @@ describe LazyArray do
     end
   end
 
-  describe_method(:values_at) do
+  it 'should provide #values_at' do
+    @lazy_array.should respond_to(:values_at)
+  end
+
+  describe '#values_at' do
     it_should_return_plain(:values_at)
 
     it 'should return an Array' do
