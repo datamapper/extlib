@@ -8,7 +8,7 @@ class LazyArray  # borrowed partially from StrokeDB
   RETURN_SELF.each do |method|
     class_eval <<-EOS, __FILE__, __LINE__
       def #{method}(*args, &block)
-        lazy_load!
+        lazy_load
         results = @array.#{method}(*args, &block)
         results.kind_of?(Array) ? self : results
       end
@@ -18,7 +18,7 @@ class LazyArray  # borrowed partially from StrokeDB
   [ :inspect, :to_a ].each do |method|
     class_eval <<-EOS, __FILE__, __LINE__
       def #{method}(*args, &block)
-        lazy_load!
+        lazy_load
         @array.#{method}(*args, &block)
       end
     EOS
@@ -37,7 +37,7 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def eql?(other)
-    lazy_load!
+    lazy_load
     @array.eql?(other.entries)
   end
 
@@ -80,7 +80,7 @@ class LazyArray  # borrowed partially from StrokeDB
     mark_loaded if @array.any?
   end
 
-  def lazy_load!
+  def lazy_load
     return if loaded?
     mark_loaded
     @load_with_proc[self]
@@ -94,7 +94,7 @@ class LazyArray  # borrowed partially from StrokeDB
   # this is handy for handling methods mixed-into Array like group_by
   def method_missing(method, *args, &block)
     if @array.respond_to?(method)
-      lazy_load!
+      lazy_load
       @array.send(method, *args, &block)
     else
       super
