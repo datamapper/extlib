@@ -1,4 +1,5 @@
 class LazyArray  # borrowed partially from StrokeDB
+  include Enumerable
 
   # these methods should return self or nil
   RETURN_SELF = [ :<<, :clear, :concat, :collect!, :each, :each_index,
@@ -15,7 +16,7 @@ class LazyArray  # borrowed partially from StrokeDB
     EOS
   end
 
-  [ :inspect, :to_a ].each do |method|
+  (Array.public_instance_methods(false).map { |m| m.to_sym } - RETURN_SELF - [ :taguri= ]).each do |method|
     class_eval <<-EOS, __FILE__, __LINE__
       def #{method}(*args, &block)
         lazy_load
