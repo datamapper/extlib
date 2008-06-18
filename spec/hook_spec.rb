@@ -34,7 +34,7 @@ describe Extlib::Hook do
   #
   # Specs out how hookable methods are registered
   #
-  describe "explicity hookable method registration" do
+  describe "explicit hookable method registration" do
     
     describe "for class methods" do
       
@@ -228,6 +228,31 @@ describe Extlib::Hook do
 
         inst.hookable!
         inst.hookable?
+      end
+    end
+    
+  end
+
+  describe "implicit hookable method registration" do
+    
+    describe "for class methods" do
+      it "should implicitly register the method as hookable" do
+        @class.class_eval %{def self.implicit_hook; end;}
+        @class.before_class_method(:implicit_hook) { hello }
+        
+        @class.should_receive(:hello)
+        @class.implicit_hook
+      end
+    end
+    
+    describe "for instance methods" do
+      it "should implicitly register the method as hookable" do
+        @class.class_eval %{def implicit_hook; end;}
+        @class.before(:implicit_hook) { hello }
+        
+        inst = @class.new
+        inst.should_receive(:hello)
+        inst.implicit_hook
       end
     end
     

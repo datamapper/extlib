@@ -162,7 +162,9 @@ module Extlib
       end
 
       def define_hook_stack_execution_methods(target_method, scope)
-        register_hook(target_method, scope) unless registered_as_hook?(target_method, scope)
+        unless registered_as_hook?(target_method, scope)
+          raise ArgumentError, "#{target_method} has not be registered as a hookable #{scope} method"
+        end
 
         hooks = hooks_with_scope(scope)
 
@@ -238,12 +240,10 @@ module Extlib
         unless [ :class, :instance ].include?(scope)
           raise ArgumentError, 'You need to pass :class or :instance as scope'
         end
+        
+        register_hook(target_method, scope) unless registered_as_hook?(target_method, scope)
 
         hooks = hooks_with_scope(scope)
-
-        if hooks[target_method].nil?
-          raise ArgumentError, "#{target_method} has not be registered as a hookable method"
-        end
 
         if block
           method_sym = "__hooks_#{type}_#{quote_method(target_method)}_#{hooks[target_method][type].length}".to_sym
