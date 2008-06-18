@@ -1,6 +1,6 @@
 require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 
-describe Hook do
+describe Extlib::Hook do
   
   before(:each) do
     @module = Module.new do
@@ -8,7 +8,7 @@ describe Hook do
     end
     
     @class = Class.new do
-      include Hook
+      include Extlib::Hook
       
       def hookable; end;
       def self.clakable; end;
@@ -17,11 +17,11 @@ describe Hook do
     end
     
     @another_class = Class.new do
-      include Hook
+      include Extlib::Hook
     end
     
     @other = Class.new do
-      include Hook
+      include Extlib::Hook
       
       def hookable; end
       def self.clakable; end;
