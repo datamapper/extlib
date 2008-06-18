@@ -20,10 +20,20 @@ describe Hook do
       include Hook
     end
     
+    @other = Class.new do
+      include Hook
+      
+      def hookable; end
+      def self.clakable; end;
+    end
+    
     @class.register_instance_hooks :hookable
     @class.register_class_hooks :clakable
   end
   
+  #
+  # Specs out how hookable methods are registered
+  #
   describe "hookable method registration" do
     
     describe "for class methods" do
@@ -40,8 +50,13 @@ describe Hook do
         @class.ambiguous
       end
       
+      it "should be able to register multiple hookable methods at once"
+      it "should not allow a method that does not exist to be registered as hookable"
       it "should not allow double registration"
-      
+      it "should allow hooks to be registered on methods from module extensions"
+      it "should allow modules to register hooks in the self.extended method"
+      it "should be able to register protected methods as hooks"
+      it "should not be able to register private methods as hooks"
     end
     
     describe "for instance methods" do
@@ -59,77 +74,95 @@ describe Hook do
         inst.ambiguous
       end
       
+      it "should be able to register multiple hookable methods at once" do
+        %w(method_one method_two method_three).each do |method|
+          @another_class.send(:define_method, method) {}
+        end
+
+        @another_class.register_instance_hooks :method_one, :method_two, :method_three
+        @another_class.instance_hooks.keys.should include(:method_one)
+        @another_class.instance_hooks.keys.should include(:method_two)
+        @another_class.instance_hooks.keys.should include(:method_three)
+      end
+      
+      it "should not allow a method that does not exist to be registered as hookable" do
+        lambda { @another_class.register_instance_hooks :method_one }.should raise_error(ArgumentError)
+      end
+      
       it "should not allow double registration"
       
-    end
-    
-    it "should install the block under the before hook for the appropriate method" do
-      @class.before(:hookable) { }
-      @class.instance_hooks[:hookable][:before].should have(1).item
-    end
-    
-    it "should install the block under the after hook for the appropriate method" do
-      @class.after(:hookable) { }
-      @class.instance_hooks[:hookable][:after].should have(1).item
-    end
-    
-    it "should save the class that the hook is registered in" do
-      @class.before(:hookable) { }
-      @class.instance_hooks[:hookable][:in].should == @class
-    end
-    
-    it "should keep the parent class as the class that has the hookable method registered in" do
-      @class.before(:hookable) { }
-      @child = Class.new(@class)
-      @child.instance_hooks[:hookable][:in].should == @class
-      
-      @another_child = Class.new(@class)
-      @another_child.before(:hookable) { }
-      @another_child.instance_hooks[:hookable][:in].should == @class
-    end
-    
-    it "should keep separate hook hashes for separate parent models" do
-      @another_class.instance_hooks.should_not == @class.instance_hooks
-      Class.new(@class).instance_hooks.should == @class.instance_hooks
-    end
-    
-    it "should be able to register multiple hookable methods at once" do
-      %w(method_one method_two method_three).each do |method|
-        @another_class.send(:define_method, method) {}
+      it "should allow hooks to be registered on included module methods" do
+        @class.send(:include, @module)
+        @class.register_instance_hooks :greet
+        @class.instance_hooks[:greet].should_not be_nil
       end
-      
-      @another_class.register_instance_hooks :method_one, :method_two, :method_three
-      @another_class.instance_hooks.keys.should include(:method_one)
-      @another_class.instance_hooks.keys.should include(:method_two)
-      @another_class.instance_hooks.keys.should include(:method_three)
-    end
-    
-    it "should not allow a method that does not exist to be registered as hookable" do
-      lambda { @another_class.register_instance_hooks :method_one }.should raise_error(ArgumentError)
-    end
-    
-    it "should allow hooks to be registered on included module methods" do
-      @class.send(:include, @module)
-      @class.register_instance_hooks :greet
-      @class.instance_hooks[:greet].should_not be_nil
-    end
-    
-    it "should allow modules to register hooks in the self.included method" do
-      @module.class_eval do
-        def self.included(base)
-          base.register_instance_hooks :greet
+
+      it "should allow modules to register hooks in the self.included method" do
+        @module.class_eval do
+          def self.included(base)
+            base.register_instance_hooks :greet
+          end
         end
+        @class.send(:include, @module)
+        @class.instance_hooks[:greet].should_not be_nil
       end
-      @class.send(:include, @module)
-      @class.instance_hooks[:greet].should_not be_nil
+
+      it "should be able to register protected methods as hooks"
+
+      it "should not be able to register private methods as hooks"
+      
     end
     
-    it "should be able to register protected methods as hooks"
-    
-    it "should not be able to register private methods as hooks"
   end
+
+=begin => Seems to be testing the internals, so I'll leave this commented out for now
+  #
+  # Specs out how #before and #after will keep track of the hook method / block
+  #
+  describe "hook method registration" do
+    
+    describe "for class methods" do
+      it "should install the block under the before hook for the appropriate method"
+      it "should install the block under the after hook for the appropriate method"
+      it "should save the class that the hook is registered in"
+      it "should keep the parent class as the class that has the hookable method registered in"
+    end
+    
+    describe "for instance methods" do
+      it "should install the block under the before hook for the appropriate method" do
+        @class.before(:hookable) { }
+        @class.instance_hooks[:hookable][:before].should have(1).item
+      end
+
+      it "should install the block under the after hook for the appropriate method" do
+        @class.after(:hookable) { }
+        @class.instance_hooks[:hookable][:after].should have(1).item
+      end
+
+      it "should save the class that the hook is registered in" do
+        @class.before(:hookable) { }
+        @class.instance_hooks[:hookable][:in].should == @class
+      end
+
+      it "should keep the parent class as the class that has the hookable method registered in" do
+        @class.before(:hookable) { }
+        @child = Class.new(@class)
+        @child.instance_hooks[:hookable][:in].should == @class
+
+        @another_child = Class.new(@class)
+        @another_child.before(:hookable) { }
+        @another_child.instance_hooks[:hookable][:in].should == @class
+      end
+    end
+    
+  end
+=end
   
-  describe "hook invocation" do
+  #
+  # Specs out how hook methods / blocks are invoked when there is no inheritance
+  # involved
+  #
+  describe "hook invocation without inheritance" do
     
     describe "for class methods" do
       it 'should run an advice block' do
@@ -146,6 +179,56 @@ describe Hook do
         @class.clakable
       end
       
+      it 'should pass the hookable method arguments to the hook method' do
+        @class.class_eval %{def self.hook_this(word); end;}
+        @class.class_eval %{def self.before_hook_this(word); word_up(word); end;}
+        @class.register_class_hooks(:hook_this)
+        @class.before_class_method(:hook_this, :before_hook_this)
+
+        @class.should_receive(:word_up).with("omg")
+        @class.hook_this("omg")
+      end
+      
+      it 'should allow the use of before and after together'
+    end
+    
+    describe "for instance methods" do
+      it 'should run an advice block' do
+        @class.before(:hookable) { hi_mom! }
+
+        inst = @class.new
+        inst.should_receive(:hi_mom!)
+        inst.hookable
+      end
+      
+      it 'should run an advice method' do
+        @class.send(:define_method, :before_method) { hi_mom! }
+        @class.before(:hookable, :before_method)
+
+        inst = @class.new
+        inst.should_receive(:hi_mom!)
+        inst.hookable
+      end
+      
+      it 'should pass the hookable method arguments to the hook method' do
+        @class.class_eval %{def hook_this(word); end;}
+        @class.class_eval %{def before_hook_this(word); word_up(word); end;}
+        @class.register_instance_hooks(:hook_this)
+        @class.before(:hook_this, :before_hook_this)
+
+        inst = @class.new
+        inst.should_receive(:word_up).with("omg")
+        inst.hook_this("omg")
+      end
+      
+      it 'should allow the use of before and after together'
+    end
+    
+  end
+  
+  describe "hook invocation with class inheritance" do
+    
+    describe "for class methods" do
       it 'should run an advice block when the class is inherited' do
         @class.before_class_method(:clakable) { hi_mom! }
         @child = Class.new(@class)
@@ -180,25 +263,7 @@ describe Hook do
         @class.should_not_receive(:hi_mom!)
         @class.clakable
       end
-
-      it "should not overwrite methods included by extensions after the hook is declared" do
-        @module.class_eval do
-          @another_module = Module.new do
-            def greet; greetings_from_another_module; super; end;
-          end
-          
-          def self.extended(base)
-            base.before_class_method(:clakable, :greet)
-            base.extend(@another_module)
-          end
-        end
-        
-        @class.extend(@module)
-        @class.should_receive(:greetings_from_another_module).once.ordered
-        @class.should_receive(:greetings_from_module).once.ordered
-        @class.clakable
-      end
-
+      
       it 'should not call the hook stack if the hookable method is overwritten and does not call super' do
         @class.before_class_method(:clakable) { hi_mom! }
         @child = Class.new(@class) do
@@ -228,58 +293,9 @@ describe Hook do
         @class.should_not_receive(:hello_world!)
         @class.clakable
       end
-
-      it 'should pass the hookable method arguments to the hook method' do
-        @class.class_eval %{def self.hook_this(word); end;}
-        @class.class_eval %{def self.before_hook_this(word); word_up(word); end;}
-        @class.register_class_hooks(:hook_this)
-        @class.before_class_method(:hook_this, :before_hook_this)
-
-        @class.should_receive(:word_up).with("omg")
-        @class.hook_this("omg")
-      end
-      
-      it 'should allow the use of before and after together'
-      
-      it "should allow advising methods ending in ? or !" do
-        @class.class_eval do
-          def self.hookable!; two! end;
-          def self.hookable?; three! end;
-          register_class_hooks :hookable!, :hookable?
-        end
-        @class.before_class_method(:hookable!) { one! }
-        @class.after_class_method(:hookable?) { four! }
-
-         @class.should_receive(:one!).once.ordered
-         @class.should_receive(:two!).once.ordered
-         @class.should_receive(:three!).once.ordered
-         @class.should_receive(:four!).once.ordered
-
-         @class.hookable!
-         @class.hookable?
-      end
-      
-      it "should allow advising methods ending in ?, ! or = when passing methods as advices"
     end
     
     describe "for instance methods" do
-      it 'should run an advice block' do
-        @class.before(:hookable) { hi_mom! }
-
-        inst = @class.new
-        inst.should_receive(:hi_mom!)
-        inst.hookable
-      end
-      
-      it 'should run an advice method' do
-        @class.send(:define_method, :before_method) { hi_mom! }
-        @class.before(:hookable, :before_method)
-
-        inst = @class.new
-        inst.should_receive(:hi_mom!)
-        inst.hookable
-      end
-      
       it 'should run an advice block when the class is inherited' do
         @inherited_class = Class.new(@class)
         @class.before(:hookable) { hi_dad! }
@@ -322,26 +338,8 @@ describe Hook do
         inst.should_not_receive(:hi_mom!)
         inst.hookable
       end
-
-      it 'should not overwrite methods included by modules after the hook is declared' do
-        @module.class_eval do
-          @another_module = Module.new do
-            def greet; greetings_from_another_module; super; end;
-          end
-
-          def self.included(base)
-            base.before(:hookable, :greet)
-            base.send(:include, @another_module)
-          end
-        end
-
-        @class.send(:include, @module)
-
-        inst = @class.new
-        inst.should_receive(:greetings_from_another_module).once.ordered
-        inst.should_receive(:greetings_from_module).once.ordered
-        inst.hookable
-      end
+      
+      
       
       it 'should not call the hook stack if the hookable method is overwritten and does not call super' do
         @class.before(:hookable) { hi_mom! }
@@ -375,19 +373,105 @@ describe Hook do
         inst.should_not_receive(:hello_world!)
         inst.hookable
       end
+    end
+    
+  end
+  
+  describe "hook invocation with module inclusions / extensions" do
+    
+    describe "for class methods" do
+      it "should not overwrite methods included by extensions after the hook is declared" do
+        @module.class_eval do
+          @another_module = Module.new do
+            def greet; greetings_from_another_module; super; end;
+          end
+          
+          def self.extended(base)
+            base.before_class_method(:clakable, :greet)
+            base.extend(@another_module)
+          end
+        end
+        
+        @class.extend(@module)
+        @class.should_receive(:greetings_from_another_module).once.ordered
+        @class.should_receive(:greetings_from_module).once.ordered
+        @class.clakable
+      end
+    end
+    
+    describe "for instance methods" do
+      it 'should not overwrite methods included by modules after the hook is declared' do
+        @module.class_eval do
+          @another_module = Module.new do
+            def greet; greetings_from_another_module; super; end;
+          end
 
-      it 'should pass the hookable method arguments to the hook method' do
-        @class.class_eval %{def hook_this(word); end;}
-        @class.class_eval %{def before_hook_this(word); word_up(word); end;}
-        @class.register_instance_hooks(:hook_this)
-        @class.before(:hook_this, :before_hook_this)
+          def self.included(base)
+            base.before(:hookable, :greet)
+            base.send(:include, @another_module)
+          end
+        end
+
+        @class.send(:include, @module)
 
         inst = @class.new
-        inst.should_receive(:word_up).with("omg")
-        inst.hook_this("omg")
+        inst.should_receive(:greetings_from_another_module).once.ordered
+        inst.should_receive(:greetings_from_module).once.ordered
+        inst.hookable
+      end
+    end
+    
+  end
+  
+  describe "hook invocation with unrelated classes" do
+    
+    describe "for class methods" do
+      it "should not execute hooks registered in an unrelated class" do
+        @class.before_class_method(:clakable) { hi_mom! }
+        
+        @other.should_not_receive(:hi_mom!)
+        @other.clakable
+      end
+    end
+    
+    describe "for instance methods" do
+      it "should not execute hooks registered in an unrelated class" do
+        @class.before(:hookable) { hi_mom! }
+        
+        inst = @other.new
+        inst.should_not_receive(:hi_mom!)
+        inst.hookable
+      end
+    end
+    
+  end
+  
+  describe "hook invocation" do
+    
+    describe "for class methods" do
+
+      it "should allow advising methods ending in ? or !" do
+        @class.class_eval do
+          def self.hookable!; two! end;
+          def self.hookable?; three! end;
+          register_class_hooks :hookable!, :hookable?
+        end
+        @class.before_class_method(:hookable!) { one! }
+        @class.after_class_method(:hookable?) { four! }
+
+         @class.should_receive(:one!).once.ordered
+         @class.should_receive(:two!).once.ordered
+         @class.should_receive(:three!).once.ordered
+         @class.should_receive(:four!).once.ordered
+
+         @class.hookable!
+         @class.hookable?
       end
       
-      it 'should allow the use of before and after together'
+      it "should allow advising methods ending in ?, ! or = when passing methods as advices"
+    end
+    
+    describe "for instance methods" do
       
       it "should allow advising methods ending in ? or !" do
         @class.class_eval do
