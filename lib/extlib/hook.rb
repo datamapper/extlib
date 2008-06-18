@@ -14,6 +14,8 @@
 # #register_class_hooks respectivly. That way, if the exact hook insertion
 # location does not need to be specified, hooks can be added on the fly.
 #
+# Please bring up any issues regarding Hooks with carllerche on IRC
+#
 module Hook
   
   def self.included(base)
@@ -149,6 +151,8 @@ module Hook
         
         define_hook_stack_execution_methods(target_method, scope)
         define_advised_method(target_method, scope)
+      else
+        raise ArgumentError, "#{target_method} #{scope} method has already been registered as hookable"
       end
     end
     
