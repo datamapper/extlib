@@ -186,8 +186,7 @@ module Hook
       
       hooks[target_method][:in].class_eval(source)
     end
-    
-    # The respond_to is kind of ghetto. Actually it won't work
+
     def inline_call(method_info, scope)
       if scope == :instance
         %(#{method_info[:name]}(*args) if self.class <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
@@ -211,9 +210,6 @@ module Hook
           catch(:halt) do
             #{before_hook_stack}(#{args})
             retval = #{renamed_target}(#{args})
-          end
-
-          catch(:halt) do
             #{after_hook_stack}(#{args})
           end
           retval

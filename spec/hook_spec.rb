@@ -84,19 +84,13 @@ describe Hook do
       end
       
       it "should be able to register protected methods as hooks" do
-        @class.class_eval %{class << self; protected :clakable; end;}
-        lambda { @class.before_class_method(:clakable) { hi_mom! } }.should_not raise_error(ArgumentError)
-        
-        @class.should_receive(:hi_mom!)
-        @class.send(:clakable)
+        @class.class_eval %{protected; def self.protected_hookable; end;}
+        lambda { @class.register_class_hooks(:protected_hookable) }.should_not raise_error(ArgumentError)
       end
 
       it "should not be able to register private methods as hooks" do
-        @class.class_eval %{class << self; private :clakable; end;}
-        lambda { @class.before_class_method(:clakable) { hi_mom! } }.should raise_error(ArgumentError)
-        
-        @class.should_not_receive(:hi_mom!)
-        @class.send(:hookable)
+        @class.class_eval %{class << self; private; def private_hookable; end; end;}
+        lambda { @class.register_class_hooks(:private_hookable) }.should raise_error(ArgumentError)
       end
       
       it "should allow advising methods ending in ? or !" do
@@ -187,21 +181,13 @@ describe Hook do
       end
 
       it "should be able to register protected methods as hooks" do
-        @class.class_eval %{protected :hookable}
-        lambda { @class.before(:hookable) { hi_mom! } }.should_not raise_error(ArgumentError)
-        
-        inst = @class.new
-        inst.should_receive(:hi_mom!)
-        inst.send(:hookable)
+        @class.class_eval %{protected; def protected_hookable; end;}
+        lambda { @class.register_instance_hooks(:protected_hookable) }.should_not raise_error(ArgumentError)
       end
 
       it "should not be able to register private methods as hooks" do
-        @class.class_eval %{private :hookable}
-        lambda { @class.before(:hookable) { hi_mom! } }.should raise_error(ArgumentError)
-        
-        inst = @class.new
-        inst.should_not_receive(:hi_mom!)
-        inst.send(:hookable)
+        @class.class_eval %{private; def private_hookable; end;}
+        lambda { @class.register_instance_hooks(:private_hookable) }.should raise_error(ArgumentError)
       end
       
       it "should allow hooking methods ending in ? or ! with block hooks" do
