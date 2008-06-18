@@ -50,6 +50,9 @@ describe Hook do
         @class.ambiguous
       end
       
+      it "should complain when only one argument is passed"
+      it "should complain when target_method is not a symbol"
+      it "should complain when method_sym is not a symbol"
       it "should be able to register multiple hookable methods at once"
       it "should not allow a method that does not exist to be registered as hookable"
       it "should not allow double registration"
@@ -57,6 +60,26 @@ describe Hook do
       it "should allow modules to register hooks in the self.extended method"
       it "should be able to register protected methods as hooks"
       it "should not be able to register private methods as hooks"
+      
+      it "should allow advising methods ending in ? or !" do
+        @class.class_eval do
+          def self.hookable!; two! end;
+          def self.hookable?; three! end;
+          register_class_hooks :hookable!, :hookable?
+        end
+        @class.before_class_method(:hookable!) { one! }
+        @class.after_class_method(:hookable?) { four! }
+
+         @class.should_receive(:one!).once.ordered
+         @class.should_receive(:two!).once.ordered
+         @class.should_receive(:three!).once.ordered
+         @class.should_receive(:four!).once.ordered
+
+         @class.hookable!
+         @class.hookable?
+      end
+      
+      it "should allow hooking methods ending in ?, ! or = with method hooks"
     end
     
     describe "for instance methods" do
@@ -73,6 +96,10 @@ describe Hook do
         inst.should_receive(:hi_mom!)
         inst.ambiguous
       end
+      
+      it "should complain when only one argument is passed"
+      it "should complain when target_method is not a symbol"
+      it "should complain when method_sym is not a symbol"
       
       it "should be able to register multiple hookable methods at once" do
         %w(method_one method_two method_three).each do |method|
@@ -111,6 +138,26 @@ describe Hook do
 
       it "should not be able to register private methods as hooks"
       
+      it "should allow hooking methods ending in ? or ! with block hooks" do
+        @class.class_eval do
+          def hookable!; two! end;
+          def hookable?; three! end;
+          register_instance_hooks :hookable!, :hookable?
+        end
+        @class.before(:hookable!) { one! }
+        @class.after(:hookable?) { four! }
+
+        inst = @class.new
+        inst.should_receive(:one!).once.ordered
+        inst.should_receive(:two!).once.ordered
+        inst.should_receive(:three!).once.ordered
+        inst.should_receive(:four!).once.ordered
+
+        inst.hookable!
+        inst.hookable?
+      end
+      
+      it "should allow hooking methods ending in ?, ! or = with method hooks"
     end
     
   end
@@ -446,71 +493,9 @@ describe Hook do
     
   end
   
-  describe "hook invocation" do
-    
-    describe "for class methods" do
-
-      it "should allow advising methods ending in ? or !" do
-        @class.class_eval do
-          def self.hookable!; two! end;
-          def self.hookable?; three! end;
-          register_class_hooks :hookable!, :hookable?
-        end
-        @class.before_class_method(:hookable!) { one! }
-        @class.after_class_method(:hookable?) { four! }
-
-         @class.should_receive(:one!).once.ordered
-         @class.should_receive(:two!).once.ordered
-         @class.should_receive(:three!).once.ordered
-         @class.should_receive(:four!).once.ordered
-
-         @class.hookable!
-         @class.hookable?
-      end
-      
-      it "should allow advising methods ending in ?, ! or = when passing methods as advices"
-    end
-    
-    describe "for instance methods" do
-      
-      it "should allow advising methods ending in ? or !" do
-        @class.class_eval do
-          def hookable!; two! end;
-          def hookable?; three! end;
-          register_instance_hooks :hookable!, :hookable?
-        end
-        @class.before(:hookable!) { one! }
-        @class.after(:hookable?) { four! }
-
-        inst = @class.new
-        inst.should_receive(:one!).once.ordered
-        inst.should_receive(:two!).once.ordered
-        inst.should_receive(:three!).once.ordered
-        inst.should_receive(:four!).once.ordered
-
-        inst.hookable!
-        inst.hookable?
-      end
-      
-      it "should allow advising methods ending in ?, ! or = when passing methods as advices"
-    end
-  end
-  
   describe "using before hook" do
     
     describe "for class methods" do
-      
-      it "should install the advice block under the appropriate hook" do
-        c = lambda { 1 }
-        @class.should_receive(:install_hook).with(:before, :clakable, nil, :class, &c)
-        @class.before_class_method(:clakable, &c)
-      end
-      
-      it 'should install the advice method under the appropriate hook' do
-        @class.class_eval %{def self.zomg; end;}
-        @class.should_receive(:install_hook).with(:before, :clakable, :zomg, :class)
-        @class.before_class_method(:clakable, :zomg)
-      end
       
       it 'should run the advice before the advised method' do
         @class.class_eval %{def self.hook_me; second!; end;}
@@ -535,18 +520,6 @@ describe Hook do
     end
     
     describe "for instance methods" do
-      
-      it "should install the advice block under the appropriate hook" do
-        c = lambda { 1 }
-        @class.should_receive(:install_hook).with(:before, :hookable, nil, :instance, &c)
-        @class.before(:hookable, &c)
-      end
-      
-      it 'should install the advice method under the appropriate hook' do
-        @class.class_eval %{def zomg; end;}
-        @class.should_receive(:install_hook).with(:before, :hookable, :zomg, :instance)
-        @class.before(:hookable, :zomg)
-      end
       
       it 'should run the advice before the advised method' do
         @class.class_eval %{
@@ -580,58 +553,34 @@ describe Hook do
     
     describe "for class methods" do
       
-      it "should install the advice block under the appropriate hook" do
-        c = lambda { 1 }
-        @class.should_receive(:install_hook).with(:after, :clakable, nil, :class, &c)
-        @class.after_class_method(:clakable, &c)
-      end
-      
-      it 'should install the advice method under the appropriate hook' do
-        @class.class_eval %{def self.zomg; end;}
-        @class.should_receive(:install_hook).with(:after, :clakable, :zomg, :class)
-        @class.after_class_method(:clakable, :zomg)
-      end
-      
+      it 'should run the advice before the advised method'
+      it 'should execute all advices once in order'
       it "the advised method should still return its normal value"
-      
-      
       
     end
     
     describe "for instance methods" do
       
-      it "should install the advice block under the appropriate hook" do
-        c = lambda { 1 }
-        @class.should_receive(:install_hook).with(:after, :hookable, nil, :instance, &c)
-        @class.after(:hookable, &c)
-      end
-      
-      it 'should install the advice method under the appropriate hook' do
-        @class.class_eval %{def zomg; end;}
-        @class.should_receive(:install_hook).with(:after, :hookable, :zomg, :instance)
-        @class.after(:hookable, :zomg)
-      end
-
+      it 'should run the advice before the advised method'
+      it 'should execute all advices once in order'
       it "the advised method should still return its normal value"
       
     end
     
-    
-    
-    
-    it "should complain when only one argument is passed for class methods"
-    it "should complain when target_method is not a symbol for class methods"
-    it "should complain when method_sym is not a symbol"
-    it "should complain when only one argument is passed"
-    it "should complain when target_method is not a symbol"
-    it "should complain when method_sym is not a symbol"
   end
   
   describe 'aborting' do
-    it "should catch :halt from a before instance hook and abort the advised method"
-    it "should catch :halt from an after instance hook and cease the advice"
-    it "should catch :halt from a before class method hook and abort advised method"
-    it "should catch :halt from an after class method hook and abort the rest of the advice"
+    
+    describe "for class methods" do
+      it "should catch :halt from a before hook and abort the advised method"
+      it "should catch :halt from an after hook and cease the advice"
+    end
+    
+    describe "for instance methods" do
+      it "should catch :halt from a before hook and abort the advised method"
+      it "should catch :halt from an after hook and cease the advice"
+    end
+    
   end
   
   describe "helper methods" do
