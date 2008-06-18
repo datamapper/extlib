@@ -156,12 +156,14 @@ module Hook
       end
     end
     
+    def registered_as_hook?(target_method, scope)
+      ! hooks_with_scope(scope)[target_method].nil?
+    end
+    
     def define_hook_stack_execution_methods(target_method, scope)
-      hooks = hooks_with_scope(scope)
+      register_hook(target_method, scope) unless registered_as_hook?(target_method, scope)
       
-      if hooks[target_method].nil?
-        raise ArgumentError, "#{target_method} has not be registered as a hookable method"
-      end
+      hooks = hooks_with_scope(scope)
       
       before_hook_stack = "execute_before_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')
       after_hook_stack  = "execute_after_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')

@@ -34,7 +34,7 @@ describe Hook do
   #
   # Specs out how hookable methods are registered
   #
-  describe "hookable method registration" do
+  describe "explicity hookable method registration" do
     
     describe "for class methods" do
       
@@ -232,7 +232,7 @@ describe Hook do
     end
     
   end
-  
+
   describe "hook method registration" do
     
     describe "for class methods" do
