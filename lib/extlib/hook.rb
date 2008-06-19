@@ -158,6 +158,17 @@ module Extlib
       def registered_as_hook?(target_method, scope)
         ! hooks_with_scope(scope)[target_method].nil?
       end
+      
+      def hook_method_name(target_method, prefix, suffix)
+        target_method = target_method.to_s
+        
+        case target_method[-1,1]
+          when '?' then "#{prefix}_#{target_method[0..-2]}_ques_#{suffix}"
+          when '!' then "#{prefix}_#{target_method[0..-2]}_bang_#{suffix}"
+          when '=' then "#{prefix}_#{target_method[0..-2]}_eq_#{suffix}"
+          else "#{prefix}_#{target_method[0..-2]}_nan_#{suffix}"
+        end
+      end
 
       def define_hook_stack_execution_methods(target_method, scope)
         unless registered_as_hook?(target_method, scope)
@@ -166,8 +177,8 @@ module Extlib
 
         hooks = hooks_with_scope(scope)
 
-        before_hook_stack = "execute_before_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')
-        after_hook_stack  = "execute_after_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')
+        # before_hook_stack = "execute_before_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')
+        # after_hook_stack  = "execute_after_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')
 
         before_hooks = hooks[target_method][:before]
         before_hooks = before_hooks.map{ |info| inline_call(info, scope) }.join("\n")
@@ -178,11 +189,11 @@ module Extlib
         source = %{
           private
           
-          def #{before_hook_stack}(*args)
+          def #{hook_method_name(target_method, 'execute_before', 'hook_stack')}(*args)
             #{before_hooks}
           end
 
-          def #{after_hook_stack}(*args)
+          def #{hook_method_name(target_method, 'execute_after', 'hook_stack')}(*args)
             #{after_hooks}
           end
         }
@@ -194,26 +205,26 @@ module Extlib
 
       def inline_call(method_info, scope)
         if scope == :instance
-          %(self.#{method_info[:name]}(*args) if self.class <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
+          %(#{method_info[:name]}(*args) if self.class <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
         else
-          %(self.#{method_info[:name]}(*args) if self <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
+          %(#{method_info[:name]}(*args) if self <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
         end
       end
 
       def define_advised_method(target_method, scope)
         args = args_for(method_with_scope(target_method, scope))
 
-        renamed_target    = "#{target_method}".sub(/([?!=]?$)/, '_before_advised\1')
-        before_hook_stack = "execute_before_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')
-        after_hook_stack  = "execute_after_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')
+        renamed_target = hook_method_name(target_method, 'hookable_', 'before_advised')
+        # before_hook_stack = "execute_before_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')
+        # after_hook_stack  = "execute_after_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')
 
         source = <<-EOD
           def #{target_method}(#{args})
             retval = nil
             catch(:halt) do
-              self.#{before_hook_stack}(#{args})
-              retval = self.#{renamed_target}(#{args})
-              self.#{after_hook_stack}(#{args})
+              #{hook_method_name(target_method, 'execute_before', 'hook_stack')}(#{args})
+              retval = #{renamed_target}(#{args})
+              #{hook_method_name(target_method, 'execute_after', 'hook_stack')}(#{args})
             end
             retval
           end
@@ -241,6 +252,10 @@ module Extlib
 
         if !block_given? and method_sym.nil?
           raise ArgumentError, "You need to pass 2 arguments to \"#{type}\"."
+        end
+        
+        if method_sym.to_s[-1,1] == '='
+          raise ArgumentError, "Methods ending in = cannot be hooks"
         end
 
         unless [ :class, :instance ].include?(scope)

@@ -285,6 +285,11 @@ describe Extlib::Hook do
         lambda { @class.before_class_method(:clakable, "ambiguous") }.should raise_error(ArgumentError)
         lambda { @class.after_class_method(:clakable, "ambiguous") }.should raise_error(ArgumentError)
       end
+      
+      it "should not allow methods ending in = to be hooks" do
+        lambda { @class.before_class_method(:clakable, :annoying=) }.should raise_error(ArgumentError)
+        lambda { @class.after_class_method(:clakable, :annoying=) }.should raise_error(ArgumentError)
+      end
     end
     
     describe "for instance methods" do
@@ -297,9 +302,15 @@ describe Extlib::Hook do
         lambda { @class.before("hookable", :ambiguous) }.should raise_error(ArgumentError)
         lambda { @class.after("hookable", :ambiguous) }.should raise_error(ArgumentError)
       end
+      
       it "should complain when method_sym is not a symbol" do
         lambda { @class.before(:hookable, "ambiguous") }.should raise_error(ArgumentError)
         lambda { @class.after(:hookable, "ambiguous") }.should raise_error(ArgumentError)
+      end
+      
+      it "should not allow methods ending in = to be hooks" do
+        lambda { @class.before(:hookable, :annoying=) }.should raise_error(ArgumentError)
+        lambda { @class.after(:hookable, :annoying=) }.should raise_error(ArgumentError)
       end
     end
     
