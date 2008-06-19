@@ -211,13 +211,13 @@ describe Extlib::Hook do
       
       it "should allow hooking methods ending in ?, ! or = with method hooks" do
         @class.class_eval do
-          def before_hookable!; one!; end;
-          def hookable!; two!; end;
+          def before_hookable(val); one!; end;
+          def hookable=(val); two!; end;
           def hookable?; three!; end;
           def after_hookable?; four!; end;
-          register_instance_hooks :hookable!, :hookable?
+          register_instance_hooks :hookable=, :hookable?
         end
-        @class.before(:hookable!, :before_hookable!)
+        @class.before(:hookable=, :before_hookable)
         @class.after(:hookable?, :after_hookable?)
 
         inst = @class.new
@@ -226,7 +226,7 @@ describe Extlib::Hook do
         inst.should_receive(:three!).once.ordered
         inst.should_receive(:four!).once.ordered
 
-        inst.hookable!
+        inst.hookable = 'hello'
         inst.hookable?
       end
     end

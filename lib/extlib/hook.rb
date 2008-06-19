@@ -194,9 +194,9 @@ module Extlib
 
       def inline_call(method_info, scope)
         if scope == :instance
-          %(#{method_info[:name]}(*args) if self.class <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
+          %(self.#{method_info[:name]}(*args) if self.class <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
         else
-          %(#{method_info[:name]}(*args) if self <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
+          %(self.#{method_info[:name]}(*args) if self <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
         end
       end
 
@@ -211,9 +211,9 @@ module Extlib
           def #{target_method}(#{args})
             retval = nil
             catch(:halt) do
-              #{before_hook_stack}(#{args})
-              retval = #{renamed_target}(#{args})
-              #{after_hook_stack}(#{args})
+              self.#{before_hook_stack}(#{args})
+              retval = self.#{renamed_target}(#{args})
+              self.#{after_hook_stack}(#{args})
             end
             retval
           end
