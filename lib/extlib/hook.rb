@@ -208,8 +208,6 @@ module Extlib
         after_hook_stack  = "execute_after_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')
 
         source = <<-EOD
-          alias_method :#{renamed_target}, :#{target_method}
-
           def #{target_method}(#{args})
             retval = nil
             catch(:halt) do
@@ -221,9 +219,17 @@ module Extlib
           end
         EOD
 
-        source = %{class << self\n#{source}\nend} if scope == :class
-
-        class_eval(source)
+        if scope == :instance && !instance_methods(false).include?(target_method.to_s)
+          send(:alias_method, renamed_target, target_method)
+          
+          proxy_module = Module.new
+          proxy_module.class_eval(source)
+          self.send(:include, proxy_module)
+        else
+          source = %{alias_method :#{renamed_target}, :#{target_method}\n#{source}}
+          source = %{class << self\n#{source}\nend} if scope == :class
+          class_eval(source)
+        end
       end
 
       # --- Add a hook ---
