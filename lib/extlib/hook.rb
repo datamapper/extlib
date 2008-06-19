@@ -21,8 +21,8 @@ module Extlib
 
     def self.included(base)
       base.extend(ClassMethods)
-      base.const_set("CLASS_HOOKS", {})
-      base.const_set("INSTANCE_HOOKS", {})
+      base.const_set("CLASS_HOOKS", {}) unless base.const_defined?("CLASS_HOOKS")
+      base.const_set("INSTANCE_HOOKS", {}) unless base.const_defined?("INSTANCE_HOOKS")
     end
 
     module ClassMethods
@@ -152,8 +152,6 @@ module Extlib
 
           define_hook_stack_execution_methods(target_method, scope)
           define_advised_method(target_method, scope)
-        else
-          raise ArgumentError, "#{target_method} #{scope} method has already been registered as hookable"
         end
       end
 
@@ -178,6 +176,8 @@ module Extlib
         after_hooks  = after_hooks.map{ |info| inline_call(info, scope) }.join("\n")
 
         source = %{
+          private
+          
           def #{before_hook_stack}(*args)
             #{before_hooks}
           end

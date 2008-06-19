@@ -61,12 +61,6 @@ describe Extlib::Hook do
         lambda { @another_class.register_class_hooks :method_one }.should raise_error(ArgumentError)
       end
       
-      it "should not allow double registration" do
-        @class.class_eval %{def self.double_take; end;}
-        @class.register_class_hooks :double_take
-        lambda { @class.register_class_hooks :double_take }.should raise_error(ArgumentError)
-      end
-      
       it "should allow hooks to be registered on methods from module extensions" do
         @class.extend(@module)
         @class.register_class_hooks :greet
@@ -156,12 +150,6 @@ describe Extlib::Hook do
       
       it "should not allow a method that does not exist to be registered as hookable" do
         lambda { @another_class.register_instance_hooks :method_one }.should raise_error(ArgumentError)
-      end
-      
-      it "should not allow double registration" do
-        @class.class_eval %{def double_take; end;}
-        @class.register_instance_hooks :double_take
-        lambda { @class.register_instance_hooks :double_take }.should raise_error(ArgumentError)
       end
       
       it "should allow hooks to be registered on included module methods" do
@@ -413,6 +401,15 @@ describe Extlib::Hook do
         inst = @class.new
         inst.should_receive(:first!).once.ordered
         inst.should_receive(:last!).once.ordered
+        inst.hookable
+      end
+      
+      it 'should be able to use private methods as hooks' do
+        @class.class_eval %{private; def nike; doit!; end;}
+        @class.before(:hookable, :nike)
+        
+        inst = @class.new
+        inst.should_receive(:doit!)
         inst.hookable
       end
     end
