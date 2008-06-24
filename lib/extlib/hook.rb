@@ -145,7 +145,7 @@ module Extlib
 
         hooks = hooks_with_scope(scope)
 
-        if hooks[target_method].nil?  
+        if hooks[target_method].nil?
           hooks[target_method] = {
             :before => [], :after => [], :in => self
           }
@@ -158,10 +158,10 @@ module Extlib
       def registered_as_hook?(target_method, scope)
         ! hooks_with_scope(scope)[target_method].nil?
       end
-      
+
       def hook_method_name(target_method, prefix, suffix)
         target_method = target_method.to_s
-        
+
         case target_method[-1,1]
           when '?' then "#{prefix}_#{target_method[0..-2]}_ques_#{suffix}"
           when '!' then "#{prefix}_#{target_method[0..-2]}_bang_#{suffix}"
@@ -188,7 +188,7 @@ module Extlib
 
         source = %{
           private
-          
+
           def #{hook_method_name(target_method, 'execute_before', 'hook_stack')}(*args)
             #{before_hooks}
           end
@@ -232,7 +232,7 @@ module Extlib
 
         if scope == :instance && !instance_methods(false).include?(target_method.to_s)
           send(:alias_method, renamed_target, target_method)
-          
+
           proxy_module = Module.new
           proxy_module.class_eval(source)
           self.send(:include, proxy_module)
@@ -253,7 +253,7 @@ module Extlib
         if !block_given? and method_sym.nil?
           raise ArgumentError, "You need to pass 2 arguments to \"#{type}\"."
         end
-        
+
         if method_sym.to_s[-1,1] == '='
           raise ArgumentError, "Methods ending in = cannot be hooks"
         end
@@ -261,7 +261,7 @@ module Extlib
         unless [ :class, :instance ].include?(scope)
           raise ArgumentError, 'You need to pass :class or :instance as scope'
         end
-        
+
         register_hook(target_method, scope) unless registered_as_hook?(target_method, scope)
 
         hooks = hooks_with_scope(scope)
