@@ -34,7 +34,7 @@ namespace :extlib do
   end
 end
 
-PACKAGE_VERSION = '0.9.2'
+PACKAGE_VERSION = '0.9.3'
 
 PACKAGE_FILES = [
   'README',
