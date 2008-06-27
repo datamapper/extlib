@@ -7,10 +7,10 @@ describe Module do
       class Bar
       end
     end
-    
+
     class Baz
     end
-    
+
     class Bar
     end
   end
@@ -27,7 +27,7 @@ describe Module do
     lambda { find_const('Foo::Bar::Baz') }.should raise_error(NameError)
     Object::send(:__nested_constants__).has_key?('Foo::Bar::Baz').should == false
   end
-  
+
   it "should find relative constants" do
     Foo.find_const('Bar').should == Foo::Bar
     Foo.find_const('Baz').should == Baz

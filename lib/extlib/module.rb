@@ -5,7 +5,7 @@ class Module
     Object::__nested_constants__[nested_name]
   end
 
-  protected  
+  protected
   def __nested_constants__
     @__nested_constants__ ||= Hash.new do |h,k|
       klass = self
@@ -15,5 +15,5 @@ class Module
       h[k] = klass
     end
   end
-  
+
 end # class Module
