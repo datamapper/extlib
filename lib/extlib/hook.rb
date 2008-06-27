@@ -286,13 +286,13 @@ module Extlib
 
       def args_for(method)
         if method.arity == 0
-          ""
+          "&block"
         elsif method.arity > 0
-          "_" << (1 .. method.arity).to_a.join(", _")
+          "_" << (1 .. method.arity).to_a.join(", _") << ", &block"
         elsif (method.arity + 1) < 0
-          "_" << (1 .. (method.arity).abs - 1).to_a.join(", _") << ", *args"
+          "_" << (1 .. (method.arity).abs - 1).to_a.join(", _") << ", *args, &block"
         else
-          "*args"
+          "*args, &block"
         end
       end
 

@@ -888,9 +888,9 @@ describe Extlib::Hook do
         end
       end
 
-      @class.args_for(@class.instance_method(:hookable)).should == ""
-      @class.args_for(@class.instance_method(:some_method)).should == "_1, _2, _3"
-      @class.args_for(@class.instance_method(:yet_another)).should == "_1, *args"
+      @class.args_for(@class.instance_method(:hookable)).should == "&block"
+      @class.args_for(@class.instance_method(:some_method)).should == "_1, _2, _3, &block"
+      @class.args_for(@class.instance_method(:yet_another)).should == "_1, *args, &block"
     end
   end
 
