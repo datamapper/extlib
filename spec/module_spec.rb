@@ -4,7 +4,11 @@ describe Module do
 
   before(:all) do
     module Foo
-      class Bar
+      module Bar
+        module Noo
+          module Too
+          end
+        end
       end
 
       class Zed
@@ -38,6 +42,11 @@ describe Module do
 
   it "should find sibling constants" do
     Foo::Bar.find_const("Zed").should == Foo::Zed
+  end
+
+  it "should find nested constants on nested constants" do
+    pending "Implement this"
+    Foo::Bar.find_const('Noo::Too')
   end
 
 end
