@@ -45,7 +45,7 @@ describe Module do
   end
 
   it "should find nested constants on nested constants" do
-    pending "Implement this"
+    # pending "Implement this"
     Foo::Bar.find_const('Noo::Too')
   end
 
