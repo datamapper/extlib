@@ -95,7 +95,7 @@ module Extlib
         end
 
         def self.pool_size
-          1
+          8
         end
 
         def self.scavenge_interval
@@ -143,7 +143,7 @@ module Extlib
           if ThreadGroup::Default.list.size == 2 && @reserved.size >= @max_size
             raise ThreadStopError.new(size)
           else
-            sleep(0.01)
+            sleep(0.05)
             new
           end
         else
