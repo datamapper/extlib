@@ -166,7 +166,7 @@ module Extlib
           when '?' then "#{prefix}_#{target_method[0..-2]}_ques_#{suffix}"
           when '!' then "#{prefix}_#{target_method[0..-2]}_bang_#{suffix}"
           when '=' then "#{prefix}_#{target_method[0..-2]}_eq_#{suffix}"
-          else "#{prefix}_#{target_method[0..-2]}_nan_#{suffix}"
+          else "#{prefix}_#{target_method[0..-1]}_nan_#{suffix}"
         end
       end
 
