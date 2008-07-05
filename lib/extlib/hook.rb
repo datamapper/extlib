@@ -200,7 +200,7 @@ module Extlib
 
         source = %{class << self\n#{source}\nend} if scope == :class
 
-        hooks[target_method][:in].class_eval(source)
+        hooks[target_method][:in].class_eval(source, __FILE__, __LINE__)
       end
 
       def inline_call(method_info, scope)
@@ -234,12 +234,12 @@ module Extlib
           send(:alias_method, renamed_target, target_method)
 
           proxy_module = Module.new
-          proxy_module.class_eval(source)
+          proxy_module.class_eval(source, __FILE__, __LINE__)
           self.send(:include, proxy_module)
         else
           source = %{alias_method :#{renamed_target}, :#{target_method}\n#{source}}
           source = %{class << self\n#{source}\nend} if scope == :class
-          class_eval(source)
+          class_eval(source, __FILE__, __LINE__)
         end
       end
 
