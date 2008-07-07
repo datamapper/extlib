@@ -367,8 +367,11 @@ describe Extlib::Hook do
         @class.should_receive(:hi_mom!)
         @class.clakable
       end
+      
+      it "should not pass any of the hookable method's arguments if the hook doesn't take any arguments"
+      it "should not pass any of the hookable method's arguments if the hook doesn't take any arguments even if the hook method is declared after it is registered"
 
-      it 'should pass the hookable method arguments to the hook method' do
+      it 'should pass the hookable method arguments to the hook method if the hook method takes arguments' do
         @class.class_eval %{def self.hook_this(word, lol); end;}
         @class.register_class_hooks(:hook_this)
         @class.before_class_method(:hook_this, :before_hook_this)
@@ -414,8 +417,32 @@ describe Extlib::Hook do
         inst.should_receive(:hi_mom!)
         inst.hookable
       end
+      
+      it "should not pass any of the hookable method's arguments if the hook doesn't take any arguments" do
+        @class.class_eval do
+          def method_with_args(one, two, three); end;
+          def before_method_with_args; hi_mom!; end;
+          before(:method_with_args, :before_method_with_args)
+        end
+        
+        inst = @class.new
+        inst.should_receive(:hi_mom!)
+        inst.method_with_args(1, 2, 3)
+      end
+      
+      it "should not pass any of the hookable method's arguments if the hook doesn't take any arguments even if the hook method is declared after it is registered" do
+        @class.class_eval do
+          def method_with_args(one, two, three); end;
+          before(:method_with_args, :before_method_with_args)
+          def before_method_with_args; hi_mom!; end;
+        end
+        
+        inst = @class.new
+        inst.should_receive(:hi_mom!)
+        inst.method_with_args(1, 2, 3)
+      end
 
-      it 'should pass the hookable method arguments to the hook method' do
+      it 'should pass the hookable method arguments to the hook method if the hook method takes arguments' do
         @class.class_eval %{def hook_this(word, lol); end;}
         @class.register_instance_hooks(:hook_this)
         @class.before(:hook_this, :before_hook_this)
@@ -846,12 +873,12 @@ describe Extlib::Hook do
         lambda { @class.clakable }.should_not throw_symbol(:halt)
       end
 
-      it "should still return the hookable methods return value if an after hook throws :halt" do
+      it "should return nil if an after hook throws :halt without a return value" do
         @class.class_eval %{def self.with_value; "hello"; end;}
         @class.register_class_hooks(:with_value)
         @class.after_class_method(:with_value) { throw :halt }
 
-        @class.with_value.should == "hello"
+        @class.with_value.should be_nil
       end
     end
 
@@ -896,15 +923,44 @@ describe Extlib::Hook do
         lambda { inst.hookable }.should_not throw_symbol(:halt)
       end
 
-      it "should still return the hookable methods return value if an after hook throws :halt" do
+      it "should return nil if an after hook throws :halt without a return value" do
         @class.class_eval %{def with_value; "hello"; end;}
         @class.register_instance_hooks(:with_value)
         @class.after(:with_value) { throw :halt }
 
-        @class.new.with_value.should == "hello"
+        @class.new.with_value.should be_nil
       end
     end
 
+  end
+
+  describe 'aborting with return values' do
+    
+    describe "for class methods" do
+      
+      it "should be able to abort from a before hook with a return value"
+      it "should be able to abort from an after hook with a return value"
+      
+    end
+    
+    describe "for instance methods" do
+      
+      it "should be able to abort from a before hook with a return value" do
+        @class.before(:hookable) { throw :halt, 'omg' }
+        
+        inst = @class.new
+        inst.hookable.should == 'omg'
+      end
+      
+      it "should be able to abort from an after hook with a return value" do
+        @class.after(:hookable) { throw :halt, 'omg' }
+        
+        inst = @class.new
+        inst.hookable.should == 'omg'
+      end
+      
+    end
+    
   end
 
   describe "helper methods" do

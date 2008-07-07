@@ -23,6 +23,17 @@ module Extlib
       base.extend(ClassMethods)
       base.const_set("CLASS_HOOKS", {}) unless base.const_defined?("CLASS_HOOKS")
       base.const_set("INSTANCE_HOOKS", {}) unless base.const_defined?("INSTANCE_HOOKS")
+      base.class_eval do
+        class << self
+          def method_added(name)
+            process_method_added(name, :instance)
+          end
+          
+          def singleton_method_added(name)
+            process_method_added(name, :class)
+          end
+        end
+      end
     end
 
     module ClassMethods
@@ -120,6 +131,8 @@ module Extlib
 
       # --- Alright kids... the rest is internal stuff ---
 
+      # Returns the correct HOOKS Hash depending on whether we are
+      # working with class methods or instance methods
       def hooks_with_scope(scope)
         case scope
           when :class    then class_hooks
@@ -136,6 +149,15 @@ module Extlib
         self.const_get("INSTANCE_HOOKS")
       end
 
+      # Registers a method as hookable. Registering hooks involves the following
+      # process
+      #
+      # * Create a blank entry in the HOOK Hash for the method.
+      # * Define the methods that execute the before and after hook stack.
+      #   These methods will be no-ops at first, but everytime a new hook is
+      #   defined, the methods will be redefined to incorporate the new hook.
+      # * Redefine the method that is to be hookable so that the hook stacks
+      #   are invoked approprietly.
       def register_hook(target_method, scope)
         if scope == :instance && !method_defined?(target_method)
           raise ArgumentError, "#{target_method} instance method does not exist"
@@ -147,6 +169,10 @@ module Extlib
 
         if hooks[target_method].nil?
           hooks[target_method] = {
+            # We need to keep track of which class in the Inheritance chain the
+            # method was declared hookable in. Every time a child declares a new
+            # hook for the method, the hook stack invocations need to be redefined
+            # in the original Class. See #define_hook_stack_execution_methods
             :before => [], :after => [], :in => self
           }
 
@@ -155,10 +181,14 @@ module Extlib
         end
       end
 
+      # Is the method registered as a hookable in the given scope.
       def registered_as_hook?(target_method, scope)
         ! hooks_with_scope(scope)[target_method].nil?
       end
 
+      # Generates names for the various utility methods. We need to do this because
+      # the various utility methods should not end in = so, while we're at it, we
+      # might as well get rid of all punctuation.
       def hook_method_name(target_method, prefix, suffix)
         target_method = target_method.to_s
 
@@ -166,19 +196,29 @@ module Extlib
           when '?' then "#{prefix}_#{target_method[0..-2]}_ques_#{suffix}"
           when '!' then "#{prefix}_#{target_method[0..-2]}_bang_#{suffix}"
           when '=' then "#{prefix}_#{target_method[0..-2]}_eq_#{suffix}"
+          # I add a _nan_ suffix here so that we don't ever encounter
+          # any naming conflicts.
           else "#{prefix}_#{target_method[0..-1]}_nan_#{suffix}"
         end
       end
+      
+      # This will need to be refactored
+      def process_method_added(method_name, scope)
+        hooks_with_scope(scope).each do |target_method|
+          # hooks[target_method][type] << { :name => method_sym, :from => self }
+        end
+      end
 
+      # Defines two methods. One method executes the before hook stack. The other executes
+      # the after hook stack. This method will be called many times during the Class definition
+      # process. It should be called for each hook that is defined. It will also be called
+      # when a hook is redefined (to make sure that the arity hasn't changed).
       def define_hook_stack_execution_methods(target_method, scope)
         unless registered_as_hook?(target_method, scope)
           raise ArgumentError, "#{target_method} has not be registered as a hookable #{scope} method"
         end
 
         hooks = hooks_with_scope(scope)
-
-        # before_hook_stack = "execute_before_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')
-        # after_hook_stack  = "execute_after_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')
 
         before_hooks = hooks[target_method][:before]
         before_hooks = before_hooks.map{ |info| inline_call(info, scope) }.join("\n")
@@ -203,11 +243,17 @@ module Extlib
         hooks[target_method][:in].class_eval(source, __FILE__, __LINE__)
       end
 
+      # Returns ruby code that will invoke the hook. It checks the arity of the hook method
+      # and passes arguments accordingly.
       def inline_call(method_info, scope)
+        name = method_info[:name]
+        
         if scope == :instance
-          %(#{method_info[:name]}(*args) if self.class <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
+          args = method_defined?(name) && instance_method(name).arity != 0 ? '*args' : ''
+          %(#{name}(#{args}) if self.class <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
         else
-          %(#{method_info[:name]}(*args) if self <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
+          args = respond_to?(name) && method(name).arity != 0 ? '*args' : ''
+          %(#{name}(#{args}) if self <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
         end
       end
 
@@ -225,8 +271,8 @@ module Extlib
               #{hook_method_name(target_method, 'execute_before', 'hook_stack')}(#{args})
               retval = #{renamed_target}(#{args})
               #{hook_method_name(target_method, 'execute_after', 'hook_stack')}(#{args})
+              retval
             end
-            retval
           end
         EOD
 
