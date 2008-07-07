@@ -2,18 +2,21 @@ module Extlib
   #
   # TODO: Write more documentation!
   #
-  # Currently, before you can set a before or after hook on a method, you must
-  # register that method as hookable; otherwise, their invocation of the hook
-  # stack is not created.
+  # Overview
+  # ========
   #
-  # This can be done by calling #register_class_hooks to register one or more
-  # class methods as hookable or #register_instance_hooks to register one or
-  # more instance methods as hookable.
+  # The Hook module is a very simple set of AOP helpers. Basically, it
+  # allows the developer to specify a method or block that should run
+  # before or after another method.
   #
-  # Eventually, I'll probably have #before, #after, #before_class_method, and
-  # #after_class_method implicitly call #register_instance_hooks and
-  # #register_class_hooks respectivly. That way, if the exact hook insertion
-  # location does not need to be specified, hooks can be added on the fly.
+  # Usage
+  # =====
+  #
+  # Halting The Hook Stack
+  #
+  # Inheritance
+  #
+  # Other Goodies
   #
   # Please bring up any issues regarding Hooks with carllerche on IRC
   #
@@ -204,8 +207,14 @@ module Extlib
       
       # This will need to be refactored
       def process_method_added(method_name, scope)
-        hooks_with_scope(scope).each do |target_method|
-          # hooks[target_method][type] << { :name => method_sym, :from => self }
+        hooks_with_scope(scope).each do |target_method, hooks|
+          if hooks[:before].any? { |hook| hook[:name] == method_name }
+            define_hook_stack_execution_methods(target_method, scope)
+          end
+          
+          if hooks[:after].any? { |hook| hook[:name] == method_name }
+            define_hook_stack_execution_methods(target_method, scope)
+          end
         end
       end
 
@@ -261,8 +270,6 @@ module Extlib
         args = args_for(method_with_scope(target_method, scope))
 
         renamed_target = hook_method_name(target_method, 'hookable_', 'before_advised')
-        # before_hook_stack = "execute_before_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')
-        # after_hook_stack  = "execute_after_" + "#{target_method}".sub(/([?!=]?$)/, '_hook_stack\1')
 
         source = <<-EOD
           def #{target_method}(#{args})
