@@ -6,7 +6,7 @@ describe "Extlib::Pooling" do
 
     module Extlib::Pooling
       def self.scavenger_interval
-        0.1
+        1
       end
     end
 
@@ -21,10 +21,6 @@ describe "Extlib::Pooling" do
 
       def dispose
         @name = nil
-      end
-
-      def self.scavenge_interval
-        0.2
       end
     end
 
@@ -78,7 +74,7 @@ describe "Extlib::Pooling" do
     Person.__pools.size.should == 1
 
     Extlib::Pooling::pools.should_not be_empty
-    sleep(1)
+    sleep(1.2)
     Extlib::Pooling::pools.should be_empty
     bob.name.should be_nil
   end
@@ -111,7 +107,7 @@ describe "Extlib::Pooling" do
     lambda do
       begin
         bob = Person.new('Bob')
-        Person.new('Bob')
+        9.times { Person.new('Bob') }
       ensure
         bob.release
       end

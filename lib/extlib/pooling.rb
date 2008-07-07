@@ -10,7 +10,7 @@ module Extlib
   # because instances are keeped in memory reused.
   #
   # Classes that include Pooling module have re-defined new
-  # method that returns instances aquired from pool.
+  # method that returns instances acquired from pool.
   #
   # Term resource is used for any type of poolable objects
   # and should NOT be thought as DataMapper Resource or
@@ -31,13 +31,14 @@ module Extlib
           loop do
             lock.synchronize do
               pools.each do |pool|
-                if pool.expired?
-                  pool.lock.synchronize do
-                    if pool.size == 0
-                      pool.dispose
-                    end
+                # This is a useful check, but non-essential, and right now it breaks lots of stuff.
+                # if pool.expired?
+                pool.lock.synchronize do
+                  if pool.reserved_count == 0
+                    pool.dispose
                   end
                 end
+                # end
               end
             end
             sleep(scavenger_interval)
@@ -97,10 +98,6 @@ module Extlib
         def self.pool_size
           8
         end
-
-        def self.scavenge_interval
-          10
-        end
       end
     end
 
@@ -118,9 +115,7 @@ module Extlib
         @args = args
 
         @available = []
-        @reserved = Set.new
-
-        Extlib::Pooling::append_pool(self)
+        @reserved_count = 0
       end
 
       def lock
@@ -135,12 +130,14 @@ module Extlib
         instance = nil
 
         lock.synchronize do
-          instance = aquire
+          instance = acquire
         end
+
+        Extlib::Pooling::append_pool(self)
 
         if instance.nil?
           # Account for the current thread, and the pool scavenger.
-          if ThreadGroup::Default.list.size == 2 && @reserved.size >= @max_size
+          if ThreadGroup::Default.list.size == 2 && @reserved_count >= @max_size
             raise ThreadStopError.new(size)
           else
             sleep(0.05)
@@ -153,52 +150,58 @@ module Extlib
 
       def release(instance)
         lock.synchronize do
-          raise OrphanedObjectError.new(instance) unless @reserved.delete?(instance)
           instance.instance_variable_set(:@__pool, nil)
+          @reserved_count -= 1
           @available.push(instance)
         end
         nil
       end
 
       def size
-        @available.size + @reserved.size
+        @available.size + @reserved_count
       end
       alias length size
 
       def inspect
-        "#<Extlib::Pooling::Pool<#{@resource.name}> available=#{@available.size} reserved=#{@reserved.size}>"
+        "#<Extlib::Pooling::Pool<#{@resource.name}> available=#{@available.size} reserved_count=#{@reserved_count}>"
       end
 
       def flush!
-        lock.synchronize do
-          @available.each do |instance|
-            instance.dispose
-          end
-          @available.clear
+        until @available.empty?
+          instance = @available.pop
+          instance.dispose
         end
+        @available.clear
       end
 
       def dispose
+        flush!
         @resource.__pools.delete(@args)
         !Extlib::Pooling::pools.delete?(self).nil?
       end
 
-      def expired?
-        lock.synchronize do
-          @available.each do |instance|
-            if instance.instance_variable_get(:@__allocated_in_pool) + scavenge_interval < Time.now
-              instance.dispose
-              @available.delete(instance)
-            end
-          end
+      # Disabled temporarily.
+      #
+      # def expired?
+      #   lock.synchronize do
+      #     @available.each do |instance|
+      #       if instance.instance_variable_get(:@__allocated_in_pool) + scavenge_interval < Time.now
+      #         instance.dispose
+      #         @available.delete(instance)
+      #       end
+      #     end
+      #
+      #     size == 0
+      #   end
+      # end
 
-          size == 0
-        end
+      def reserved_count
+        @reserved_count
       end
 
       private
 
-      def aquire
+      def acquire
         instance = if !@available.empty?
           @available.pop
         elsif size < @max_size
@@ -211,7 +214,7 @@ module Extlib
           instance
         else
           raise CrossPoolError.new(instance) if instance.instance_variable_get(:@__pool)
-          @reserved << instance
+          @reserved_count += 1
           instance.instance_variable_set(:@__pool, self)
           instance.instance_variable_set(:@__allocated_in_pool, Time.now)
           instance
@@ -219,7 +222,6 @@ module Extlib
       end
     end
 
-    private
     def self.scavenger_interval
       60
     end
