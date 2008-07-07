@@ -414,17 +414,14 @@ describe Extlib::Hook do
       end
 
       it 'should pass the hookable method arguments to the hook method if the hook method takes arguments' do
-        pending "This needs to be fixed"
         @class.class_eval do
           def self.hook_this(word, lol); end;
-          
+          register_class_hooks(:hook_this)
+          def self.before_hook_this(word, lol); hi_mom!(word, lol); end;
+          before_class_method(:hook_this, :before_hook_this)
         end
-        
-        @class.class_eval %{def self.hook_this(word, lol); end;}
-        @class.register_class_hooks(:hook_this)
-        @class.before_class_method(:hook_this, :before_hook_this)
 
-        @class.should_receive(:before_hook_this).with("omg", "hi2u")
+        @class.should_receive(:hi_mom!).with("omg", "hi2u")
         @class.hook_this("omg", "hi2u")
       end
 
@@ -442,11 +439,13 @@ describe Extlib::Hook do
       end
 
       it 'should work with glob arguments (or whatever you call em)' do
-        @class.class_eval %{def self.hook_this(*args); end;}
-        @class.register_class_hooks(:hook_this)
-        @class.before_class_method(:hook_this, :before_hook_this)
+        @class.class_eval do
+          def self.hook_this(*args); end;
+          def self.before_hook_this(*args); hi_mom!(*args); end;
+          before_class_method(:hook_this, :before_hook_this)
+        end
 
-        @class.should_receive(:before_hook_this).with("omg", "hi2u", "lolercoaster")
+        @class.should_receive(:hi_mom!).with("omg", "hi2u", "lolercoaster")
         @class.hook_this("omg", "hi2u", "lolercoaster")
       end
 
@@ -461,14 +460,16 @@ describe Extlib::Hook do
       end
 
       it 'should be able to use private methods as hooks' do
-        pending "Still needs to be implemented"
-        # The instance version of the spec for reference
-        @class.class_eval %{private; def nike; doit!; end;}
-        @class.before(:hookable, :nike)
-
-        inst = @class.new
-        inst.should_receive(:doit!)
-        inst.hookable
+        @class.class_eval do
+          class << self
+            private
+            def nike; doit!; end;
+          end
+          before_class_method(:clakable, :nike)
+        end
+        
+        @class.should_receive(:doit!)
+        @class.clakable
       end
     end
 
@@ -566,13 +567,14 @@ describe Extlib::Hook do
       end
 
       it 'should work with glob arguments (or whatever you call em)' do
-        pending "This needs to be fixed"
-        @class.class_eval %{def hook_this(*args); end;}
-        @class.register_instance_hooks(:hook_this)
-        @class.before(:hook_this, :before_hook_this)
+        @class.class_eval do
+          def hook_this(*args); end;
+          def before_hook_this(*args); hi_mom!(*args) end;
+          before(:hook_this, :before_hook_this)
+        end
 
         inst = @class.new
-        inst.should_receive(:before_hook_this).with("omg", "hi2u", "lolercoaster")
+        inst.should_receive(:hi_mom!).with("omg", "hi2u", "lolercoaster")
         inst.hook_this("omg", "hi2u", "lolercoaster")
       end
 
@@ -666,8 +668,6 @@ describe Extlib::Hook do
         @class.should_not_receive(:hello_world!)
         @class.clakable
       end
-
-      it 'should allow changing the arity of hooks in child classes'
     end
 
     describe "for instance methods" do
@@ -746,8 +746,6 @@ describe Extlib::Hook do
         inst.should_not_receive(:hello_world!)
         inst.hookable
       end
-
-      it 'should allow changing the arity of hooks in child classes'
     end
 
   end
@@ -1054,9 +1052,15 @@ describe Extlib::Hook do
     
     describe "for class methods" do
       
-      it "should be able to abort from a before hook with a return value"
+      it "should be able to abort from a before hook with a return value" do
+        @class.before_class_method(:clakable) { throw :halt, 'omg' }
+        @class.clakable.should == 'omg'
+      end
       
-      it "should be able to abort from an after hook with a return value"
+      it "should be able to abort from an after hook with a return value" do
+        @class.after_class_method(:clakable) { throw :halt, 'omg' }
+        @class.clakable.should == 'omg'
+      end
       
     end
     
