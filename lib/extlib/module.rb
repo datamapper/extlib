@@ -36,9 +36,7 @@ class Module
         break unless klass == self
       end
 
-      if klass == Object
-        klass = nil
-      end
+      raise NameError if klass == Object
 
       h[k] = klass
     end
