@@ -22,6 +22,10 @@ describe Module do
     end
   end
 
+  it "should not find a constant" do
+    Object::find_const('MissingConstant').should == nil
+  end
+
   it "should be able to get a recursive constant" do
     Object::find_const('Foo::Bar').should == Foo::Bar
   end

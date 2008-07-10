@@ -35,6 +35,11 @@ class Module
         end
         break unless klass == self
       end
+
+      if klass == self
+        klass = nil
+      end
+
       h[k] = klass
     end
   end
