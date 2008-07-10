@@ -36,7 +36,7 @@ class Module
         break unless klass == self
       end
 
-      if klass == self
+      if klass == Object
         klass = nil
       end
 
