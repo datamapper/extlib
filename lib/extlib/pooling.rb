@@ -167,11 +167,7 @@ module Extlib
       end
 
       def flush!
-        until @available.empty?
-          instance = @available.pop
-          instance.dispose
-        end
-        @available.clear
+        @available.pop.dispose until @available.empty?
       end
 
       def dispose
