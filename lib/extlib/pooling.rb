@@ -102,7 +102,7 @@ module Extlib
     end
 
     def release
-      @__pool.release(self)
+      @__pool.release(self) unless @__pool.nil?
     end
 
     class Pool
@@ -153,6 +153,14 @@ module Extlib
           instance.instance_variable_set(:@__pool, nil)
           @reserved_count -= 1
           @available.push(instance)
+        end
+        nil
+      end
+
+      def delete(instance)
+        lock.synchronize do
+          instance.instance_variable_set(:@__pool, nil)
+          @reserved_count -= 1
         end
         nil
       end
