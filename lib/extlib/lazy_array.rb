@@ -1,6 +1,8 @@
 class LazyArray  # borrowed partially from StrokeDB
   include Enumerable
 
+  instance_methods.each { |m| undef_method m unless %w[ __id__ __send__ send dup class object_id kind_of? respond_to? assert_kind_of should should_not instance_variable_set instance_variable_get ].include?(m) }
+
   # these methods should return self or nil
   RETURN_SELF = [ :<<, :clear, :concat, :collect!, :each, :each_index,
     :each_with_index, :insert, :map!, :push, :replace, :reject!,
