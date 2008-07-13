@@ -102,7 +102,7 @@ module Extlib
     end
 
     def release
-      @__pool.release(self)
+      @__pool.release(self) unless @__pool.nil?
     end
 
     class Pool
@@ -157,6 +157,14 @@ module Extlib
         nil
       end
 
+      def delete(instance)
+        lock.synchronize do
+          instance.instance_variable_set(:@__pool, nil)
+          @reserved_count -= 1
+        end
+        nil
+      end
+
       def size
         @available.size + @reserved_count
       end
@@ -167,11 +175,7 @@ module Extlib
       end
 
       def flush!
-        until @available.empty?
-          instance = @available.pop
-          instance.dispose
-        end
-        @available.clear
+        @available.pop.dispose until @available.empty?
       end
 
       def dispose

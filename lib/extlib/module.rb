@@ -35,6 +35,9 @@ class Module
         end
         break unless klass == self
       end
+
+      raise NameError if klass == Object
+
       h[k] = klass
     end
   end

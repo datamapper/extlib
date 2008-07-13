@@ -124,16 +124,16 @@ describe Extlib::Hook do
          @class.hookable!
          @class.hookable?
       end
-      
+
       it "should allow hooking methods that have single character names" do
         @class.class_eval do
           def self.a; end;
           def self.b; end;
         end
-        
+
         @class.before_class_method(:a) { omg! }
         @class.before_class_method(:b) { hi2u! }
-        
+
         @class.should_receive(:omg!).once.ordered
         @class.should_receive(:hi2u!).once.ordered
         @class.a
@@ -232,16 +232,16 @@ describe Extlib::Hook do
         inst.hookable = 'hello'
         inst.hookable?
       end
-      
+
       it "should allow hooking methods that have single character names" do
         @class.class_eval do
           def a; end;
           def b; end;
         end
-        
+
         @class.before(:a) { omg! }
         @class.before(:b) { hi2u! }
-        
+
         inst = @class.new
         inst.should_receive(:omg!).once.ordered
         inst.should_receive(:hi2u!).once.ordered

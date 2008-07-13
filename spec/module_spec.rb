@@ -1,4 +1,5 @@
 require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
+require 'pp'
 
 describe Module do
 
@@ -20,6 +21,10 @@ describe Module do
 
     class Bar
     end
+  end
+
+  it "should raise NameError for a missing constant" do
+    lambda { Object::find_const('MissingConstant') }.should raise_error(NameError)
   end
 
   it "should be able to get a recursive constant" do
