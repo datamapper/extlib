@@ -224,6 +224,8 @@ describe LazyArray do
   end
 
   describe '#freeze' do
+    it_should_return_self(:freeze)
+
     it 'should freeze the underlying array' do
       @lazy_array.should_not be_frozen
       @lazy_array.instance_variable_get('@array').should_not be_frozen
