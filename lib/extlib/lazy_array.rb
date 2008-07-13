@@ -5,8 +5,8 @@ class LazyArray  # borrowed partially from StrokeDB
 
   # these methods should return self or nil
   RETURN_SELF = [ :<<, :clear, :concat, :collect!, :each, :each_index,
-    :each_with_index, :insert, :map!, :push, :replace, :reject!,
-    :reverse!, :reverse_each, :sort!, :unshift ]
+    :each_with_index, :freeze, :insert, :map!, :push, :replace,
+    :reject!, :reverse!, :reverse_each, :sort!, :unshift ]
 
   RETURN_SELF.each do |method|
     class_eval <<-EOS, __FILE__, __LINE__

@@ -219,6 +219,22 @@ describe LazyArray do
     end
   end
 
+  it 'should provide #freeze' do
+    @lazy_array.should respond_to(:freeze)
+  end
+
+  describe '#freeze' do
+    it 'should freeze the underlying array' do
+      @lazy_array.should_not be_frozen
+      @lazy_array.instance_variable_get('@array').should_not be_frozen
+
+      @lazy_array.freeze
+
+      @lazy_array.should be_frozen
+      @lazy_array.instance_variable_get('@array').should be_frozen
+    end
+  end
+
   it 'should provide #eql?' do
     @lazy_array.should respond_to(:eql?)
   end
@@ -853,16 +869,12 @@ describe LazyArray do
 
   describe 'a method mixed into Array' do
     before :all do
-      class Array
+      module Enumerable
         def group_by(&block)
-          groups = []
+          groups = {}
           each do |entry|
             value = yield(entry)
-            if(last_group = groups.last) && last_group.first == value
-              last_group.last << entry
-            else
-              groups << [ value, [ entry ] ]
-            end
+            (groups[value] ||= []).push(entry)
           end
           groups
         end
@@ -870,7 +882,7 @@ describe LazyArray do
     end
 
     it 'should delegate to the Array' do
-      @lazy_array.group_by { |e| e.length }.should == [ [ 5, %w[ nancy ] ], [ 6, %w[ bessie ] ] ]
+      @lazy_array.group_by { |e| e.length }.should == { 5 => %w[ nancy ], 6 => %w[ bessie ] }
     end
   end
 
