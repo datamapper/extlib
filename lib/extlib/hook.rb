@@ -277,7 +277,7 @@ module Extlib
             catch(:halt) do
               #{hook_method_name(target_method, 'execute_before', 'hook_stack')}(#{args})
               retval = #{renamed_target}(#{args})
-              #{hook_method_name(target_method, 'execute_after', 'hook_stack')}(#{args})
+              #{hook_method_name(target_method, 'execute_after', 'hook_stack')}(retval, #{args})
               retval
             end
           end

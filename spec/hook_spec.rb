@@ -425,6 +425,16 @@ describe Extlib::Hook do
         @class.hook_this("omg", "hi2u")
       end
 
+      it "should pass the hookable method arguments to the hook block if the hook block takes arguments" do
+        @class.class_eval do
+          def self.method_with_args(word, lol); end;
+          before_class_method(:method_with_args) { |one, two| hi_mom!(one, two) }
+        end
+        
+        @class.should_receive(:hi_mom!).with('omg', 'hi2u')
+        @class.method_with_args('omg', 'hi2u')
+      end
+
       it 'should pass the hookable method arguments to the hook method if the hook method was re-defined to accept arguments' do
         @class.class_eval do
           def self.method_with_args(word, lol); end;
@@ -552,6 +562,17 @@ describe Extlib::Hook do
         inst.method_with_args("omg", "hi2u")
       end
       
+      it "should pass the hookable method arguments to the hook block if the hook block takes arguments" do
+        @class.class_eval do
+          def method_with_args(word, lol); end;
+          before(:method_with_args) { |one, two| hi_mom!(one, two) }
+        end
+        
+        inst = @class.new
+        inst.should_receive(:hi_mom!).with('omg', 'hi2u')
+        inst.method_with_args('omg', 'hi2u')
+      end
+      
       it 'should pass the hookable method arguments to the hook method if the hook method was re-defined to accept arguments' do
         @class.class_eval do
           def method_with_args(word, lol); end;
@@ -564,6 +585,18 @@ describe Extlib::Hook do
         inst.should_not_receive(:hi_mom!)
         inst.should_receive(:hi_dad!).with("omg", "hi2u")
         inst.method_with_args("omg", "hi2u")
+      end
+
+      it "should not pass the method return value to the after hook if the method does not take arguments" do
+        @class.class_eval do
+          def method_with_ret_val; 'hello'; end;
+          def after_method_with_ret_val; hi_mom!; end;
+          after(:method_with_ret_val, :after_method_with_ret_val)
+        end
+        
+        inst = @class.new
+        inst.should_receive(:hi_mom!)
+        inst.method_with_ret_val
       end
 
       it 'should work with glob arguments (or whatever you call em)' do
@@ -908,6 +941,36 @@ describe Extlib::Hook do
         @class.hello.should == "hello world"
       end
 
+      it "should pass the return value to a hook method" do
+        @class.class_eval do
+          def self.with_return_val; 'hello'; end;
+          def self.after_with_return_val(retval); retval.should == 'hello'; end;
+          after_class_method(:with_return_val, :after_with_return_val)
+        end
+        
+        @class.with_return_val
+      end
+
+      it "should pass the return value to a hook block" do
+        @class.class_eval do
+          def self.with_return_val; 'hello'; end;
+          after_class_method(:with_return_val) { |ret| ret.should == 'hello' }
+        end
+        
+        @class.with_return_val
+      end
+      
+      it "should pass the return value and method arguments to a hook block" do
+        @class.class_eval do
+          def self.with_args_and_return_val(world); 'hello'; end;
+          after_class_method(:with_args_and_return_val) do |hello, world|
+            hello.should == "hello"
+            world.should == "world"
+          end
+        end
+        
+        @class.with_args_and_return_val('world')
+      end
     end
 
     describe "for instance methods" do
@@ -942,7 +1005,45 @@ describe Extlib::Hook do
 
         @class.new.hello.should == "hello world"
       end
+      
+      it "should return nil if an after hook throws :halt without a return value" do
+        @class.class_eval %{def with_value; "hello"; end;}
+        @class.register_instance_hooks(:with_value)
+        @class.after(:with_value) { throw :halt }
 
+        @class.new.with_value.should be_nil
+      end
+      
+      it "should pass the return value to a hook method" do
+        @class.class_eval do
+          def with_return_val; 'hello'; end;
+          def after_with_return_val(retval); retval.should == 'hello'; end;
+          after(:with_return_val, :after_with_return_val)
+        end
+        
+        @class.new.with_return_val
+      end
+
+      it "should pass the return value to a hook block" do
+        @class.class_eval do
+          def with_return_val; 'hello'; end;
+          after(:with_return_val) { |ret| ret.should == 'hello' }
+        end
+        
+        @class.new.with_return_val
+      end
+      
+      it "should pass the return value and method arguments to a hook block" do
+        @class.class_eval do
+          def with_args_and_return_val(world); 'hello'; end;
+          after(:with_args_and_return_val) do |hello, world|
+            hello.should == "hello"
+            world.should == "world"
+          end
+        end
+        
+        @class.new.with_args_and_return_val('world')
+      end
     end
 
   end
@@ -1035,14 +1136,6 @@ describe Extlib::Hook do
         inst = @class.new
         inst.should_not_receive(:never_see_me!)
         lambda { inst.hookable }.should_not throw_symbol(:halt)
-      end
-
-      it "should return nil if an after hook throws :halt without a return value" do
-        @class.class_eval %{def with_value; "hello"; end;}
-        @class.register_instance_hooks(:with_value)
-        @class.after(:with_value) { throw :halt }
-
-        @class.new.with_value.should be_nil
       end
     end
 
