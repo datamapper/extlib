@@ -1,15 +1,25 @@
 #!/usr/bin/env ruby
-
 require 'pathname'
 require 'rubygems'
 require 'rake'
 require Pathname('spec/rake/spectask')
-require Pathname('rake/gempackagetask')
-require Pathname('rake/contrib/rubyforgepublisher')
+require Pathname('lib/extlib/version')
 
 ROOT = Pathname(__FILE__).dirname.expand_path
 
-Pathname.glob(ROOT + 'tasks/**/*.rb') { |t| require t }
+AUTHOR = "Sam Smoot"
+EMAIL  = "ssmoot@gmail.com"
+GEM_NAME = "extlib"
+GEM_VERSION = Extlib::VERSION
+GEM_DEPENDENCIES = [["english", ">=0.2.0"]]
+GEM_CLEAN = "*.gem", "**/.DS_Store"
+GEM_EXTRAS = { :has_rdoc => false }
+
+PROJECT_NAME = "extlib"
+PROJECT_URL  = "http://extlib.rubyforge.org"
+PROJECT_DESCRIPTION = PROJECT_SUMMARY = "Support Library for DataMapper and DataObjects"
+
+require ROOT + 'tasks/hoe'
 
 task :default => 'extlib:spec'
 task :spec    => 'extlib:spec'
@@ -34,31 +44,6 @@ namespace :extlib do
   end
 end
 
-PACKAGE_VERSION = '0.9.3'
-
-PACKAGE_FILES = [
-  'README',
-  'FAQ',
-  'QUICKLINKS',
-  'CHANGELOG',
-  'MIT-LICENSE',
-  '*.rb',
-  'lib/**/*.rb',
-  'spec/**/*.{rb,yaml}',
-  'tasks/**/*'
-].collect { |pattern| Pathname.glob(pattern) }.flatten.reject { |path| path.to_s =~ /(\/db|Makefile|\.bundle|\.log|\.o)\z/ }
-
-DOCUMENTED_FILES = PACKAGE_FILES.reject do |path|
-  path.directory? || path.to_s.match(/(?:^spec|\/spec|\/swig\_)/)
-end
-
-PROJECT = "extlib"
-
-desc 'List all package files'
-task :ls do
-  puts PACKAGE_FILES
-end
-
 desc "Generate documentation"
 task :doc do
   begin
@@ -70,54 +55,19 @@ task :doc do
   end
 end
 
-gem_spec = Gem::Specification.new do |s|
-  s.platform = Gem::Platform::RUBY
-  s.name = PROJECT
-  s.summary = "Support Library"
-  s.description = "Conveniences"
-  s.version = PACKAGE_VERSION
-
-  s.authors = "Sam Smoot"
-  s.email = "ssmoot@gmail.com"
-  s.rubyforge_project = PROJECT
-  s.homepage = "http://extlib.rubyforge.org"
-
-  s.files = PACKAGE_FILES.map { |f| f.to_s }
-
-  s.require_path = "lib"
-  s.requirements << "none"
-  s.add_dependency("english", ">=0.2.0")
-  s.add_dependency("rspec", ">=1.1.3")
-
-  s.has_rdoc    = false
-  #s.rdoc_options << "--line-numbers" << "--inline-source" << "--main" << "README"
-  #s.extra_rdoc_files = DOCUMENTED_FILES.map { |f| f.to_s }
-end
-
-Rake::GemPackageTask.new(gem_spec) do |p|
-  p.gem_spec = gem_spec
-  p.need_tar = true
-  p.need_zip = true
-end
-
-desc "Publish to RubyForge"
-task :rubyforge => [ :doc, :gem ] do
-  Rake::SshDirPublisher.new("#{ENV['RUBYFORGE_USER']}@rubyforge.org", "/var/www/gforge-projects/#{PROJECT}", 'doc').upload
-end
-
 WINDOWS = (RUBY_PLATFORM =~ /win32|mingw|bccwin|cygwin/) rescue nil
 SUDO    = WINDOWS ? '' : ('sudo' unless ENV['SUDOLESS'])
 
-desc "Install #{PROJECT}"
+desc "Install #{GEM_NAME}"
 task :install => :package do
-  sh %{#{SUDO} gem install --local pkg/#{PROJECT}-#{PACKAGE_VERSION} --no-update-sources}
+  sh %{#{SUDO} gem install --local pkg/#{GEM_NAME}-#{GEM_VERSION} --no-update-sources}
 end
 
 if WINDOWS
   namespace :dev do
     desc 'Install for development (for windows)'
     task :winstall => :gem do
-      system %{gem install --no-rdoc --no-ri -l pkg/#{PROJECT}-#{PACKAGE_VERSION}.gem}
+      system %{gem install --no-rdoc --no-ri -l pkg/#{GEM_NAME}-#{GEM_VERSION}.gem}
     end
   end
 end
