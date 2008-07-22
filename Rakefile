@@ -2,6 +2,9 @@
 require 'pathname'
 require 'rubygems'
 require 'rake'
+require "rake/clean"
+require "rake/gempackagetask"
+require "fileutils"
 require Pathname('spec/rake/spectask')
 require Pathname('lib/extlib/version')
 
@@ -19,7 +22,29 @@ PROJECT_NAME = "extlib"
 PROJECT_URL  = "http://extlib.rubyforge.org"
 PROJECT_DESCRIPTION = PROJECT_SUMMARY = "Support Library for DataMapper and DataObjects"
 
-require ROOT + 'tasks/hoe'
+spec = Gem::Specification.new do |s|
+  s.name         = GEM_NAME
+  s.version      = Extlib::VERSION
+  s.platform     = Gem::Platform::RUBY
+  s.author       = AUTHOR
+  s.email        = EMAIL
+  s.homepage     = "http://extlib.rubyforge.org"
+  s.summary      = "Support library for DataMapper, DataObjects and Merb."
+  s.description  = s.summary
+  s.require_path = "lib"
+  s.files        = ["LICENSE", "README.txt", "Rakefile"] + Dir["lib/**/*"]
+
+  # rdoc
+  s.has_rdoc         = false
+  s.extra_rdoc_files = ["LICENSE", "README.txt"]
+
+  # Dependencies
+  s.add_dependency "english", ">=0.2.0"
+end
+
+Rake::GemPackageTask.new(spec) do |package|
+  package.gem_spec = spec
+end
 
 task :default => 'extlib:spec'
 task :spec    => 'extlib:spec'
