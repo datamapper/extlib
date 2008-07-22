@@ -165,3 +165,36 @@ describe String, "#relative_path_from" do
     two_levels_up.relative_path_from(site_dir).should == "../.."
   end
 end
+
+
+describe String, ".translate" do
+  before(:each) do
+    String.stub!(:translations).and_return({ "on snakes and rubies" => "a serpenti e rubini" })
+  end
+  
+  it 'looks up for translation in translations dictionary' do
+    String.translate("on snakes and rubies").should == "a serpenti e rubini"
+  end
+
+  it 'returns string that has no translations as it is' do
+    String.translate("shapes").should == "shapes"
+    String.translate("kalopsia").should == "kalopsia"
+    String.translate("holding on to nothing").should == "holding on to nothing"
+  end
+end
+
+
+
+describe String, ".translations" do
+  before(:each) do
+    
+  end
+
+  it 'returns empty hash by default' do
+    String.translations.should == {}
+  end
+
+  it 'returns @translations if set' do
+    pending "is it @translations on metaclass or @@translations? leaving it out for now"
+  end
+end
