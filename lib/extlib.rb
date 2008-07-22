@@ -14,7 +14,6 @@ require dir / "mash"
 require dir / "object"
 require dir / "object_space"
 require dir / "rubygems"
-require dir / "set"
 require dir / "virtual_file"
 require dir / "logger"
 
