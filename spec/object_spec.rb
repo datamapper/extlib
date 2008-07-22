@@ -75,4 +75,24 @@ describe Object do
       receiver.quacks_like?(ary).should be(false)
     end    
   end
+
+
+
+  describe "#in?" do
+    it 'returns true if object is included in collection' do
+      @ary = [1, 2, 3]
+      @set = Set.new([2, 3, 5])
+
+      1.in?(@ary).should be(true)
+      2.in?(@ary).should be(true)
+      3.in?(@ary).should be(true)
+      4.in?(@ary).should be(false)
+
+      1.in?(@set).should be(false)
+      2.in?(@set).should be(true)
+      3.in?(@set).should be(true)
+      4.in?(@set).should be(false)
+      5.in?(@set).should be(true)
+    end
+  end
 end
