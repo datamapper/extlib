@@ -20,6 +20,15 @@ describe Mash do
       mash["hash"]["hash"].should == "different"
     end
 
+    it 'converts all value items if value is an Array' do
+      mash = Mash.new :arry => { :hash => [@hash] }
+
+      mash["arry"].should be_an_instance_of(Mash)
+      # sanity check
+      mash["arry"]["hash"].first["hash"].should == "different"
+      
+    end
+
     it 'delegates to superclass constructor if param is not a Hash' do
       mash = Mash.new("dash berlin")
 
@@ -162,6 +171,74 @@ describe Mash do
 
       mash.delete("mash")
       mash.key?("mash").should be(false)
+    end
+  end
+
+
+
+  describe "#merge" do
+    before(:each) do
+      @mash = Mash.new(@hash).merge(:no => "in between")
+    end
+    
+    it 'returns instance of Mash' do
+      @mash.should be_an_instance_of(Mash)
+    end
+
+    it 'merges in give Hash' do
+      @mash["no"].should == "in between"
+    end
+  end
+
+
+  
+  describe "#fetch" do
+    before(:each) do
+      @mash = Mash.new(@hash).merge(:no => "in between")
+    end
+
+    it 'converts key before fetching' do
+      @mash.fetch("no").should == "in between"
+    end
+
+    it 'returns alternative value if key lookup fails' do
+      @mash.fetch("flying", "screwdriver").should == "screwdriver"
+    end
+  end
+
+
+  describe "#default" do
+    before(:each) do
+      @mash = Mash.new(:yet_another_technical_revolution)
+    end
+
+    it 'returns default value unless key exists in mash' do
+      @mash.default("peak oil is now behind, baby").should == :yet_another_technical_revolution
+    end
+
+    it 'returns existing value if key is Symbol and exists in mash' do
+      @mash.update(:no => "in between")
+      @mash.default(:no).should == "in between"
+    end
+  end
+
+
+  describe "#values_at" do
+    before(:each) do
+      @mash = Mash.new(@hash).merge(:no => "in between")
+    end
+
+    it 'is indifferent to whether keys are strings or symbols' do
+      @mash.values_at("hash", :mash, :no).should == ["different", "indifferent", "in between"]
+    end
+  end  
+
+
+  describe "#stringify_keys!" do
+    it 'returns the mash itself' do
+      mash = Mash.new(@hash)
+
+      mash.stringify_keys!.object_id.should == mash.object_id
     end
   end
 end
