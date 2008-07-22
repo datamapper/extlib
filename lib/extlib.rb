@@ -1,19 +1,21 @@
 require 'pathname'
 require 'rubygems'
 
+__DIR__ = File.expand_path(File.dirname(__FILE__))
+$LOAD_PATH.unshift(__DIR__) unless $LOAD_PATH.include?(__DIR__)
+
 # for Pathname /
-require File.expand_path(File.join(File.dirname(__FILE__), 'extlib', 'pathname'))
+require File.expand_path(File.join(__DIR__, 'extlib', 'pathname'))
 
 dir = Pathname(__FILE__).dirname.expand_path / 'extlib'
 
-require dir / "string"
-require dir / "time"
-require dir / "class"
-require dir / "hash"
-require dir / "mash"
+require dir / "class.rb"
 require dir / "object"
 require dir / "object_space"
-require dir / "rubygems"
+
+require dir / "string"
+require dir / "hash"
+require dir / "mash"
 require dir / "virtual_file"
 require dir / "logger"
 require dir / "time"
