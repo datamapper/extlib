@@ -16,6 +16,7 @@ require dir / "object_space"
 require dir / "rubygems"
 require dir / "virtual_file"
 require dir / "logger"
+require dir / "time"
 
 require dir / 'assertions'
 require dir / 'blank'
