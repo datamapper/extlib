@@ -1,3 +1,3 @@
 = extlib
 
-A support library for DataMapper and DataObjects.
+A support library for DataMapper, DataObjects and Merb.
