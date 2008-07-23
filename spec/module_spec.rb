@@ -1,5 +1,4 @@
 require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
-require 'pp'
 
 describe Module do
 
@@ -51,7 +50,6 @@ describe Module do
   end
 
   it "should find nested constants on nested constants" do
-    # pending "Implement this"
     Foo::Bar.find_const('Noo::Too')
   end
 
