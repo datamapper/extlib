@@ -54,7 +54,7 @@ describe Module do
     # pending "Implement this"
     Foo::Bar.find_const('Noo::Too')
   end
-  
+
   it "should be able to deal with constants being added and removed" do
     Object.find_const('Bar') # First we load Bar with find_const
     Object.module_eval { remove_const('Bar') } # Now we delete it

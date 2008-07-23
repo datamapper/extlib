@@ -31,7 +31,7 @@ module Extlib
           def method_added(name)
             process_method_added(name, :instance)
           end
-          
+
           def singleton_method_added(name)
             process_method_added(name, :class)
           end
@@ -204,14 +204,14 @@ module Extlib
           else "#{prefix}_#{target_method[0..-1]}_nan_#{suffix}"
         end
       end
-      
+
       # This will need to be refactored
       def process_method_added(method_name, scope)
         hooks_with_scope(scope).each do |target_method, hooks|
           if hooks[:before].any? { |hook| hook[:name] == method_name }
             define_hook_stack_execution_methods(target_method, scope)
           end
-          
+
           if hooks[:after].any? { |hook| hook[:name] == method_name }
             define_hook_stack_execution_methods(target_method, scope)
           end
@@ -256,7 +256,7 @@ module Extlib
       # and passes arguments accordingly.
       def inline_call(method_info, scope)
         name = method_info[:name]
-        
+
         if scope == :instance
           args = method_defined?(name) && instance_method(name).arity != 0 ? '*args' : ''
           %(#{name}(#{args}) if self.class <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
