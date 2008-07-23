@@ -1,44 +1,37 @@
 class Module
-  def find_const(nested_name)
-    if nested_name =~ /^\:\:/
-      Object::__nested_constants__(nested_name)
+  def find_const(const_name)
+    if const_name[0..1] == '::'
+      Object.find_const(const_name[2..-1])
     else
-      begin
-        self.__nested_constants__(nested_name)
-      rescue NameError
-        Object::__nested_constants__(nested_name)
-      end
+      nested_const_lookup(const_name)
     end
   end
 
-protected
+  private
+
   # Doesn't do any caching since constants can change with remove_const
-  def __nested_constants__(k)
-    klass = self
-    modules = [Object]
-    keys = k.split('::')
+  def nested_const_lookup(const_name)
+    constants = [ Object ]
 
-    if keys.first.blank? # We got "::Foo::Bar", so we'll get rid of the opening '::', and only search Object
-      keys.shift
-    else
-      klass.name.split('::').inject(modules) do |ary, elem|
-        ary << ary.last.const_get(elem)
-        ary
+    unless self == Object
+      self.name.split('::').each do |part|
+        constants.unshift(constants.first.const_get(part))
       end
-      modules.reverse!
     end
 
-    modules.each do |m|
-      keys.inject(m) do |group, elem|
-        break unless group.const_defined?(elem)
-        klass = group.const_get(elem)
+    parts = const_name.split('::')
+
+    # from most to least specific constant, use each as a base and try
+    # to find a constant with the name const_name within them
+    constants.each do |const|
+      # return the nested constant if available
+      return const if parts.all? do |part|
+        const = const.const_defined?(part) ? const.const_get(part) : nil
       end
-      break unless klass == self
     end
 
-    raise NameError if klass == Object
-
-    klass
+    # if we get this far then the nested constant was not found
+    raise NameError
   end
 
 end # class Module
