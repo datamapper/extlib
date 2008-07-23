@@ -23,21 +23,16 @@ describe Module do
   end
 
   it "should raise NameError for a missing constant" do
-    lambda { Object::find_const('MissingConstant') }.should raise_error(NameError)
+    lambda { Foo.find_const('Moo') }.should raise_error(NameError)
+    lambda { Object.find_const('MissingConstant') }.should raise_error(NameError)
   end
 
   it "should be able to get a recursive constant" do
-    Object::find_const('Foo::Bar').should == Foo::Bar
+    Object.find_const('Foo::Bar').should == Foo::Bar
   end
 
   it "should ignore get Constants from the Kernel namespace correctly" do
-    Object::find_const('::Foo::Bar').should == ::Foo::Bar
-  end
-
-  it "should not cache unresolvable class string" do
-    pending "This shouldn't be applicable anymore, but hopefully somebody can double check before it is removed"
-    lambda { find_const('Foo::Bar::Baz') }.should raise_error(NameError)
-    Object::send(:__nested_constants__).has_key?('Foo::Bar::Baz').should == false
+    Object.find_const('::Foo::Bar').should == ::Foo::Bar
   end
 
   it "should find relative constants" do
