@@ -61,19 +61,7 @@ RELEASE_NAME  = "REL #{PKG_VERSION}"
 # FIXME: hey, someone take care of me
 RUBY_FORGE_USER    = ""
 
-desc "Publish the release files to RubyForge."
-task :release => [ :package ] do
-  require 'rubyforge'
-  require 'rake/contrib/rubyforgepublisher'
-
-  packages = %w( gem tgz zip ).collect{ |ext| "pkg/#{PKG_NAME}-#{PKG_VERSION}.#{ext}" }
-
-  rubyforge = RubyForge.new
-  rubyforge.login
-  rubyforge.add_release(PKG_NAME, PKG_NAME, "REL #{PKG_VERSION}", *packages)
-end
-
-
+require "lib/extlib/tasks/release"
 
 task :default => 'extlib:spec'
 task :spec    => 'extlib:spec'
