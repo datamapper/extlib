@@ -31,7 +31,7 @@ class Module
     end
 
     # if we get this far then the nested constant was not found
-    raise NameError
+    raise NameError, "uninitialized constant #{const_name}"
   end
 
 end # class Module
