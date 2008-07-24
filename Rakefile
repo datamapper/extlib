@@ -46,6 +46,35 @@ Rake::GemPackageTask.new(spec) do |package|
   package.gem_spec = spec
 end
 
+##############################################################################
+# Release
+##############################################################################
+RUBY_FORGE_PROJECT = "extlib"
+
+PKG_NAME      = 'extlib'
+PKG_BUILD     = ENV['PKG_BUILD'] ? '.' + ENV['PKG_BUILD'] : ''
+PKG_VERSION   = Extlib::VERSION + PKG_BUILD
+PKG_FILE_NAME = "#{PKG_NAME}-#{PKG_VERSION}"
+
+RELEASE_NAME  = "REL #{PKG_VERSION}"
+
+# FIXME: hey, someone take care of me
+RUBY_FORGE_USER    = ""
+
+desc "Publish the release files to RubyForge."
+task :release => [ :package ] do
+  require 'rubyforge'
+  require 'rake/contrib/rubyforgepublisher'
+
+  packages = %w( gem tgz zip ).collect{ |ext| "pkg/#{PKG_NAME}-#{PKG_VERSION}.#{ext}" }
+
+  rubyforge = RubyForge.new
+  rubyforge.login
+  rubyforge.add_release(PKG_NAME, PKG_NAME, "REL #{PKG_VERSION}", *packages)
+end
+
+
+
 task :default => 'extlib:spec'
 task :spec    => 'extlib:spec'
 
