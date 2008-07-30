@@ -104,8 +104,8 @@ module Extlib
       end
 
       # Register a class method as hookable. Registering a method means that
-      # before hooks will be run immedietly before the method is invoked and
-      # after hooks will be called immedietly after the method is invoked.
+      # before hooks will be run immediately before the method is invoked and
+      # after hooks will be called immediately after the method is invoked.
       #
       # @param hookable_method<Symbol> The name of the class method that should
       #   be hookable
@@ -116,8 +116,8 @@ module Extlib
       end
 
       # Register aninstance method as hookable. Registering a method means that
-      # before hooks will be run immedietly before the method is invoked and
-      # after hooks will be called immedietly after the method is invoked.
+      # before hooks will be run immediately before the method is invoked and
+      # after hooks will be called immediately after the method is invoked.
       #
       # @param hookable_method<Symbol> The name of the instance method that should
       #   be hookable
