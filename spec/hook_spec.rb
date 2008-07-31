@@ -1184,7 +1184,7 @@ describe Extlib::Hook do
           [a, b, c]
         end
 
-        def yet_another(a, *heh)p
+        def yet_another(a, *heh)
           [a, *heh]
         end
       end
