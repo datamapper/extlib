@@ -1,5 +1,5 @@
 class LazyArray  # borrowed partially from StrokeDB
-  instance_methods.each { |m| undef_method m unless %w[ __id__ __send__ send dup class object_id kind_of? respond_to? assert_kind_of should should_not instance_variable_set instance_variable_get ].include?(m) }
+  instance_methods.each { |m| undef_method m unless %w[ __id__ __send__ send dup class object_id kind_of? respond_to? assert_kind_of should should_not instance_variable_set instance_variable_get extend ].include?(m) }
 
   include Enumerable
 
