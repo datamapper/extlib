@@ -10,27 +10,34 @@ require Pathname('lib/extlib/version')
 
 ROOT = Pathname(__FILE__).dirname.expand_path
 
+##############################################################################
+# Package && release
+##############################################################################
+RUBY_FORGE_PROJECT  = "extlib"
+PROJECT_URL         = "http://extlib.rubyforge.org"
+PROJECT_SUMMARY     = "Support library for DataMapper and Merb."
+PROJECT_DESCRIPTION = PROJECT_SUMMARY
+
 AUTHOR = "Sam Smoot"
 EMAIL  = "ssmoot@gmail.com"
-GEM_NAME = "extlib"
-GEM_VERSION = Extlib::VERSION
-GEM_DEPENDENCIES = [["english", ">=0.2.0"]]
-GEM_CLEAN = "*.gem", "**/.DS_Store"
-GEM_EXTRAS = { :has_rdoc => false }
 
-PROJECT_NAME = "extlib"
-PROJECT_URL  = "http://extlib.rubyforge.org"
-PROJECT_DESCRIPTION = PROJECT_SUMMARY = "Support Library for DataMapper and DataObjects"
+GEM_NAME    = "extlib"
+PKG_BUILD   = ENV['PKG_BUILD'] ? '.' + ENV['PKG_BUILD'] : ''
+GEM_VERSION = Extlib::VERSION + PKG_BUILD
+
+RELEASE_NAME    = "REL #{GEM_VERSION}"
+
+require "lib/extlib/tasks/release"
 
 spec = Gem::Specification.new do |s|
   s.name         = GEM_NAME
-  s.version      = Extlib::VERSION
+  s.version      = GEM_VERSION
   s.platform     = Gem::Platform::RUBY
   s.author       = AUTHOR
   s.email        = EMAIL
-  s.homepage     = "http://extlib.rubyforge.org"
-  s.summary      = "Support library for DataMapper, DataObjects and Merb."
-  s.description  = s.summary
+  s.homepage     = PROJECT_URL
+  s.summary      = PROJECT_SUMMARY
+  s.description  = PROJECT_DESCRIPTION
   s.require_path = "lib"
   s.files        = ["LICENSE", "README.txt", "Rakefile"] + Dir["lib/**/*"]
 
@@ -46,28 +53,14 @@ Rake::GemPackageTask.new(spec) do |package|
   package.gem_spec = spec
 end
 
-##############################################################################
-# Release
-##############################################################################
-RUBY_FORGE_PROJECT = "extlib"
-
-PKG_NAME      = 'extlib'
-PKG_BUILD     = ENV['PKG_BUILD'] ? '.' + ENV['PKG_BUILD'] : ''
-PKG_VERSION   = Extlib::VERSION + PKG_BUILD
-PKG_FILE_NAME = "#{PKG_NAME}-#{PKG_VERSION}"
-
-RELEASE_NAME  = "REL #{PKG_VERSION}"
-
-# FIXME: hey, someone take care of me
-RUBY_FORGE_USER    = ""
-
-require "lib/extlib/tasks/release"
-
-task :default => 'extlib:spec'
-task :spec    => 'extlib:spec'
-
 desc 'Remove all package, docs and spec products'
 task :clobber_all => %w[ clobber_package clobber_doc extlib:clobber_spec ]
+
+##############################################################################
+# Specs and continous integration
+##############################################################################
+task :default => 'extlib:spec'
+task :spec    => 'extlib:spec'
 
 namespace :extlib do
   Spec::Rake::SpecTask.new(:spec) do |t|
@@ -86,6 +79,10 @@ namespace :extlib do
   end
 end
 
+
+##############################################################################
+# Documentation
+##############################################################################
 desc "Generate documentation"
 task :doc do
   begin
@@ -99,6 +96,7 @@ end
 
 WINDOWS = (RUBY_PLATFORM =~ /win32|mingw|bccwin|cygwin/) rescue nil
 SUDO    = WINDOWS ? '' : ('sudo' unless ENV['SUDOLESS'])
+
 
 desc "Install #{GEM_NAME}"
 task :install => :package do
