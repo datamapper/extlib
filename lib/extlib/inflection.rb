@@ -10,6 +10,7 @@ gem 'english', '>=0.2.0'
 require 'english/inflect'
 
 English::Inflect.word 'postgres'
+English::Inflect.singular_word "status", "status"
 
 module Extlib
   module Inflection

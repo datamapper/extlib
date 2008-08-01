@@ -12,6 +12,14 @@ describe Extlib::Inflection do
     Extlib::Inflection.singularize('cars').should == 'car'
   end
 
+  it "should not singularize 'postgres'" do
+    Extlib::Inflection.singularize('postgres').should == 'postgres'
+  end
+
+  it "should not singularize 'status'" do
+    Extlib::Inflection.singularize('status').should == 'status'
+  end
+
   it 'should classify an underscored name' do
     Extlib::Inflection.classify('data_mapper').should == 'DataMapper'
   end
@@ -42,9 +50,5 @@ describe Extlib::Inflection do
     Extlib::Inflection.foreign_key('Message').should == 'message_id'
     Extlib::Inflection.foreign_key('Admin::Post').should == 'post_id'
   end
-
-
-
-
 
 end
