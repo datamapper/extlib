@@ -160,7 +160,7 @@ describe String, "#relative_path_from" do
 
     two_levels_up = site_dir.split(File::SEPARATOR)
     2.times { two_levels_up.pop } # remove two deepest directories
-    two_levels_up = File::SEPARATOR + two_levels_up.join(File::SEPARATOR)
+    two_levels_up = two_levels_up.join(File::SEPARATOR)
 
     two_levels_up.relative_path_from(site_dir).should == "../.."
   end
