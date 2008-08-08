@@ -94,12 +94,14 @@ class Object
   # @return <NilClass>
   def make_module(str)
     mod = str.split("::")
-    start = mod.map {|x| "module #{x}"}.join("; ")
-    ender = (["end"] * mod.size).join("; ")
-    self.class_eval <<-HERE
-      #{start}
-      #{ender}
-    HERE
+    current_module = self
+    mod.each do |x|
+      unless current_module.const_defined?(x)
+        current_module.class_eval "module #{x}; end"
+      end
+      current_module = current_module.const_get(x)
+    end
+    current_module
   end
 
   # @param duck<Symbol, Class, Array> The thing to compare the object to.

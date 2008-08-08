@@ -13,6 +13,11 @@ end
 class ClassyDuck
 end
 
+module Foo
+  class Bar
+  end
+end
+
 describe Object do
 
   describe "#full_const_get" do
@@ -36,8 +41,16 @@ describe Object do
       Object.make_module("Milano")
       Object.make_module("Norway::Oslo")
 
-      defined?(Milano).should == "constant"
-      defined?(Norway::Oslo).should == "constant"
+      Object.const_defined?("Milano").should == true
+      Norway.const_defined?("Oslo").should == true
+    end
+    
+    it "handles the case where we already have a class in the heirarchy" do
+      Object.make_module("Foo::Bar::Baz")
+      Object.const_defined?("Foo").should == true
+      Foo.const_defined?("Bar").should == true
+      Foo::Bar.const_defined?("Baz").should == true
+      Foo::Bar::Baz.should be_kind_of(Module)
     end
   end
 
