@@ -58,29 +58,6 @@ class Object
   #   http://whytheluckystiff.net/articles/seeingMetaclassesClearly.html
   def meta_class() class << self; self end end
 
-  # @return <TrueClass, FalseClass>
-  #   True if the empty? is true or if the object responds to strip (e.g. a
-  #   String) and strip.empty? is true, or if !self is true.
-  #
-  # @example [].blank?         #=>  true
-  # @example [1].blank?        #=>  false
-  # @example [nil].blank?      #=>  false
-  # @example nil.blank?        #=>  true
-  # @example true.blank?       #=>  false
-  # @example false.blank?      #=>  true
-  # @example "".blank?         #=>  true
-  # @example "     ".blank?    #=>  true
-  # @example " hey ho ".blank? #=>  false
-  def blank?
-    if respond_to?(:empty?) && respond_to?(:strip)
-      empty? or strip.empty?
-    elsif respond_to?(:empty?)
-      empty?
-    else
-      !self
-    end
-  end
-
   # @param name<String> The name of the constant to get, e.g. "Merb::Router".
   #
   # @return <Object> The constant corresponding to the name.
