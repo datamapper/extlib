@@ -14,6 +14,7 @@ require dir / "object"
 require dir / "object_space"
 
 require dir / "string"
+require dir / "symbol"
 require dir / "hash"
 require dir / "mash"
 require dir / "virtual_file"
