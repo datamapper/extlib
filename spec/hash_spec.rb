@@ -495,22 +495,23 @@ describe Hash, "from_xml" do
   end
 end
 
-
 describe Hash, 'to_params' do
-  before do
-    @hash = { :name => 'Bob', :address => { :street => '111 Ruby Ave.', :city => 'Ruby Central', :phones => ['111-111-1111', '222-222-2222'] } }
-  end
-
-  it 'should convert correctly into query parameters' do
-    @hash.to_params.split('&').sort.should ==
-      'name=Bob&address[city]=Ruby Central&address[phones][]=111-111-1111&address[phones][]=222-222-2222&address[street]=111 Ruby Ave.'.split('&').sort
+  {
+    { "foo" => "bar", "baz" => "bat" } => "foo=bar&baz=bat",
+    { "foo" => [ "bar", "baz" ] } => "foo[]=bar&foo[]=baz",
+    { "foo" => [ {"bar" => "1"}, {"bar" => 2} ] } => "foo[][bar]=1&foo[][bar]=2",
+    { "foo" => { "bar" => [ {"baz" => 1}, {"baz" => "2"}  ] } } => "foo[bar][][baz]=1&foo[bar][][baz]=2",
+    { "foo" => {"1" => "bar", "2" => "baz"} } => "foo[1]=bar&foo[2]=baz"
+  }.each do |hash, params|
+    it "should covert hash: #{hash.inspect} to params: #{params.inspect}" do
+      hash.to_params.split('&').sort.should == params.split('&').sort
+    end
   end
 
   it 'should not leave a trailing &' do
-    @hash.to_params.should_not match(/&$/)
+    { :name => 'Bob', :address => { :street => '111 Ruby Ave.', :city => 'Ruby Central', :phones => ['111-111-1111', '222-222-2222'] } }.to_params.should_not match(/&$/)
   end
 end
-
 
 describe Hash, 'to_mash' do
   before :each do
