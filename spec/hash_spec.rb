@@ -503,7 +503,7 @@ describe Hash, 'to_params' do
 
   it 'should convert correctly into query parameters' do
     @hash.to_params.split('&').sort.should ==
-      'name=Bob&address[city]=Ruby Central&address[phones]=111-111-1111222-222-2222&address[street]=111 Ruby Ave.'.split('&').sort
+      'name=Bob&address[city]=Ruby Central&address[phones][]=111-111-1111&address[phones][]=222-222-2222&address[street]=111 Ruby Ave.'.split('&').sort
   end
 
   it 'should not leave a trailing &' do
