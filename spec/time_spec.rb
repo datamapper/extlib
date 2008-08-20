@@ -12,5 +12,11 @@ describe Time, "#to_json" do
     Time.xmlschema("2008-03-28T22:54:20Z").to_json.should == @expected
     Time.xmlschema("2008-03-28T17:54:20-05:00").to_json.should == @expected
   end
-  
+end
+
+describe Time, "#to_time" do
+  it "should return a copy of its self" do
+    time = Time.now
+    time.to_time.should == time
+  end
 end

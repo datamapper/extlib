@@ -19,6 +19,7 @@ require dir / "mash"
 require dir / "virtual_file"
 require dir / "logger"
 require dir / "time"
+require dir / "datetime"
 
 require dir / 'assertions'
 require dir / 'blank'
