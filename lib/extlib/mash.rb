@@ -83,11 +83,6 @@ class Mash < Hash
     indices.collect {|key| self[convert_key(key)]} 
   end
 
-  # @return <Mash> A duplicate of this mash.
-  def dup 
-    Mash.new(self) 
-  end
-
   # @param hash<Hash> The hash to merge with the mash.
   #
   # @return <Mash> A new mash with the hash values merged in.
