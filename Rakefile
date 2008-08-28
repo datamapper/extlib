@@ -183,3 +183,18 @@ namespace :ci do
 end
 
 task :ci => ["ci:spec", "ci:doc", "ci:saikuro", :install, :publish]
+
+##############################################################################
+# Benchmarks
+##############################################################################
+
+namespace :benchmark do
+  desc "Runs benchmarks"
+  task :run do
+    files = Dir["benchmarks/**/*.rb"]
+    
+    files.each do |f|
+      system "ruby #{f}"
+    end
+  end  
+end

@@ -4,7 +4,7 @@ describe Module do
 
   before(:all) do
     module Foo
-      module Bar
+      module ModBar
         module Noo
           module Too
           end
@@ -28,24 +28,24 @@ describe Module do
   end
 
   it "should be able to get a recursive constant" do
-    Object.find_const('Foo::Bar').should == Foo::Bar
+    Object.find_const('Foo::ModBar').should == Foo::ModBar
   end
 
   it "should ignore get Constants from the Kernel namespace correctly" do
-    Object.find_const('::Foo::Bar').should == ::Foo::Bar
+    Object.find_const('::Foo::ModBar').should == ::Foo::ModBar
   end
 
   it "should find relative constants" do
-    Foo.find_const('Bar').should == Foo::Bar
+    Foo.find_const('ModBar').should == Foo::ModBar
     Foo.find_const('Baz').should == Baz
   end
 
   it "should find sibling constants" do
-    Foo::Bar.find_const("Zed").should == Foo::Zed
+    Foo::ModBar.find_const("Zed").should == Foo::Zed
   end
 
   it "should find nested constants on nested constants" do
-    Foo::Bar.find_const('Noo::Too')
+    Foo::ModBar.find_const('Noo::Too')
   end
 
   it "should be able to deal with constants being added and removed" do
