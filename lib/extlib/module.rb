@@ -6,6 +6,10 @@ class Module
       nested_const_lookup(const_name)
     end
   end
+  
+  def try_dup
+    self
+  end
 
   private
 
