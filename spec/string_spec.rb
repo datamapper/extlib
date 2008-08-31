@@ -188,14 +188,13 @@ describe String, ".t" do
     String.stub!(:translations).and_return({ '%s must not be blank' => "%s moet ingevuld worden",
                                              'username' => 'gebruikersnaam',
                                              '%s must be between %s and %s characters long' => '%s moet tussen %s en %s karacters lang zijn',
-                                             '5' => 'vijf',
-                                             '9' => 'negen'})
+                                             '5' => 'vijf'})
   end
 
   it 'looks up for translation in translations dictionary and translates parameters as well' do
     "%s must not be blank".t(:username).should == "gebruikersnaam moet ingevuld worden"
     "%s must not be blank".t('username').should == "gebruikersnaam moet ingevuld worden"
-    "%s must be between %s and %s characters long".t(:password, 5, 9).should == "password moet tussen vijf en negen karacters lang zijn"
+    "%s must be between %s and %s characters long".t(:password, 5, 9).should == "password moet tussen vijf en 9 karacters lang zijn"
   end
 
   it 'returns string that has no translations as it is' do
