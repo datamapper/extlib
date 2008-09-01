@@ -29,19 +29,21 @@ module Extlib
       @scavenger || begin
         @scavenger = Thread.new do
           loop do
+            # Sleep before we actually start doing anything.
+            # Otherwise we might clean up something we just made
+            sleep(scavenger_interval)
             lock.synchronize do
               pools.each do |pool|
                 # This is a useful check, but non-essential, and right now it breaks lots of stuff.
                 # if pool.expired?
                 pool.lock.synchronize do
-                  if pool.reserved_count == 0
+                  if pool.used.size == 0
                     pool.dispose
                   end
                 end
                 # end
               end
             end
-            sleep(scavenger_interval)
           end # loop
         end
 
@@ -65,10 +67,7 @@ module Extlib
       @lock ||= Mutex.new
     end
 
-    class CrossPoolError < StandardError
-    end
-
-    class OrphanedObjectError < StandardError
+    class InvalidResourceError < StandardError
     end
 
     class ThreadStopError < StandardError
@@ -82,9 +81,14 @@ module Extlib
 
         @__pools = Hash.new { |h,k| __pool_lock.synchronize { h[k] = Pool.new(target.pool_size, target, k) } }
         @__pool_lock = Mutex.new
+        @__pool_wait = ConditionVariable.new
 
         def self.__pool_lock
           @__pool_lock
+        end
+
+        def self.__pool_wait
+          @__pool_wait
         end
 
         def self.new(*args)
@@ -106,6 +110,9 @@ module Extlib
     end
 
     class Pool
+      attr_reader :available
+      attr_reader :used
+
       def initialize(max_size, resource, args)
         raise ArgumentError.new("+max_size+ should be a Fixnum but was #{max_size.inspect}") unless Fixnum === max_size
         raise ArgumentError.new("+resource+ should be a Class but was #{resource.inspect}") unless Class === resource
@@ -115,11 +122,16 @@ module Extlib
         @args = args
 
         @available = []
-        @reserved_count = 0
+        @used      = Set.new
+        Extlib::Pooling::append_pool(self)
       end
 
       def lock
         @resource.__pool_lock
+      end
+
+      def wait
+        @resource.__pool_wait
       end
 
       def scavenge_interval
@@ -128,31 +140,41 @@ module Extlib
 
       def new
         instance = nil
-
-        lock.synchronize do
-          instance = acquire
-        end
-
-        Extlib::Pooling::append_pool(self)
-
-        if instance.nil?
-          # Account for the current thread, and the pool scavenger.
-          if ThreadGroup::Default.list.size == 2 && @reserved_count >= @max_size
-            raise ThreadStopError.new(size)
-          else
-            sleep(0.05)
-            new
+        begin
+          lock.synchronize do
+            if @available.size > 0
+              instance = @available.pop
+              @used.add instance
+            elsif @used.size < @max_size
+              instance = @resource.__new(*@args)
+              raise InvalidResourceError.new("#{@resource} constructor created a nil object") if instance.nil?
+              raise InvalidResourceError.new("#{instance} is already part of the pool") if @used.include? instance
+              instance.instance_variable_set(:@__pool, self)
+              instance.instance_variable_set(:@__allocated_in_pool, Time.now)
+              @used.add instance
+            else
+              # Let's see whether we have multiple threads
+              # If we do, there is a chance we might be released
+              # at some point in the future and thus we wait.
+              # If there are no other threads, we exhaust the pool
+              # here and there is no more hope... So we throw an
+              # exception.
+              if ThreadGroup::Default.list.size <= 2
+                raise ThreadStopError.new(size)
+              else
+                wait.wait(lock)
+              end
+            end
           end
-        else
-          instance
-        end
+        end until instance
+        instance
       end
 
       def release(instance)
         lock.synchronize do
-          instance.instance_variable_set(:@__pool, nil)
-          @reserved_count -= 1
+          @used.delete instance
           @available.push(instance)
+          wait.signal
         end
         nil
       end
@@ -160,18 +182,18 @@ module Extlib
       def delete(instance)
         lock.synchronize do
           instance.instance_variable_set(:@__pool, nil)
-          @reserved_count -= 1
+          used.delete instance
         end
         nil
       end
 
       def size
-        @available.size + @reserved_count
+        @used.size + @available.size
       end
       alias length size
 
       def inspect
-        "#<Extlib::Pooling::Pool<#{@resource.name}> available=#{@available.size} reserved_count=#{@reserved_count}>"
+        "#<Extlib::Pooling::Pool<#{@resource.name}> available=#{@available.size} used=#{@used.size} size=#{@max_size}>"
       end
 
       def flush!
@@ -190,7 +212,7 @@ module Extlib
       #   lock.synchronize do
       #     @available.each do |instance|
       #       if instance.instance_variable_get(:@__allocated_in_pool) + scavenge_interval < Time.now
-      #         instance.dispose
+      #         instance.release
       #         @available.delete(instance)
       #       end
       #     end
@@ -199,31 +221,6 @@ module Extlib
       #   end
       # end
 
-      def reserved_count
-        @reserved_count
-      end
-
-      private
-
-      def acquire
-        instance = if !@available.empty?
-          @available.pop
-        elsif size < @max_size
-          @resource.__new(*@args)
-        else
-          nil
-        end
-
-        if instance.nil?
-          instance
-        else
-          raise CrossPoolError.new(instance) if instance.instance_variable_get(:@__pool)
-          @reserved_count += 1
-          instance.instance_variable_set(:@__pool, self)
-          instance.instance_variable_set(:@__allocated_in_pool, Time.now)
-          instance
-        end
-      end
     end
 
     def self.scavenger_interval
