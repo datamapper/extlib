@@ -22,9 +22,12 @@ require dir / "time"
 
 require dir / 'assertions'
 require dir / 'blank'
+require dir / 'boolean'
 require dir / 'inflection'
 require dir / 'lazy_array'
 require dir / 'module'
+require dir / 'nil'
+require dir / 'numeric'
 require dir / 'blank'
 require dir / 'pooling'
 require dir / 'simple_set'

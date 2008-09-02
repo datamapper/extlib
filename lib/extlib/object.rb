@@ -129,6 +129,13 @@ class Object
     end
   end
   
+  # Override this in a child if it cannot be dup'ed
+  #
+  # @return <Object>
+  def try_dup
+    self.dup
+  end
+  
   # @param arrayish<#include?> Container to check, to see if it includes the object.
   # @param *more<Array>:: additional args, will be flattened into arrayish
   #
