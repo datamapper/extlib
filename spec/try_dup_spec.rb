@@ -12,6 +12,12 @@ describe "try_dup" do
     oth = obj.try_dup
     obj.should === oth
   end
+
+  it "returns self on Symbols" do
+    obj = :test
+    oth = obj.try_dup
+    obj.should === oth
+  end
   
   it "returns self on true" do
     obj = true
