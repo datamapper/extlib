@@ -9,4 +9,11 @@ class Time
     self.xmlschema.to_json
   end
   
+  def to_time
+    self
+  end
+  
+  def to_datetime
+    DateTime.parse self.to_s
+  end
 end
