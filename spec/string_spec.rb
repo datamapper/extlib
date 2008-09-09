@@ -199,6 +199,10 @@ describe String, ".t" do
   it 'returns string that has no translations as it is' do
     "password".t.should == "password"
   end
+  
+  it 'should not translate when freezed' do
+    "%s must not be blank".t('username'.freeze).should == "username moet ingevuld worden"
+  end
 end
 
 describe String, ".translations" do

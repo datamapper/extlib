@@ -127,6 +127,6 @@ class String
   # "%s %s %s" % %w(one two three) #=> "one two three"
   # "%3$s %2$s %1$s" % %w(one two three) #=> "three two one"
   def t(*values)
-    self.class::translate(self) % values.collect! { |value| self.class::translate(value.to_s) }
+    self.class::translate(self) % values.collect! { |value| value.frozen? ? value : self.class::translate(value.to_s) }
   end
 end # class String
