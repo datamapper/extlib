@@ -1,5 +1,3 @@
-require 'base64'
-
 class Hash
   class << self
     # Converts valid XML into a Ruby Hash structure.
@@ -253,7 +251,7 @@ class REXMLUtilityNode
   self.typecasts["symbol"]        = lambda{|v| v.to_sym}
   self.typecasts["string"]        = lambda{|v| v.to_s}
   self.typecasts["yaml"]          = lambda{|v| v.nil? ? nil : YAML.load(v)}
-  self.typecasts["base64Binary"]  = lambda{|v| Base64.decode64(v)}
+  self.typecasts["base64Binary"]  = lambda{|v| v.unpack('m').first }
 
   self.available_typecasts = self.typecasts.keys
 
@@ -275,7 +273,7 @@ class REXMLUtilityNode
 
   def to_hash
     if @type == "file"
-      f = StringIO.new(::Base64.decode64(@children.first || ""))
+      f = StringIO.new((@children.first || '').unpack('m').first)
       class << f
         attr_accessor :original_filename, :content_type
       end
