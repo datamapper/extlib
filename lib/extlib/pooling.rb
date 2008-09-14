@@ -79,7 +79,7 @@ module Extlib
           alias __new new
         end
 
-        @__pools = Hash.new { |h,k| __pool_lock.synchronize { h[k] = Pool.new(target.pool_size, target, k) } }
+        @__pools     = {}
         @__pool_lock = Mutex.new
         @__pool_wait = ConditionVariable.new
 
@@ -92,7 +92,7 @@ module Extlib
         end
 
         def self.new(*args)
-          @__pools[args].new
+          (@__pools[args] ||= __pool_lock.synchronize { Pool.new(self.pool_size, self, args) }).new
         end
 
         def self.__pools
@@ -122,7 +122,7 @@ module Extlib
         @args = args
 
         @available = []
-        @used      = Set.new
+        @used      = {}
         Extlib::Pooling::append_pool(self)
       end
 
@@ -144,14 +144,14 @@ module Extlib
           lock.synchronize do
             if @available.size > 0
               instance = @available.pop
-              @used.add instance
+              @used[instance.object_id] = instance
             elsif @used.size < @max_size
               instance = @resource.__new(*@args)
               raise InvalidResourceError.new("#{@resource} constructor created a nil object") if instance.nil?
               raise InvalidResourceError.new("#{instance} is already part of the pool") if @used.include? instance
               instance.instance_variable_set(:@__pool, self)
               instance.instance_variable_set(:@__allocated_in_pool, Time.now)
-              @used.add instance
+              @used[instance.object_id] = instance
             else
               # Let's see whether we have multiple threads
               # If we do, there is a chance we might be released
@@ -172,7 +172,7 @@ module Extlib
 
       def release(instance)
         lock.synchronize do
-          @used.delete instance
+          @used.delete(instance.object_id)
           @available.push(instance)
           wait.signal
         end
@@ -182,7 +182,7 @@ module Extlib
       def delete(instance)
         lock.synchronize do
           instance.instance_variable_set(:@__pool, nil)
-          used.delete instance
+          @used.delete(instance.object_id)
         end
         nil
       end
