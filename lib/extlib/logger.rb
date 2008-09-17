@@ -92,7 +92,6 @@ module Extlib
     # *args:: Arguments to create the log from. See set_logs for specifics.
     def initialize(*args)
       @init_args = args
-      @mutex = Mutex.new
       set_log(*args)
     end
 
@@ -109,39 +108,33 @@ module Extlib
     #   Whether the log should automatically flush after new messages are
     #   added. Defaults to false.
     def set_log(log, log_level = nil, delimiter = " ~ ", auto_flush = false)
-      @mutex.synchronize {
-        if log_level && Levels[log_level.to_sym]
-          @level = Levels[log_level.to_sym]
-        elsif Merb.environment == "production"
-          @level = Levels[:warn]
-        else
-          @level = Levels[:debug]
-        end
-        @buffer     = []
-        @delimiter  = delimiter
-        @auto_flush = auto_flush
+      if log_level && Levels[log_level.to_sym]
+        @level = Levels[log_level.to_sym]
+      elsif Merb.environment == "production"
+        @level = Levels[:warn]
+      else
+        @level = Levels[:debug]
+      end
+      @buffer     = []
+      @delimiter  = delimiter
+      @auto_flush = auto_flush
 
-        initialize_log(log)
+      initialize_log(log)
 
-        Merb.logger = self
-      }
+      Merb.logger = self
     end
 
     # Flush the entire buffer to the log object.
     def flush
       return unless @buffer.size > 0
-      @mutex.synchronize {
-        @log.write(@buffer.slice!(0..-1).to_s)
-      }
+      @log.write(@buffer.slice!(0..-1).to_s)
     end
 
     # Close and remove the current log object.
     def close
       flush
-      @mutex.synchronize {
-        @log.close if @log.respond_to?(:close) && !@log.tty?
-        @log = nil
-      }
+      @log.close if @log.respond_to?(:close) && !@log.tty?
+      @log = nil
     end
 
     # Appends a message to the log. The methods yield to an optional block and
@@ -157,9 +150,7 @@ module Extlib
       message << delimiter
       message << string if string
       message << "\n" unless message[-1] == ?\n
-      @mutex.synchronize {
-        @buffer << message
-      }
+      @buffer << message
       flush if @auto_flush
 
       message
