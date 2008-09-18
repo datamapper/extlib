@@ -198,6 +198,13 @@ describe Mash do
       mashless.key?(:hash).should be(false)
       mashless.key?("mash").should be(false)
     end
+
+    it "should return a mash" do
+      mash = Mash.new(@hash)
+
+      hashless_mash = mash.except(:hash)
+      hashless_mash.class.should be(Mash)
+    end
   end
 
 
