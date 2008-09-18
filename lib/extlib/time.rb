@@ -5,7 +5,7 @@ class Time
   # 
   # @example
   #   Time.now.to_json # => "\"2008-03-28T17:54:20-05:00\""
-  def to_json
+  def to_json(*)
     self.xmlschema.to_json
   end
   
