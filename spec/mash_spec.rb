@@ -176,6 +176,32 @@ describe Mash do
 
 
 
+  describe "#except" do
+    it "converts Symbol key into String before calling super" do
+      mash = Mash.new(@hash)
+
+      hashless_mash = mash.except(:hash)
+      hashless_mash.key?("hash").should be(false)
+    end
+
+    it "works with String keys as well" do
+      mash = Mash.new(@hash)
+
+      mashless_mash = mash.except("mash")
+      mashless_mash.key?("mash").should be(false)
+    end
+
+    it "works with multiple keys" do
+      mash = Mash.new(@hash)
+
+      mashless = mash.except("hash", :mash)
+      mashless.key?(:hash).should be(false)
+      mashless.key?("mash").should be(false)
+    end
+  end
+
+
+
   describe "#merge" do
     before(:each) do
       @mash = Mash.new(@hash).merge(:no => "in between")

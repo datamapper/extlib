@@ -96,6 +96,10 @@ class Mash < Hash
     super(convert_key(key)) 
   end
 
+  def except(*keys)
+    super(*keys.map {|k| convert_key(k)})
+  end
+
   # Used to provide the same interface as Hash.
   #
   # @return <Mash> This mash unchanged.
