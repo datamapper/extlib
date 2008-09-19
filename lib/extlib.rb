@@ -31,8 +31,9 @@ require dir / 'module'
 require dir / 'nil'
 require dir / 'numeric'
 require dir / 'blank'
-require dir / 'pooling'
 require dir / 'simple_set'
 require dir / 'struct'
-require dir / 'hook'
 require dir / 'symbol'
+
+Extlib.autoload("Hook", (dir / 'hook').to_s)
+Extlib.autoload("Pooling", (dir / 'pooling').to_s)
