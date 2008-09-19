@@ -137,13 +137,12 @@ class Mash < Hash
   #
   # @api private
   def convert_value(value) 
-    case value 
-    when Hash 
+    if value.class == Hash
       value.to_mash 
-    when Array 
+    elsif value.is_a?(Array)
       value.collect { |e| convert_value(e) } 
-    else 
-      value 
+    else
+      value
     end 
   end
 end

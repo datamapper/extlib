@@ -1,8 +1,12 @@
 require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 
+class AwesomeHash < Hash
+end
+
 describe Mash do
   before(:each) do
     @hash = { "mash" => "indifferent", :hash => "different" }
+    @sub  = AwesomeHash.new("mash" => "indifferent", :hash => "different")
   end
   
   describe "#initialize" do
@@ -12,12 +16,17 @@ describe Mash do
       mash.keys.any? { |key| key.is_a?(Symbol) }.should be(false)
     end
 
-    it 'converts all Hash values into Mashes if param is a Hash' do
+    it 'converts all pure Hash values into Mashes if param is a Hash' do
       mash = Mash.new :hash => @hash
 
       mash["hash"].should be_an_instance_of(Mash)
       # sanity check
       mash["hash"]["hash"].should == "different"
+    end
+    
+    it 'doesn not convert Hash subclass values into Mashes' do
+      mash = Mash.new :sub => @sub
+      mash["sub"].should be_an_instance_of(AwesomeHash)
     end
 
     it 'converts all value items if value is an Array' do
