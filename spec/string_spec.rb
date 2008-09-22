@@ -183,7 +183,27 @@ describe String, ".translate" do
   end
 end
 
+describe String, ".t" do
+  before(:each) do
+    String.stub!(:translations).and_return({ '%s must not be blank' => "%s moet ingevuld worden",
+                                             'username' => 'gebruikersnaam',
+                                             '%s must be between %s and %s characters long' => '%s moet tussen %s en %s tekens lang zijn'})
+  end
 
+  it 'looks up for translation in translations dictionary and translates parameters as well' do
+    "%s must not be blank".t(:username).should == "gebruikersnaam moet ingevuld worden"
+    "%s must not be blank".t('username').should == "gebruikersnaam moet ingevuld worden"
+    "%s must be between %s and %s characters long".t(:password, 5, 9).should == "password moet tussen 5 en 9 tekens lang zijn"
+  end
+
+  it 'returns string that has no translations as it is' do
+    "password".t.should == "password"
+  end
+  
+  it 'should not translate when freezed' do
+    "%s must not be blank".t('username'.freeze).should == "username moet ingevuld worden"
+  end
+end
 
 describe String, ".translations" do
   before(:each) do
