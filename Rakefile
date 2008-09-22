@@ -133,7 +133,7 @@ namespace :ci do
     mv "ci/token", "#{out}/token_complexity"
   end
 
-  task :spec do
+  task :spec => :prepare do
     Rake::Task[:spec].invoke
     mv ROOT + "coverage", ROOT + "ci/coverage"
   end
@@ -143,16 +143,17 @@ namespace :ci do
     sh 'yardoc'
   end
 
-  task :saikuro => :prepare do
+  task :saikuro do
     system "saikuro -c -i lib -y 0 -w 10 -e 15 -o ci/cyclomatic"
     mv 'ci/cyclomatic/index_cyclo.html', 'ci/cyclomatic/index.html'
 
     system "saikuro -t -i lib -y 0 -w 20 -e 30 -o ci/token"
     mv 'ci/token/index_token.html', 'ci/token/index.html'
   end
+
 end
 
-task :ci => ["ci:spec", "ci:doc", "ci:saikuro", :install]
+task :ci => ["ci:spec"]
 
 ##############################################################################
 # Benchmarks
