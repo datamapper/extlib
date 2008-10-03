@@ -28,7 +28,8 @@ module Extlib
     def self.scavenger
       @scavenger || begin
         @scavenger = Thread.new do
-          loop do
+          running = true
+          while running do
             # Sleep before we actually start doing anything.
             # Otherwise we might clean up something we just made
             sleep(scavenger_interval)
@@ -43,6 +44,11 @@ module Extlib
                 end
                 # end
               end
+              # The pool is empty, we stop the scavenger
+              # It wil be restarted if new resources are added again
+              if pools.empty?
+                running = false
+              end
             end
           end # loop
         end
@@ -50,6 +56,10 @@ module Extlib
         @scavenger.priority = -10
         @scavenger
       end
+    end
+
+    def self.scavenger_finished
+      @scavenger = nil
     end
 
     def self.pools
@@ -203,6 +213,7 @@ module Extlib
       def dispose
         flush!
         @resource.__pools.delete(@args)
+        Extlib::Pooling.scavenger_finished if @resource.__pools.empty?
         !Extlib::Pooling::pools.delete?(self).nil?
       end
 
