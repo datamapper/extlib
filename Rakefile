@@ -46,7 +46,7 @@ spec = Gem::Specification.new do |s|
   s.extra_rdoc_files = ["LICENSE", "README.txt"]
 
   # Dependencies
-  s.add_dependency "english", ">=0.2.0"
+  # s.add_dependency "english", ">=0.2.0"
 end
 
 Rake::GemPackageTask.new(spec) do |package|
