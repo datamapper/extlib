@@ -1,29 +1,6 @@
 require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 
 describe Extlib::Inflection do
-
-  describe "#pluralize" do
-    it 'should pluralize a word' do
-      'car'.plural.should == 'cars'
-      Extlib::Inflection.pluralize('car').should == 'cars'
-    end    
-  end
-
-  describe "#singularize" do
-    it 'should singularize cars as car' do
-      "cars".singular.should == "car"
-      Extlib::Inflection.singularize('cars').should == 'car'
-    end
-
-    it "should not singularize 'postgres'" do
-      Extlib::Inflection.singularize('postgres').should == 'postgres'
-    end
-
-    it "should not singularize 'status'" do
-      Extlib::Inflection.singularize('status').should == 'status'
-    end    
-  end
-
   describe "#classify" do
     it 'classifies data_mapper as DataMaper' do
       Extlib::Inflection.classify('data_mapper').should == 'DataMapper'
