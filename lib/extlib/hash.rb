@@ -160,7 +160,7 @@ class Hash
   #     #=> 'one="1" two="TWO"'
   def to_xml_attributes
     map do |k,v|
-      %{#{k.to_s.camel_case.sub(/^(.{1,1})/) { |m| m.downcase }}="#{v}"}
+      %{#{k.to_s.snake_case.sub(/^(.{1,1})/) { |m| m.downcase }}="#{v}"}
     end.join(' ')
   end
 

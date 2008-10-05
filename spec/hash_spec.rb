@@ -51,6 +51,18 @@ describe Hash, "to_xml_attributes" do
     attrs.should match(/one="ONE"/m)
     attrs.should match(/two="TWO"/m)
   end
+
+  it 'should preserve _ in hash keys' do
+    attrs = {
+      :some_long_attribute => "with short value",
+      :crash               => :burn,
+      :merb                => "uses extlib"
+    }.to_xml_attributes
+
+    attrs.should =~ /some_long_attribute="with short value"/
+    attrs.should =~ /merb="uses extlib"/
+    attrs.should =~ /crash="burn"/
+  end
 end
 
 
