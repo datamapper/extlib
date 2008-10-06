@@ -65,6 +65,16 @@ describe "Extlib::Pooling" do
     end
   end
 
+  after :each do
+    Extlib::Pooling.lock.synchronize do
+      Extlib::Pooling.pools.each do |pool|
+        pool.lock.synchronize do
+          pool.dispose
+        end
+      end
+    end
+  end
+
   it "should track the initialized pools" do
     bob = Person.new('Bob') # Ensure the pool is "primed"
     bob.name.should == 'Bob'
@@ -74,7 +84,9 @@ describe "Extlib::Pooling" do
     Person.__pools.size.should == 1
 
     Extlib::Pooling::pools.should_not be_empty
-    sleep(1.2)
+
+    sleep(1.1)
+
     Extlib::Pooling::pools.should be_empty
     bob.name.should be_nil
   end
@@ -107,9 +119,13 @@ describe "Extlib::Pooling" do
     lambda do
       begin
         bob = Person.new('Bob')
-        9.times { Person.new('Bob') }
+        bobs = []
+        9.times do
+          bobs << Person.new('Bob')
+        end
       ensure
         bob.release
+        bobs.each { |b| b.release }
       end
     end.should raise_error(Extlib::Pooling::ThreadStopError)
   end
@@ -117,7 +133,7 @@ describe "Extlib::Pooling" do
   it "should allow multiple threads to access the pool" do
     t1 = Thread.new do
       bob = Person.new('Bob')
-      sleep(0.1)
+      sleep(1)
       bob.release
     end
 
@@ -141,6 +157,15 @@ describe "Extlib::Pooling" do
 
     bob.name.should be_nil
   end
+
+  it "should wake up the scavenger thread when exiting" do
+    bob = Person.new('Bob')
+    bob.release
+    Extlib.exiting = true
+    sleep(0.1)
+    Extlib::Pooling.scavenger?.should be_false
+  end
+
 end
 
 # describe Extlib::Pooling::ResourcePool do

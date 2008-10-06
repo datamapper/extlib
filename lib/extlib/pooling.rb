@@ -25,25 +25,31 @@ module Extlib
   # object is reset when it is released.
   module Pooling
 
+    def self.scavenger?
+      @scavenger && @scavenger.alive?
+    end
+
     def self.scavenger
-      @scavenger || begin
+      if @scavenger.nil? || !@scavenger.alive?
         @scavenger = Thread.new do
           running = true
           while running do
             # Sleep before we actually start doing anything.
             # Otherwise we might clean up something we just made
             sleep(scavenger_interval)
+
             lock.synchronize do
               pools.each do |pool|
                 # This is a useful check, but non-essential, and right now it breaks lots of stuff.
                 # if pool.expired?
                 pool.lock.synchronize do
-                  if pool.used.size == 0
+                  if pool.expired?
                     pool.dispose
                   end
                 end
                 # end
               end
+
               # The pool is empty, we stop the scavenger
               # It wil be restarted if new resources are added again
               if pools.empty?
@@ -52,14 +58,10 @@ module Extlib
             end
           end # loop
         end
-
-        @scavenger.priority = -10
-        @scavenger
       end
-    end
 
-    def self.scavenger_finished
-      @scavenger = nil
+      @scavenger.priority = -10
+      @scavenger
     end
 
     def self.pools
@@ -181,6 +183,7 @@ module Extlib
       end
 
       def release(instance)
+        instance.instance_variable_set(:@__allocated_in_pool, Time.now)
         lock.synchronize do
           @used.delete(instance.object_id)
           @available.push(instance)
@@ -213,24 +216,19 @@ module Extlib
       def dispose
         flush!
         @resource.__pools.delete(@args)
-        Extlib::Pooling.scavenger_finished if @resource.__pools.empty?
         !Extlib::Pooling::pools.delete?(self).nil?
       end
 
-      # Disabled temporarily.
-      #
-      # def expired?
-      #   lock.synchronize do
-      #     @available.each do |instance|
-      #       if instance.instance_variable_get(:@__allocated_in_pool) + scavenge_interval < Time.now
-      #         instance.release
-      #         @available.delete(instance)
-      #       end
-      #     end
-      #
-      #     size == 0
-      #   end
-      # end
+      def expired?
+        @available.each do |instance|
+          if Extlib.exiting || instance.instance_variable_get(:@__allocated_in_pool) + Extlib::Pooling.scavenger_interval <= Time.now
+            instance.dispose
+            @available.delete(instance)
+          end
+        end
+
+        size == 0
+      end
 
     end
 

@@ -37,3 +37,20 @@ require dir / 'symbol'
 
 Extlib.autoload("Hook", (dir / 'hook').to_s)
 Extlib.autoload("Pooling", (dir / 'pooling').to_s)
+
+module Extlib
+
+  def self.exiting= bool
+    if bool && Extlib.const_defined?("Pooling")
+      if Extlib::Pooling.scavenger?
+        Extlib::Pooling.scavenger.wakeup
+      end
+    end
+    @exiting = true
+  end
+
+  def self.exiting
+    @exiting
+  end
+
+end
