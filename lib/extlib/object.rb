@@ -161,4 +161,15 @@ class Object
   def encoded_hash
     (self.hash * 2).to_s(16)
   end
+
+  # Add instance_variable_defined? for backward compatibility
+  # @param variable<Symbol, String>
+  #
+  # @return <TrueClass, FalseClass>
+  #   True if the object has the given instance variable defined
+  unless respond_to?(:instance_variable_defined?)
+    def instance_variable_defined?(variable)
+      instance_variables.include?(variable.to_s)
+    end
+  end
 end
