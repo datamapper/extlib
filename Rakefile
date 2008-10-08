@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'pathname'
 require 'rubygems'
+require 'rubygems/installer'
 require 'rake'
 require "rake/clean"
 require "rake/gempackagetask"
@@ -136,6 +137,8 @@ namespace :ci do
   task :spec => :prepare do
     Rake::Task[:spec].invoke
     mv ROOT + "coverage", ROOT + "ci/coverage"
+    Rake::Task[:gem]
+    Gem::Installer.new("pkg/#{GEM_NAME}-#{GEM_VERSION}.gem").install
   end
 
   task :doc do
