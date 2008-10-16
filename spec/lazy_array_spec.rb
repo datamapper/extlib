@@ -134,6 +134,32 @@ describe LazyArray do
     end
   end
 
+  it 'should provide #delete_if' do
+    @lazy_array.should respond_to(:delete_if)
+  end
+
+  describe '#delete_if' do
+    it_should_return_self(:delete_if)
+
+    it 'should return self if entries matched the block' do
+      @lazy_array.delete_if { |entry| true }.object_id.should == @lazy_array.object_id
+    end
+
+    it 'should return self if no entries matched the block' do
+      @lazy_array.delete_if { |entry| false }.object_id.should == @lazy_array.object_id
+    end
+
+    it 'should remove entries that matched the block' do
+      @lazy_array.delete_if { |entry| true }
+      @lazy_array.should be_empty
+    end
+
+    it 'should not remove entries that did not match the block' do
+      @lazy_array.delete_if { |entry| false }
+      @lazy_array.should == [ @nancy, @bessie ]
+    end
+  end
+
   it 'should provide #dup' do
     @lazy_array.should respond_to(:dup)
   end
