@@ -553,7 +553,7 @@ describe Extlib::Inflection, "#singular" do
     "horse"       => "horses",
     "edge"        => "edges",
 
-    "cow"         => "kine"
+    "cow"         => "cows" # 'kine' is archaic and nobody uses it
   }
 
   SingularToPlural.each do |single_word, plural_word|

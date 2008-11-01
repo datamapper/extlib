@@ -365,7 +365,6 @@ module Extlib
     word 'plus'      , 'plusses'
     word 'cross'     , 'crosses'
     word 'medium'    , 'media'
-    word 'cow'       , 'kine'
     word 'datum'     , 'data'
     word 'basis'     , 'bases'
     word 'diagnosis' , 'diagnoses'
