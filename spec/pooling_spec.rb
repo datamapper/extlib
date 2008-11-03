@@ -85,7 +85,7 @@ describe "Extlib::Pooling" do
 
     Extlib::Pooling::pools.should_not be_empty
 
-    sleep(1.1)
+    sleep(1.2)
 
     Extlib::Pooling::pools.should be_empty
     bob.name.should be_nil
