@@ -54,8 +54,6 @@ describe LazyArray do
 
     it 'should be loaded afterwards' do
       @lazy_array.should_not be_loaded
-      @lazy_array.should_not_receive(:lazy_load)
-
       cleared = @lazy_array.clear
       cleared.should be_loaded
     end
@@ -573,8 +571,6 @@ describe LazyArray do
 
     it 'should be loaded afterwards' do
       @lazy_array.should_not be_loaded
-      @lazy_array.should_not_receive(:lazy_load)
-
       replaced = @lazy_array.replace(@other)
       replaced.should be_loaded
     end
