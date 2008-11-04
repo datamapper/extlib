@@ -191,7 +191,8 @@ class LazyArray  # borrowed partially from StrokeDB
     return if loaded?
     mark_loaded
     @load_with_proc[self]
-    @array = @head + @array + @tail
+    @array.unshift(*@head)
+    @array.concat(@tail)
     @head = @tail = nil
     if @reapers
       @reapers.each { |r| @array.delete_if(&r) }
