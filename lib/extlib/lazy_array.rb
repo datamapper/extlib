@@ -194,9 +194,7 @@ class LazyArray  # borrowed partially from StrokeDB
     @array.unshift(*@head)
     @array.concat(@tail)
     @head = @tail = nil
-    if @reapers
-      @reapers.each { |r| @array.delete_if(&r) }
-    end
+    @reapers.each { |r| @array.delete_if(&r) } if @reapers
     @array.freeze if frozen?
   end
 
