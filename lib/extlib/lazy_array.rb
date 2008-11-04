@@ -184,7 +184,7 @@ class LazyArray  # borrowed partially from StrokeDB
   def initialize_copy(original)
     @array = original.entries
     load_with(&original)
-    mark_loaded if @array.any?
+    mark_loaded if original.loaded?
   end
 
   def lazy_load
