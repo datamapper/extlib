@@ -75,7 +75,8 @@ class LazyArray  # borrowed partially from StrokeDB
     if loaded?
       super
     else
-      @reaper = block
+      @reapers ||= []
+      @reapers << block
       @head.delete_if(&block)
       @tail.delete_if(&block)
     end
@@ -193,7 +194,9 @@ class LazyArray  # borrowed partially from StrokeDB
     mark_loaded
     @load_with_proc[self]
     @array = @head + @array + @tail
-    @array.delete_if(&@reaper) if @reaper
+    if @reapers
+      @reapers.each { |r| @array.delete_if(&r) }
+    end
     @head = @tail = []
     @array.freeze if frozen?
     @array
