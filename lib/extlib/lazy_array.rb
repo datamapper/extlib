@@ -29,13 +29,13 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def replace(other)
     mark_loaded
-    @array.replace(other.entries)
+    super(other.entries)
     self
   end
 
   def clear
     mark_loaded
-    @array.clear
+    super
     self
   end
 
