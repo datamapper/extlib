@@ -1,13 +1,12 @@
 class LazyArray  # borrowed partially from StrokeDB
-  instance_methods.each { |m| undef_method m unless %w[ __id__ __send__ send dup class object_id kind_of? respond_to? assert_kind_of should should_not instance_variable_set instance_variable_get extend ].include?(m.to_s) }
+  instance_methods.each { |m| undef_method m unless %w[ __id__ __send__ send class dup object_id kind_of? respond_to? assert_kind_of should should_not instance_variable_set instance_variable_get extend ].include?(m.to_s) }
 
   include Enumerable
 
   # these methods should return self or nil
-  RETURN_SELF = [ :<<, :clear, :concat, :collect!, :delete_if,
-    :each, :each_index, :each_with_index, :freeze, :insert, :map!,
-    :push, :replace, :reject!, :reverse!, :reverse_each, :sort!,
-    :unshift ]
+  RETURN_SELF = [ :concat, :collect!,
+    :each, :each_index, :each_with_index, :insert, :map!,
+    :reject!, :reverse!, :reverse_each, :sort! ]
 
   RETURN_SELF.each do |method|
     class_eval <<-EOS, __FILE__, __LINE__
@@ -70,11 +69,103 @@ class LazyArray  # borrowed partially from StrokeDB
     @load_with_proc
   end
 
+  def include?(arg)
+    if loaded?
+      super
+    else
+      @tail.include?(arg) || @head.include?(arg) || super
+    end
+  end
+
+  def delete_if(&block)
+    if loaded?
+      super
+    else
+      @reaper = block
+      @head.delete_if(&block)
+      @tail.delete_if(&block)
+    end
+    self
+  end
+
+  def first(*args)
+    if !loaded? && lazy_possible?(@head, *args)
+      @head.first(*args)
+    else
+      super
+    end
+  end
+
+  def last(*args)
+    if !loaded? && lazy_possible?(@tail, *args)
+      @tail.last(*args)
+    else
+      super
+    end
+  end
+
+  def shift
+    if !loaded? && lazy_possible?(@head)
+      @head.shift
+    else
+      super
+    end
+  end
+
+  def unshift(*args)
+    if loaded?
+      super
+    else
+      @head.unshift(*args)
+    end
+    self
+  end
+
+  def push(*args)
+    if loaded?
+      super
+    else
+      @tail.push(*args)
+    end
+    self
+  end
+
+  def <<(arg)
+    if loaded?
+      super
+    else
+      @tail << arg
+    end
+    self
+  end
+
+  def pop
+    if !loaded? && lazy_possible?(@tail)
+      @tail.pop
+    else
+      super
+    end
+  end
+
+  def freeze
+    @head.freeze
+    @tail.freeze
+    @frozen = true
+    self
+  end
+
+  def frozen?
+    @frozen
+  end
+
   private
 
   def initialize(*args, &block)
     @loaded         = false
     @load_with_proc = proc { |v| v }
+    @head           = []
+    @tail           = []
+    @frozen         = false
     @array          = Array.new(*args, &block)
   end
 
@@ -88,10 +179,20 @@ class LazyArray  # borrowed partially from StrokeDB
     return if loaded?
     mark_loaded
     @load_with_proc[self]
+    @array = @head + @array + @tail
+    @array.delete_if(&@reaper) if @reaper
+    @head = [] && @tail = []
+    @array.freeze if frozen?
+    @array
   end
 
   def mark_loaded
     @loaded = true
+  end
+
+  def lazy_possible?(list, *args)
+    raise ArgumentError("wrong number of arguments (#{args.size} for 1)") if args.size > 1
+    (args.empty? && list.any?) || (args.any? && args.first <= list.size)
   end
 
   # delegate any not-explicitly-handled methods to @array, if possible.

@@ -13,6 +13,20 @@ describe LazyArray do
     end
   end
 
+  def self.it_should_not_be_a_kicker(method, *args, &block)
+    it 'should not be a kicker method' do
+      @lazy_array.send(method, *args, &block)
+      @lazy_array.should_not be_loaded
+    end
+  end
+
+  def self.it_should_be_a_kicker(method, *args, &block)
+    it 'should not be a kicker method' do
+      @lazy_array.send(method, *args, &block)
+      @lazy_array.should be_loaded
+    end
+  end
+
   before do
     @nancy  = 'nancy'
     @bessie = 'bessie'
@@ -31,6 +45,7 @@ describe LazyArray do
 
   describe '#at' do
     it_should_return_plain(:at)
+    it_should_be_a_kicker(:at, 0)
 
     it 'should lookup the entry by index' do
       @lazy_array.at(0).should == @nancy
@@ -42,7 +57,6 @@ describe LazyArray do
   end
 
   describe '#clear' do
-    it_should_return_self(:clear)
 
     it 'should return self' do
       @lazy_array.clear.object_id.should == @lazy_array.object_id
@@ -65,6 +79,7 @@ describe LazyArray do
 
   describe '#collect!' do
     it_should_return_self(:collect!)
+    it_should_be_a_kicker(:collect!) { |entry| entry }
 
     it 'should return self' do
       @lazy_array.collect! { |entry| entry }.object_id.should == @lazy_array.object_id
@@ -87,6 +102,7 @@ describe LazyArray do
 
   describe '#concat' do
     it_should_return_self(:concat)
+    it_should_be_a_kicker(:concat, [])
 
     it 'should return self' do
       @lazy_array.concat(@other).object_id.should == @lazy_array.object_id
@@ -104,6 +120,9 @@ describe LazyArray do
 
   describe '#delete' do
     it_should_return_plain(:delete)
+
+    # Too bad, but this is needed because it needs to return the deleted element.
+    it_should_be_a_kicker(:delete, nil)
 
     it 'should delete the matching entry from the lazy array' do
       @lazy_array.entries.should == [ @nancy, @bessie ]
@@ -124,6 +143,7 @@ describe LazyArray do
 
   describe '#delete_at' do
     it_should_return_plain(:delete_at)
+    it_should_be_a_kicker(:delete_at, 0)
 
     it 'should delete the entry from the lazy array with the index' do
       @lazy_array.entries.should == [ @nancy, @bessie ]
@@ -137,7 +157,8 @@ describe LazyArray do
   end
 
   describe '#delete_if' do
-    it_should_return_self(:delete_if)
+
+    it_should_not_be_a_kicker(:delete_if) {|e| true }
 
     it 'should return self if entries matched the block' do
       @lazy_array.delete_if { |entry| true }.object_id.should == @lazy_array.object_id
@@ -156,6 +177,7 @@ describe LazyArray do
       @lazy_array.delete_if { |entry| false }
       @lazy_array.should == [ @nancy, @bessie ]
     end
+
   end
 
   it 'should provide #dup' do
@@ -165,15 +187,22 @@ describe LazyArray do
   describe '#dup' do
     it_should_return_plain(:dup)
 
-    it 'should copy the original array' do
+    it 'should dup the original array lazy' do
       dup = @lazy_array.dup
       dup.entries.should == @lazy_array.entries
     end
 
-    it 'should copy the original load proc' do
+    it 'should dup a loaded array' do
+      @lazy_array.each {|entry|}
+      dup = @lazy_array.dup
+      dup.entries.should == @lazy_array.entries
+    end
+
+    it 'should have the same load proc' do
       dup = @lazy_array.dup
       dup.to_proc.object_id.should == @lazy_array.to_proc.object_id
     end
+
   end
 
   it 'should provide #each' do
@@ -182,6 +211,7 @@ describe LazyArray do
 
   describe '#each' do
     it_should_return_self(:each)
+    it_should_be_a_kicker(:each) {|e| true }
 
     it 'should return self' do
       @lazy_array.each { |entry| }.object_id.should == @lazy_array.object_id
@@ -200,6 +230,7 @@ describe LazyArray do
 
   describe '#each_index' do
     it_should_return_self(:each_index)
+    it_should_be_a_kicker(:each) {|e, i| true }
 
     it 'should return self' do
       @lazy_array.each_index { |entry| }.object_id.should == @lazy_array.object_id
@@ -218,6 +249,7 @@ describe LazyArray do
 
   describe '#empty?' do
     it_should_return_plain(:empty?)
+    it_should_be_a_kicker(:empty?)
 
     it 'should return true if the lazy array has entries' do
       @lazy_array.length.should == 2
@@ -237,6 +269,7 @@ describe LazyArray do
 
   describe '#entries' do
     it_should_return_plain(:entries)
+    it_should_be_a_kicker(:entries)
 
     it 'should return an Array' do
       @lazy_array.entries.class.should == Array
@@ -248,16 +281,14 @@ describe LazyArray do
   end
 
   describe '#freeze' do
-    it_should_return_self(:freeze)
+    it_should_not_be_a_kicker(:freeze)
 
     it 'should freeze the underlying array' do
       @lazy_array.should_not be_frozen
-      @lazy_array.instance_variable_get('@array').should_not be_frozen
 
       @lazy_array.freeze
 
       @lazy_array.should be_frozen
-      @lazy_array.instance_variable_get('@array').should be_frozen
     end
   end
 
@@ -267,6 +298,7 @@ describe LazyArray do
 
   describe '#eql?' do
     it_should_return_plain(:eql?)
+    it_should_be_a_kicker(:eql?, [])
 
     it 'should return true if for the same lazy array' do
       @lazy_array.object_id.should == @lazy_array.object_id
@@ -292,6 +324,7 @@ describe LazyArray do
 
   describe '#fetch' do
     it_should_return_plain(:fetch)
+    it_should_be_a_kicker(:fetch, 0)
 
     it 'should lookup the entry with an index' do
       @lazy_array.fetch(0).should == @nancy
@@ -323,6 +356,13 @@ describe LazyArray do
       it 'should return the first entry in the lazy array' do
         @lazy_array.first.should == @nancy
       end
+
+      it 'should not load the lazy array if it is not needed' do
+        @lazy_array.unshift(@bessie)
+        @lazy_array.first.should == @bessie
+        @lazy_array.should_not be_loaded
+      end
+
     end
 
     describe 'with number of results specified' do
@@ -331,6 +371,13 @@ describe LazyArray do
         array.class.should == Array
         array.should == [ @nancy, @bessie ]
       end
+
+      it 'should load the lazy array if it is needed' do
+        @lazy_array.unshift(@bessie)
+        @lazy_array.first(2).should == [@bessie, @nancy]
+        @lazy_array.should be_loaded
+      end
+
     end
   end
 
@@ -340,6 +387,7 @@ describe LazyArray do
 
   describe '#index' do
     it_should_return_plain(:index)
+    it_should_be_a_kicker(:index, nil)
 
     it 'should return an Integer' do
       @lazy_array.index(@nancy).should be_kind_of(Integer)
@@ -375,8 +423,15 @@ describe LazyArray do
     it_should_return_plain(:last)
 
     describe 'with no arguments' do
-      it 'should return the last entry in the lazy array' do
+      it 'should return the last entry in the lazy array and load if needed' do
         @lazy_array.last.should == @bessie
+        @lazy_array.should be_loaded
+      end
+
+      it 'should return the last entry in the lazy array and not load if not needed' do
+        @lazy_array << @nancy
+        @lazy_array.last.should == @nancy
+        @lazy_array.should_not be_loaded
       end
     end
 
@@ -484,10 +539,18 @@ describe LazyArray do
   describe '#pop' do
     it_should_return_plain(:pop)
 
-    it 'should remove the last entry' do
+    it 'should remove the last entry and load if needed' do
       @lazy_array.pop.should == @bessie
+      @lazy_array.should be_loaded
       @lazy_array.should == [ @nancy ]
     end
+
+    it 'should remove the last entry and not load if not needed' do
+      @lazy_array << @nancy
+      @lazy_array.pop.should == @nancy
+      @lazy_array.should_not be_loaded
+    end
+
   end
 
   it 'should provide #push' do
@@ -495,7 +558,8 @@ describe LazyArray do
   end
 
   describe '#push' do
-    it_should_return_self(:push)
+
+    it_should_not_be_a_kicker(:push, @steve)
 
     it 'should return self' do
       @lazy_array.push(@steve).object_id.should == @lazy_array.object_id
@@ -505,6 +569,7 @@ describe LazyArray do
       @lazy_array.push(@steve)
       @lazy_array.should == [ @nancy, @bessie, @steve ]
     end
+
   end
 
   it 'should provide #reject' do
@@ -513,6 +578,11 @@ describe LazyArray do
 
   describe '#reject' do
     it_should_return_plain(:reject)
+
+    # This could be changed in the future by creating
+    # a new lazy array that has a pending block to
+    # reject the necessary items
+    it_should_be_a_kicker(:reject) { |entry| false }
 
     it 'should return an Array with entries that did not match the block' do
       rejected = @lazy_array.reject { |entry| false }
@@ -533,6 +603,11 @@ describe LazyArray do
 
   describe '#reject!' do
     it_should_return_self(:reject!)
+
+    # This must be a kicker because the return value identifies
+    # whether it actually removed something or not, so the same
+    # trick used for delete_if won't work here
+    it_should_be_a_kicker(:reject!) { |entry| false }
 
     it 'should return self if entries matched the block' do
       @lazy_array.reject! { |entry| true }.object_id.should == @lazy_array.object_id
@@ -558,7 +633,6 @@ describe LazyArray do
   end
 
   describe '#replace' do
-    it_should_return_self(:replace)
 
     it 'should return self' do
       @lazy_array.replace(@other).object_id.should == @lazy_array.object_id
@@ -582,6 +656,7 @@ describe LazyArray do
 
   describe '#reverse' do
     it_should_return_plain(:reverse)
+    it_should_be_a_kicker(:reverse)
 
     it 'should return an Array with reversed entries' do
       reversed = @lazy_array.reverse
@@ -596,6 +671,7 @@ describe LazyArray do
 
   describe '#reverse!' do
     it_should_return_self(:reverse!)
+    it_should_be_a_kicker(:reverse!)
 
     it 'should return self' do
       @lazy_array.reverse!.object_id.should == @lazy_array.object_id
@@ -614,6 +690,7 @@ describe LazyArray do
 
   describe '#reverse_each' do
     it_should_return_self(:reverse_each)
+    it_should_be_a_kicker(:reverse_each) { |entry| }
 
     it 'should return self' do
       @lazy_array.reverse_each { |entry| }.object_id.should == @lazy_array.object_id
@@ -632,6 +709,7 @@ describe LazyArray do
 
   describe '#rindex' do
     it_should_return_plain(:rindex)
+    it_should_be_a_kicker(:rindex, nil)
 
     it 'should return an Integer' do
       @lazy_array.rindex(@nancy).should be_kind_of(Integer)
@@ -648,6 +726,10 @@ describe LazyArray do
 
   describe '#select' do
     it_should_return_plain(:select)
+
+    # This can also be optimized in the future by
+    # using a pending block to delay actual selection
+    it_should_be_a_kicker(:select) { |entry| true }
 
     it 'should return an Array with entries that matched the block' do
       selected = @lazy_array.select { |entry| true }
@@ -667,11 +749,33 @@ describe LazyArray do
   end
 
   describe '#shift' do
+
     it_should_return_plain(:shift)
 
-    it 'should remove the first entry' do
+    it 'should remove the first entry and load if needed' do
       @lazy_array.shift.should == @nancy
       @lazy_array.should == [ @bessie ]
+      @lazy_array.should be_loaded
+    end
+
+    it 'should remove the first entry and not load if not needed' do
+      @lazy_array.unshift @bessie
+      @lazy_array.shift.should == @bessie
+      @lazy_array.should_not be_loaded
+    end
+
+  end
+
+  it 'should provide #size' do
+    @lazy_array.should respond_to(:size)
+  end
+
+  describe '#size' do
+    it_should_return_plain(:size)
+    it_should_be_a_kicker(:size)
+
+    it 'should not modify the lazy array' do
+      @lazy_array.size.should == 2
     end
   end
 
@@ -763,6 +867,7 @@ describe LazyArray do
 
   describe '#sort' do
     it_should_return_plain(:sort)
+    it_should_be_a_kicker(:sort)
 
     it 'should return an Array' do
       sorted = @lazy_array.sort { |a,b| a <=> b }
@@ -781,6 +886,7 @@ describe LazyArray do
 
   describe '#sort!' do
     it_should_return_self(:sort!)
+    it_should_be_a_kicker(:sort!)
 
     it 'should return self' do
       @lazy_array.sort! { |a,b| 0 }.object_id.should == @lazy_array.object_id
@@ -801,6 +907,7 @@ describe LazyArray do
 
   describe '#to_a' do
     it_should_return_plain(:to_a)
+    it_should_be_a_kicker(:to_a)
 
     it 'should return an Array' do
       @lazy_array.to_a.class.should == Array
@@ -813,6 +920,7 @@ describe LazyArray do
 
   describe '#to_ary' do
     it_should_return_plain(:to_ary)
+    it_should_be_a_kicker(:to_ary)
 
     it 'should return an Array' do
       @lazy_array.to_ary.class.should == Array
@@ -824,6 +932,9 @@ describe LazyArray do
   end
 
   describe '#to_proc' do
+
+    it_should_not_be_a_kicker(:to_proc)
+
     it 'should return a Prox' do
       @lazy_array.to_proc.class.should == Proc
     end
@@ -862,7 +973,8 @@ describe LazyArray do
   end
 
   describe '#unshift' do
-    it_should_return_self(:unshift)
+
+    it_should_not_be_a_kicker(:unshift, @steve)
 
     it 'should return self' do
       @lazy_array.unshift(@steve).object_id.should == @lazy_array.object_id
@@ -872,6 +984,7 @@ describe LazyArray do
       @lazy_array.unshift(@steve)
       @lazy_array.should == [ @steve, @nancy, @bessie ]
     end
+
   end
 
   it 'should provide #values_at' do
@@ -880,6 +993,7 @@ describe LazyArray do
 
   describe '#values_at' do
     it_should_return_plain(:values_at)
+    it_should_be_a_kicker(:values_at, 0)
 
     it 'should return an Array' do
       values = @lazy_array.values_at(0)

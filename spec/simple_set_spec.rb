@@ -49,6 +49,14 @@ describe Extlib::SimpleSet do
     end
   end
 
+  it "should support merge" do
+    @s.include?("Foo").should be_true
+    @t = @s.merge(["Bar"])
+    @t.should be_kind_of(Extlib::SimpleSet)
+    @t.include?("Foo").should be_true
+    @t.include?("Bar").should be_true
+  end
+
   describe "#keys" do
     it 'is aliased as to_a' do
       @s.to_a.should === @s.keys

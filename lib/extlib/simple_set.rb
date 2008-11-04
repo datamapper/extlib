@@ -10,7 +10,7 @@ module Extlib
     #
     # @return <Array> The array the Set was initialized with
     def initialize(arr = [])
-      arr.each {|x| self[x] = true}
+      Array(arr).each {|x| self[x] = true}
     end
 
     # @param value<Object> Value to add to set.
