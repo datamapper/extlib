@@ -148,14 +148,33 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def freeze
-    @head.freeze
-    @tail.freeze
+    if loaded?
+      @array.freeze
+    else
+      @head.freeze
+      @tail.freeze
+    end
     @frozen = true
     self
   end
 
   def frozen?
     @frozen
+  end
+
+  protected
+
+  def head
+    @head
+  end
+
+  def tail
+    @tail
+  end
+
+  def lazy_possible?(list, *args)
+    raise ArgumentError("wrong number of arguments (#{args.size} for 1)") if args.size > 1
+    (args.empty? && list.any?) || (args.any? && args.first <= list.size)
   end
 
   private
@@ -188,11 +207,6 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def mark_loaded
     @loaded = true
-  end
-
-  def lazy_possible?(list, *args)
-    raise ArgumentError("wrong number of arguments (#{args.size} for 1)") if args.size > 1
-    (args.empty? && list.any?) || (args.any? && args.first <= list.size)
   end
 
   # delegate any not-explicitly-handled methods to @array, if possible.

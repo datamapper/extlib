@@ -290,6 +290,24 @@ describe LazyArray do
 
       @lazy_array.should be_frozen
     end
+
+    it 'should allow to be kicked even when frozen' do
+      @lazy_array.freeze
+      lambda { @lazy_array.each { |a| } }.should_not raise_error
+    end
+
+    it 'should not allow adding elements to a lazy frozen array' do
+      @lazy_array.freeze
+      lambda { @lazy_array << @nancy }.should raise_error
+    end
+
+    it 'should not allow adding elements to a loaded frozen array' do
+      @lazy_array.each { |a| }
+      @lazy_array.freeze
+      lambda { @lazy_array << @nancy }.should raise_error
+    end
+
+
   end
 
   it 'should provide #eql?' do
