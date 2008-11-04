@@ -55,12 +55,6 @@ class LazyArray  # borrowed partially from StrokeDB
     @loaded == true
   end
 
-  def unload
-    clear
-    @loaded = false
-    self
-  end
-
   def respond_to?(method, include_private = false)
     super || @array.respond_to?(method, include_private)
   end

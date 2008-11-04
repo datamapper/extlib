@@ -964,28 +964,6 @@ describe LazyArray do
     end
   end
 
-  it 'should provide #unload' do
-    @lazy_array.should respond_to(:unload)
-  end
-
-  describe '#unload' do
-    it 'should return self' do
-      @lazy_array.unload.object_id.should == @lazy_array.object_id
-    end
-
-    it 'should make the lazy array become empty' do
-      @lazy_array.should_not be_empty
-      @lazy_array.load_with {}  # ensure it's not lazy-loaded by be_empty
-      @lazy_array.unload.should be_empty
-    end
-
-    it 'should not be loaded afterwards' do
-      @lazy_array.should_not be_loaded
-      unloaded = @lazy_array.unload
-      unloaded.should_not be_loaded
-    end
-  end
-
   it 'should provide #unshift' do
     @lazy_array.should respond_to(:unshift)
   end
