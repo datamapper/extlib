@@ -200,7 +200,7 @@ class LazyArray  # borrowed partially from StrokeDB
     @load_with_proc[self]
     @array = @head + @array + @tail
     @array.delete_if(&@reaper) if @reaper
-    @head = [] && @tail = []
+    @head = @tail = []
     @array.freeze if frozen?
     @array
   end
