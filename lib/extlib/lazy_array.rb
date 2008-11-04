@@ -192,11 +192,11 @@ class LazyArray  # borrowed partially from StrokeDB
     mark_loaded
     @load_with_proc[self]
     @array = @head + @array + @tail
+    @head = @tail = nil
     if @reapers
       @reapers.each { |r| @array.delete_if(&r) }
     end
     @array.freeze if frozen?
-    @head = @tail = nil
   end
 
   def mark_loaded
