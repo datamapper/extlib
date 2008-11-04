@@ -154,7 +154,7 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def frozen?
-    @frozen
+    @frozen == true
   end
 
   protected
@@ -175,11 +175,9 @@ class LazyArray  # borrowed partially from StrokeDB
   private
 
   def initialize(*args, &block)
-    @loaded         = false
     @load_with_proc = proc { |v| v }
     @head           = []
     @tail           = []
-    @frozen         = false
     @array          = Array.new(*args, &block)
   end
 
@@ -197,9 +195,8 @@ class LazyArray  # borrowed partially from StrokeDB
     if @reapers
       @reapers.each { |r| @array.delete_if(&r) }
     end
-    @head = @tail = []
     @array.freeze if frozen?
-    @array
+    @head = @tail = nil
   end
 
   def mark_loaded
