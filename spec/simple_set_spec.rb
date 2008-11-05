@@ -21,6 +21,11 @@ describe Extlib::SimpleSet do
       @s << "Hello"
       @s.to_a.should include("Hello")
     end
+
+    it 'sets true mark on the key' do
+      @s << "Fun"
+      @s["Fun"].should be(true)
+    end
   end
 
   describe "#merge(other)" do
@@ -41,7 +46,7 @@ describe Extlib::SimpleSet do
   describe "#inspect" do
     it "lists set values" do
       @s.inspect.should == "#<SimpleSet: {\"Initial\"}>"
-    end    
+    end
   end
 
   describe "#keys" do
