@@ -12,11 +12,11 @@ describe Extlib::SimpleSet do
   end
   
   it "should support merge" do
-    @s.should include("Foo")
+    @s.should have_key("Foo")
     @t = @s.merge(["Bar"])
     @t.should be_kind_of(Extlib::SimpleSet)
-    @t.should include("Foo")
-    @t.should include("Bar")    
+    @t.should have_key("Foo")
+    @t.should have_key("Bar")    
   end
   
   it "should support inspect" do
