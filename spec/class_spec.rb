@@ -9,14 +9,17 @@ end
 class Child < Parent
 end
 
+class Parent
+end
+
 class Grandparent
   class_inheritable_accessor :last_name, :_attribute
 
   self._attribute = 1900
 end
 
-describe Class, "#inheritable_accessor" do
-  
+
+describe Class, "#inheritable_accessor" do 
   after :each do
     Grandparent.send(:remove_instance_variable, "@last_name") rescue nil
     Parent.send(:remove_instance_variable, "@last_name") rescue nil
@@ -99,4 +102,40 @@ describe Class, "#inheritable_accessor" do
     Child.last_name.should == "Core"
   end  
   
+end
+
+#
+# The bug that prompted this estoric spec was found in
+# the wild when using dm-is-versioned with c_i_w.
+#
+
+module Plugin
+  def self.included(base)
+    base.class_eval do
+      class_inheritable_writer :plugin_options
+      class_inheritable_reader :plugin_options
+      self.plugin_options = :foo
+    end
+  end
+end
+
+class Model
+  def self.new
+    model = Class.new
+    model.send(:include, Plugin)
+    model
+  end
+
+  include Plugin
+  self.const_set("Version", Model.new)
+end
+
+describe Class, "#inheritable_accessor" do 
+  it "uses object_id for comparison" do
+    Model.methods.should include("plugin_options")
+    Model.plugin_options.should == :foo
+
+    Model::Version.methods.should include("plugin_options")
+    Model::Version.plugin_options.should == :foo
+  end
 end

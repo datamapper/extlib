@@ -115,7 +115,7 @@ class Class
     ivars.each do |ivar|
       self.class_eval <<-RUBY, __FILE__, __LINE__ + 1
         def self.#{ivar}
-          return @#{ivar} if self == #{self} || defined?(@#{ivar})
+          return @#{ivar} if self.object_id == #{self.object_id} || defined?(@#{ivar})
           ivar = superclass.#{ivar}
           return nil if ivar.nil? && !#{self}.instance_variable_defined?("@#{ivar}")
           @#{ivar} = ivar && !ivar.is_a?(Module) && !ivar.is_a?(Numeric) ? ivar.dup : ivar
@@ -158,7 +158,7 @@ class Class
       end
     end
   end
-  
+    
   # Defines class-level inheritable attribute accessor. Attributes are available to subclasses,
   # each subclass has a copy of parent's attribute.
   #
