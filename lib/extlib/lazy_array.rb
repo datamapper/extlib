@@ -29,13 +29,13 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def replace(other)
     mark_loaded
-    super(other.entries)
+    @array.replace(other.entries)
     self
   end
 
   def clear
     mark_loaded
-    super
+    @array.clear
     self
   end
 
@@ -65,7 +65,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def include?(arg)
     if loaded?
-      super
+      @array.include?(arg)
     else
       @tail.include?(arg) || @head.include?(arg) || super
     end
@@ -73,7 +73,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def delete_if(&block)
     if loaded?
-      super
+      @array.delete_if(&block)
     else
       @reapers ||= []
       @reapers << block
@@ -86,6 +86,8 @@ class LazyArray  # borrowed partially from StrokeDB
   def first(*args)
     if lazy_possible?(@head, *args)
       @head.first(*args)
+    elsif loaded?
+      @array.first(*args)
     else
       super
     end
@@ -94,6 +96,8 @@ class LazyArray  # borrowed partially from StrokeDB
   def last(*args)
     if lazy_possible?(@tail, *args)
       @tail.last(*args)
+    elsif loaded?
+      @array.last(*args)
     else
       super
     end
@@ -102,6 +106,8 @@ class LazyArray  # borrowed partially from StrokeDB
   def shift
     if lazy_possible?(@head)
       @head.shift
+    elsif loaded?
+      @array.shift
     else
       super
     end
@@ -109,7 +115,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def unshift(*args)
     if loaded?
-      super
+      @array.unshift(*args)
     else
       @head.unshift(*args)
     end
@@ -118,7 +124,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def push(*args)
     if loaded?
-      super
+      @array.push(*args)
     else
       @tail.push(*args)
     end
@@ -127,7 +133,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def <<(arg)
     if loaded?
-      super
+      @array << arg
     else
       @tail << arg
     end
@@ -137,6 +143,8 @@ class LazyArray  # borrowed partially from StrokeDB
   def pop
     if lazy_possible?(@tail)
       @tail.pop
+    elsif loaded?
+      @array.pop
     else
       super
     end
@@ -159,13 +167,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   protected
 
-  def head
-    @head
-  end
-
-  def tail
-    @tail
-  end
+  attr_reader :head, :tail
 
   def lazy_possible?(list, *args)
     raise ArgumentError("wrong number of arguments (#{args.size} for 1)") if args.size > 1
