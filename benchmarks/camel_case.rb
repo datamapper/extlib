@@ -14,7 +14,7 @@ class String
     return self if self !~ /_/ && self =~ /[A-Z]+.*/
     split('_').map{|e| e.capitalize}.join
   end
-  
+
   # By default, camelize converts strings to UpperCamelCase.
   #
   # camelize will also convert '/' to '::' which is useful for converting paths to namespaces
@@ -25,7 +25,7 @@ class String
   #
   def camelize
     self.gsub(/\/(.?)/) { "::" + $1.upcase }.gsub(/(^|_)(.)/) { $2.upcase }
-  end  
+  end
 end # class String
 
 

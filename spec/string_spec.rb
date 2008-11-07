@@ -171,7 +171,7 @@ describe String, ".translate" do
   before(:each) do
     String.stub!(:translations).and_return({ "on snakes and rubies" => "a serpenti e rubini" })
   end
-  
+
   it 'looks up for translation in translations dictionary' do
     String.translate("on snakes and rubies").should == "a serpenti e rubini"
   end
@@ -199,7 +199,7 @@ describe String, ".t" do
   it 'returns string that has no translations as it is' do
     "password".t.should == "password"
   end
-  
+
   it 'should not translate when freezed' do
     "%s must not be blank".t('username'.freeze).should == "username moet ingevuld worden"
   end
@@ -207,7 +207,7 @@ end
 
 describe String, ".translations" do
   before(:each) do
-    
+
   end
 
   it 'returns empty hash by default' do

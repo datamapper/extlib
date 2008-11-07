@@ -1,5 +1,5 @@
 # Copyright (c) 2004-2008 David Heinemeier Hansson
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -7,10 +7,10 @@
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -73,7 +73,7 @@ class Class
           @@#{sym} = obj
         end
       RUBY
-      
+
       unless options[:instance_writer] == false
         class_eval(<<-RUBY, __FILE__, __LINE__ + 1)
           def #{sym}=(obj)
@@ -111,7 +111,7 @@ class Class
   #   less useful.
   def class_inheritable_reader(*ivars)
     instance_reader = ivars.pop[:reader] if ivars.last.is_a?(Hash)
-    
+
     ivars.each do |ivar|
       self.class_eval <<-RUBY, __FILE__, __LINE__ + 1
         def self.#{ivar}
@@ -130,7 +130,7 @@ class Class
       end
     end
   end
-  
+
   # Defines class-level inheritable attribute writer. Attributes are available to subclasses,
   # each subclass has a copy of parent's attribute.
   #
@@ -141,14 +141,14 @@ class Class
   #
   # @api public
   #
-  # @todo We need a style for class_eval <<-HEREDOC. I'd like to make it 
+  # @todo We need a style for class_eval <<-HEREDOC. I'd like to make it
   #   class_eval(<<-RUBY, __FILE__, __LINE__), but we should codify it somewhere.
   def class_inheritable_writer(*ivars)
     instance_writer = ivars.pop[:instance_writer] if ivars.last.is_a?(Hash)
     ivars.each do |ivar|
       self.class_eval <<-RUBY, __FILE__, __LINE__ + 1
         def self.#{ivar}=(obj)
-          @#{ivar} = obj        
+          @#{ivar} = obj
         end
       RUBY
       unless instance_writer == false
@@ -158,11 +158,11 @@ class Class
       end
     end
   end
-    
+
   # Defines class-level inheritable attribute accessor. Attributes are available to subclasses,
   # each subclass has a copy of parent's attribute.
   #
-  # @param *syms<Array[*#to_s, Hash{:instance_writer => Boolean}]> Array of attributes to 
+  # @param *syms<Array[*#to_s, Hash{:instance_writer => Boolean}]> Array of attributes to
   #   define inheritable accessor for.
   # @option syms :instance_writer<Boolean> if true, instance-level inheritable attribute writer is defined.
   # @return <Array[#to_s]> An Array of attributes turned into inheritable accessors.

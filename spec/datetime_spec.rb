@@ -6,7 +6,7 @@ describe DateTime, "#to_time" do
     @expected = Time.now.to_s
     @datetime = DateTime.parse(@expected)
   end
-  
+
   it "should return a copy of time" do
     time = @datetime.to_time
     time.class.should == Time

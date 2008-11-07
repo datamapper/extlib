@@ -9,7 +9,7 @@ class String
   def escape_regexp
     Regexp.escape self
   end
-  
+
   ##
   # @return String The string with all regexp special characters unescaped.
   #
@@ -18,7 +18,7 @@ class String
   def unescape_regexp
     self.gsub(/\\([\.\?\|\(\)\[\]\{\}\^\$\*\+\-])/, '\1')
   end
-  
+
   ##
   # @return <String> The string converted to snake case.
   #
@@ -85,7 +85,7 @@ class String
   def relative_path_from(other)
     Pathname.new(self).relative_path_from(Pathname.new(other)).to_s
   end
-  
+
   # Overwrite this method to provide your own translations.
   def self.translate(value)
     translations[value] || value

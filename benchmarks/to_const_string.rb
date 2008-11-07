@@ -65,14 +65,14 @@ module Extlib
           tr("-", "_").
           downcase
       end
-      
+
       def singularize(word)
         English::Inflect.singular(word)
       end
 
       def pluralize(word)
         English::Inflect.plural(word)
-      end      
+      end
     end
   end # module Inflection
 end # module Extlib
@@ -81,7 +81,7 @@ end # module Extlib
 RBench.run(10_000) do
   report "Extlib::Inflection.camelize" do
     Extlib::Inflection.classify("some/hypothetic/module")
-    Extlib::Inflection.classify("just_a_module")    
+    Extlib::Inflection.classify("just_a_module")
   end
 
   report "String#to_const_string" do

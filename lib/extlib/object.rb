@@ -34,10 +34,10 @@ class Object
   # @example
   #   MyString.foo
   #     #=> NoMethodError: undefined method `foo' for MyString:Class
-  # @example  
+  # @example
   #   MyString.bar
   #     #=> MyString
-  # @example  
+  # @example
   #   String.bar
   #     #=> NoMethodError: undefined method `bar' for String:Class
   # @example
@@ -65,19 +65,19 @@ class Object
     list = name.split("::")
     list.shift if list.first.blank?
     obj = self
-    list.each do |x| 
-      # This is required because const_get tries to look for constants in the 
+    list.each do |x|
+      # This is required because const_get tries to look for constants in the
       # ancestor chain, but we only want constants that are HERE
       obj = obj.const_defined?(x) ? obj.const_get(x) : obj.const_missing(x)
     end
     obj
   end
-  
+
   # @param name<String> The name of the constant to get, e.g. "Merb::Router".
   # @param value<Object> The value to assign to the constant.
   #
   # @return <Object> The constant corresponding to the name.
-  def full_const_set(name, value)    
+  def full_const_set(name, value)
     list = name.split("::")
     toplevel = list.first.blank?
     list.shift if toplevel
@@ -128,14 +128,14 @@ class Object
       false
     end
   end
-  
+
   # Override this in a child if it cannot be dup'ed
   #
   # @return <Object>
   def try_dup
     self.dup
   end
-  
+
   # @param arrayish<#include?> Container to check, to see if it includes the object.
   # @param *more<Array>:: additional args, will be flattened into arrayish
   #
@@ -148,14 +148,14 @@ class Object
     arrayish = more.unshift(arrayish) unless more.empty?
     arrayish.include?(self)
   end
-  
+
   # @note
   #   For instances of objects that don't override the #inspect method, there
   #   is an encoded hash to uniquely identify the object. This method
   #   reproduces this to be used in #inspect in order to keep the same look
   #   as well as provide this information.
   #   This is inessential, but may be useful.
-  # 
+  #
   # @return <String>
   #   Returns the 16-byte encoded hash for the object
   def encoded_hash

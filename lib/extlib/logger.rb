@@ -21,14 +21,14 @@ require "time" # httpdate
 #   Merb.logger.info!(message<String>,&block)
 #   Merb.logger.debug!(message<String>,&block)
 #
-# Flush the buffer to 
+# Flush the buffer to
 #   Merb.logger.flush
 #
 # Remove the current log object
 #   Merb.logger.close
-# 
+#
 # ==== Private Merb Logger API
-# 
+#
 # To initialize the logger you create a new object, proxies to set_log.
 #   Merb::Logger.new(log{String, IO},level{Symbol, String})
 module Extlib
@@ -53,10 +53,10 @@ module Extlib
     # :warn:: A warning
     # :info:: generic (useful) information about system operation
     # :debug:: low-level information for developers
-    Levels = 
+    Levels =
     {
-      :fatal => 7, 
-      :error => 6, 
+      :fatal => 7,
+      :error => 6,
       :warn  => 4,
       :info  => 3,
       :debug => 0
@@ -96,7 +96,7 @@ module Extlib
     end
 
     # Replaces an existing logger with a new one.
-    # 
+    #
     # ==== Parameters
     # log<IO, String>:: Either an IO object or a name of a logfile.
     # log_level<~to_sym>::
@@ -198,5 +198,5 @@ module Extlib
     end
 
   end
-  
+
 end

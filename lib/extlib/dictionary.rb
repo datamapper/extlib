@@ -407,7 +407,7 @@ class Dictionary
     each { |k,v| ary << [k,v] }
     ary
   end
-  
+
   def to_json
     buf = "["
     map do |k,v|

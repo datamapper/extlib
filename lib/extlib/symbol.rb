@@ -1,9 +1,9 @@
 class Symbol
-  
+
   def try_dup
     self
   end
-  
+
   ##
   # @param o<String, Symbol> The path component to join with the string.
   #

@@ -6,7 +6,7 @@ describe "try_dup" do
     oth = obj.try_dup
     obj.should_not === oth
   end
-  
+
   it "returns self on Numerics" do
     obj = 12
     oth = obj.try_dup
@@ -18,25 +18,25 @@ describe "try_dup" do
     oth = obj.try_dup
     obj.should === oth
   end
-  
+
   it "returns self on true" do
     obj = true
     oth = obj.try_dup
     obj.should === oth
   end
-  
+
   it "returns self on false" do
     obj = false
     oth = obj.try_dup
     obj.should === oth
   end
-  
+
   it "returns self on nil" do
     obj = nil
     oth = obj.try_dup
     obj.should === oth
   end
-  
+
   it "returns self on modules" do
     obj = Extlib
     oth = obj.try_dup

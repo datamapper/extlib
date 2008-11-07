@@ -8,7 +8,7 @@ describe Mash do
     @hash = { "mash" => "indifferent", :hash => "different" }
     @sub  = AwesomeHash.new("mash" => "indifferent", :hash => "different")
   end
-  
+
   describe "#initialize" do
     it 'converts all keys into strings when param is a Hash' do
       mash = Mash.new(@hash)
@@ -23,7 +23,7 @@ describe Mash do
       # sanity check
       mash["hash"]["hash"].should == "different"
     end
-    
+
     it 'doesn not convert Hash subclass values into Mashes' do
       mash = Mash.new :sub => @sub
       mash["sub"].should be_an_instance_of(AwesomeHash)
@@ -35,7 +35,7 @@ describe Mash do
       mash["arry"].should be_an_instance_of(Mash)
       # sanity check
       mash["arry"]["hash"].first["hash"].should == "different"
-      
+
     end
 
     it 'delegates to superclass constructor if param is not a Hash' do
@@ -46,48 +46,48 @@ describe Mash do
   end # describe "#initialize"
 
 
-  
+
   describe "#update" do
     it 'converts all keys into strings when param is a Hash' do
       mash = Mash.new(@hash)
       mash.update("starry" => "night")
-      
+
       mash.keys.any? { |key| key.is_a?(Symbol) }.should be(false)
     end
 
     it 'converts all Hash values into Mashes if param is a Hash' do
       mash = Mash.new :hash => @hash
       mash.update(:hash => { :hash => "is buggy in Ruby 1.8.6" })
-      
+
       mash["hash"].should be_an_instance_of(Mash)
     end
   end # describe "#update"
 
 
-  
+
   describe "#[]=" do
     it 'converts key into string' do
       mash = Mash.new(@hash)
       mash[:hash] = { "starry" => "night" }
-      
+
       mash.keys.any? { |key| key.is_a?(Symbol) }.should be(false)
     end
 
     it 'converts all Hash value into Mash' do
       mash = Mash.new :hash => @hash
       mash[:hash] = { :hash => "is buggy in Ruby 1.8.6" }
-      
+
       mash["hash"].should be_an_instance_of(Mash)
     end
   end # describe "#[]="
-  
 
-  
+
+
   describe "#key?" do
     before(:each) do
       @mash = Mash.new(@hash)
     end
-    
+
     it 'converts key before lookup' do
       @mash.key?("mash").should be(true)
       @mash.key?(:mash).should be(true)
@@ -162,7 +162,7 @@ describe Mash do
       converted = mash.to_hash
 
       mash.values.sort.should == converted.values.sort
-    end    
+    end
   end
 
 
@@ -222,7 +222,7 @@ describe Mash do
     before(:each) do
       @mash = Mash.new(@hash).merge(:no => "in between")
     end
-    
+
     it 'returns instance of Mash' do
       @mash.should be_an_instance_of(Mash)
     end
@@ -233,7 +233,7 @@ describe Mash do
   end
 
 
-  
+
   describe "#fetch" do
     before(:each) do
       @mash = Mash.new(@hash).merge(:no => "in between")
@@ -273,7 +273,7 @@ describe Mash do
     it 'is indifferent to whether keys are strings or symbols' do
       @mash.values_at("hash", :mash, :no).should == ["different", "indifferent", "in between"]
     end
-  end  
+  end
 
 
   describe "#stringify_keys!" do

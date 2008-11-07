@@ -67,7 +67,7 @@ class Hash
       ToHashParser.from_xml(xml)
     end
   end
-  
+
   # This class has semantics of ActiveSupport's HashWithIndifferentAccess
   # and we only have it so that people can write
   # params[:key] instead of params['key'].
@@ -188,7 +188,7 @@ class Hash
   #
   # @return <Array> An array of they hash's keys
   #
-  # @example 
+  # @example
   #   hash = { One => 1, Two => 2 }.proctect_keys!
   #   hash # => { "One" => 1, "Two" => 2 }
   def protect_keys!

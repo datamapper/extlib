@@ -9,12 +9,12 @@ class Mash < Hash
   #   If constructor is a Hash, a new mash will be created based on the keys of
   #   the hash and no default value will be set.
   def initialize(constructor = {})
-    if constructor.is_a?(Hash) 
-      super() 
-      update(constructor) 
-    else 
-      super(constructor) 
-    end 
+    if constructor.is_a?(Hash)
+      super()
+      update(constructor)
+    else
+      super(constructor)
+    end
   end
 
   # @param key<Object> The default value for the mash. Defaults to nil.
@@ -22,15 +22,15 @@ class Mash < Hash
   # @details [Alternatives]
   #   If key is a Symbol and it is a key in the mash, then the default value will
   #   be set to the value matching the key.
-  def default(key = nil) 
-    if key.is_a?(Symbol) && include?(key = key.to_s) 
-      self[key] 
-    else 
-      super 
-    end 
-  end 
- 
-  alias_method :regular_writer, :[]= unless method_defined?(:regular_writer) 
+  def default(key = nil)
+    if key.is_a?(Symbol) && include?(key = key.to_s)
+      self[key]
+    else
+      super
+    end
+  end
+
+  alias_method :regular_writer, :[]= unless method_defined?(:regular_writer)
   alias_method :regular_update, :update unless method_defined?(:regular_update)
 
   # @param key<Object> The key to set.
@@ -39,8 +39,8 @@ class Mash < Hash
   #
   # @see Mash#convert_key
   # @see Mash#convert_value
-  def []=(key, value) 
-    regular_writer(convert_key(key), convert_value(value)) 
+  def []=(key, value)
+    regular_writer(convert_key(key), convert_value(value))
   end
 
   # @param other_hash<Hash>
@@ -48,19 +48,19 @@ class Mash < Hash
   #   converted to Mash format.
   #
   # @return <Mash> The updated mash.
-  def update(other_hash) 
-    other_hash.each_pair { |key, value| regular_writer(convert_key(key), convert_value(value)) } 
-    self 
-  end 
- 
+  def update(other_hash)
+    other_hash.each_pair { |key, value| regular_writer(convert_key(key), convert_value(value)) }
+    self
+  end
+
   alias_method :merge!, :update
 
   # @param key<Object> The key to check for. This will be run through convert_key.
   #
   # @return <TrueClass, FalseClass> True if the key exists in the mash.
-  def key?(key) 
-    super(convert_key(key)) 
-  end 
+  def key?(key)
+    super(convert_key(key))
+  end
 
   # def include? def has_key? def member?
   alias_method :include?, :key?
@@ -71,29 +71,29 @@ class Mash < Hash
   # @param *extras<Array> Default value.
   #
   # @return <Object> The value at key or the default value.
-  def fetch(key, *extras) 
-    super(convert_key(key), *extras) 
+  def fetch(key, *extras)
+    super(convert_key(key), *extras)
   end
 
   # @param *indices<Array>
   #   The keys to retrieve values for. These will be run through +convert_key+.
   #
   # @return <Array> The values at each of the provided keys
-  def values_at(*indices) 
-    indices.collect {|key| self[convert_key(key)]} 
+  def values_at(*indices)
+    indices.collect {|key| self[convert_key(key)]}
   end
 
   # @param hash<Hash> The hash to merge with the mash.
   #
   # @return <Mash> A new mash with the hash values merged in.
-  def merge(hash) 
-    self.dup.update(hash) 
+  def merge(hash)
+    self.dup.update(hash)
   end
 
   # @param key<Object>
   #   The key to delete from the mash.\
-  def delete(key) 
-    super(convert_key(key)) 
+  def delete(key)
+    super(convert_key(key))
   end
 
   # @param *rejected<Array[(String, Symbol)] The mash keys to exclude.
@@ -111,12 +111,12 @@ class Mash < Hash
   #
   # @return <Mash> This mash unchanged.
   def stringify_keys!; self end
- 
+
   # @return <Hash> The mash as a Hash with string keys.
-  def to_hash 
-    Hash.new(default).merge(self) 
-  end 
- 
+  def to_hash
+    Hash.new(default).merge(self)
+  end
+
   protected
   # @param key<Object> The key to convert.
   #
@@ -125,8 +125,8 @@ class Mash < Hash
   #   string.
   #
   # @api private
-  def convert_key(key) 
-    key.kind_of?(Symbol) ? key.to_s : key 
+  def convert_key(key)
+    key.kind_of?(Symbol) ? key.to_s : key
   end
 
   # @param value<Object> The value to convert.
@@ -136,13 +136,13 @@ class Mash < Hash
   #   their Mash equivalents.
   #
   # @api private
-  def convert_value(value) 
+  def convert_value(value)
     if value.class == Hash
-      value.to_mash 
+      value.to_mash
     elsif value.is_a?(Array)
-      value.collect { |e| convert_value(e) } 
+      value.collect { |e| convert_value(e) }
     else
       value
-    end 
+    end
   end
 end

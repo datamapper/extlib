@@ -173,9 +173,9 @@ namespace :benchmark do
   desc "Runs benchmarks"
   task :run do
     files = Dir["benchmarks/**/*.rb"]
-    
+
     files.each do |f|
       system "ruby #{f}"
     end
-  end  
+  end
 end

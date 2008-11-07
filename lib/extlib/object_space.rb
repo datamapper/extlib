@@ -1,5 +1,5 @@
 module ObjectSpace
-  
+
   class << self
 
     # @return <Array[Class]> All the classes in the object space.
@@ -9,5 +9,5 @@ module ObjectSpace
       klasses
     end
   end
-  
+
 end

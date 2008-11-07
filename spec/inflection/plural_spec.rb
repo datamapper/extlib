@@ -480,7 +480,7 @@ describe Extlib::Inflection, "#singular" do
   it "pluralizes spam => spams" do
     "spam".plural.should == "spams"
   end
-  
+
   it "pluralizes bus => buses" do
     "bus".plural.should == "buses"
   end
@@ -488,7 +488,7 @@ describe Extlib::Inflection, "#singular" do
   it "pluralizes rice => rice" do
     "rice".plural.should == "rice"
   end
-  
+
   # Some specs from Rails
   SingularToPlural = {
     "search"      => "searches",
@@ -555,7 +555,7 @@ describe Extlib::Inflection, "#singular" do
 
     "cow"         => "kine"
   }
-  
+
   SingularToPlural.each do |single_word, plural_word|
     it "pluralizes #{single_word} => #{plural_word}" do
       single_word.plural.should == plural_word

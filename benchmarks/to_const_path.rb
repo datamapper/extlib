@@ -2,7 +2,7 @@
 require "rubygems"
 require "rbench"
 
-class String 
+class String
   ##
   # @return <String> The string converted to snake case.
   #
@@ -17,7 +17,7 @@ class String
     self.gsub(/([A-Z]+)(?=[A-Z][a-z]?)|\B[A-Z]/, '_\&') =~ /_*(.*)/
       return $+.downcase
   end
-  
+
   ##
   # @return <String>
   #   The path that is associated with the constantized string, assuming a
@@ -27,8 +27,8 @@ class String
   #   "FooBar::Baz".to_const_path # => "foo_bar/baz"
   def to_const_path
     snake_case.gsub(/::/, "/")
-  end  
-  
+  end
+
   # The reverse of +camelize+. Makes an underscored form from the expression in the string.
   #
   # Changes '::' to '/' to convert namespaces to paths.
@@ -43,7 +43,7 @@ class String
       gsub(/([a-z\d])([A-Z])/,'\1_\2').
       tr("-", "_").
       downcase
-  end   
+  end
 end # class String
 
 
@@ -52,7 +52,7 @@ RBench.run(10_000) do
     "CamelCaseString".underscore
     "SomeABitLongerCamel::CaseString".underscore
   end
-  
+
   report "String#to_const_path" do
     "CamelCaseString".to_const_path
     "SomeABitLongerCamel::CaseString".to_const_path

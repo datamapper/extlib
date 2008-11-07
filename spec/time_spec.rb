@@ -2,11 +2,11 @@ require File.dirname(__FILE__) + '/spec_helper'
 require 'json'
 
 describe Time, "#to_json" do
-  
+
   before do
     @expected = "\"2008-03-28T22:54:20Z\""
   end
-  
+
   it "should transform itself into a ISO 8601 compatible string" do
     Time.utc(2008, 3, 28, 22, 54, 20).to_json.should == @expected
     Time.xmlschema("2008-03-28T22:54:20Z").to_json.should == @expected

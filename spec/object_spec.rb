@@ -35,7 +35,7 @@ describe Object do
   describe "#full_const_set" do
     it 'sets constant value by FQ name in receiver namespace' do
       Object.full_const_set("HactiveSupport::MCU", HactiveSupport::MemoizeConsideredUseless)
-      
+
       Object.full_const_get("HactiveSupport::MCU").should == HactiveSupport::MemoizeConsideredUseless
       HactiveSupport.full_const_get("MCU").should == HactiveSupport::MemoizeConsideredUseless
     end
@@ -49,7 +49,7 @@ describe Object do
       Object.const_defined?("Milano").should == true
       Norway.const_defined?("Oslo").should == true
     end
-    
+
     it "handles the case where we already have a class in the heirarchy" do
       Object.make_module("Foo::Bar::Baz")
       Object.const_defined?("Foo").should == true
@@ -82,16 +82,16 @@ describe Object do
     it 'returns true if duck is an array and at least one of its members quacks like this duck' do
       receiver = ClassyDuck.new
       ary      = [ClassyDuck, SymbolicDuck]
-      
+
       receiver.quacks_like?(ary).should be(true)
     end
 
     it 'returns false if duck is an array and none of its members quacks like this duck' do
       receiver = ClassyDuck.new
       ary      = [SymbolicDuck.new, SymbolicDuck]
-      
+
       receiver.quacks_like?(ary).should be(false)
-    end    
+    end
   end
 
 
@@ -113,16 +113,16 @@ describe Object do
       5.in?(@set).should be(true)
     end
   end
-  
+
   describe "#encoded_hash" do
     it 'returns the encoded hash like the value in the default Object#inspect' do
       o = Oi.new
       original_inspect = o.inspect
       original_inspect.should =~ %r{#<Oi:0x([a-z0-9]{6,})>}
-      
+
       o.foo = 1
       o.inspect.should =~ %r{#<Oi:0x([a-z0-9]{6,}) @foo=1>}
-      
+
       class << o; def inspect; "#<Oi:0x#{self.encoded_hash}>"; end; end
       o.inspect.should == original_inspect
     end
