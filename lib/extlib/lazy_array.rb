@@ -55,6 +55,10 @@ class LazyArray  # borrowed partially from StrokeDB
     @loaded == true
   end
 
+  def kind_of?(klass)
+    super || @array.kind_of?(klass)
+  end
+
   def respond_to?(method, include_private = false)
     super || @array.respond_to?(method, include_private)
   end

@@ -479,6 +479,42 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
       end
     end
 
+    it 'should provide #kind_of' do
+      @lazy_array.should respond_to(:kind_of?)
+    end
+
+    describe '#kind_of' do
+      describe 'when provided a class that is a superclass' do
+        before do
+          @return = @lazy_array.kind_of?(Object)
+        end
+
+        it 'should return true' do
+          @return.should be_true
+        end
+      end
+
+      describe 'when provided a class that is a proxy class superclass' do
+        before do
+          @return = @lazy_array.kind_of?(Array)
+        end
+
+        it 'should return true' do
+          @return.should be_true
+        end
+      end
+
+      describe 'when provided a class that is not a superclass' do
+        before do
+          @return = @lazy_array.kind_of?(Hash)
+        end
+
+        it 'should return false' do
+          @return.should be_false
+        end
+      end
+    end
+
     it 'should provide #last' do
       @lazy_array.should respond_to(:last)
     end
