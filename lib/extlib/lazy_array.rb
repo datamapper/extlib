@@ -196,7 +196,7 @@ class LazyArray  # borrowed partially from StrokeDB
   def lazy_load
     return if loaded?
     mark_loaded
-    @load_with_proc[self]
+    do_load
     @array.unshift(*@head)
     @array.concat(@tail)
     @head = @tail = nil
@@ -206,6 +206,10 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def mark_loaded
     @loaded = true
+  end
+
+  def do_load
+    @load_with_proc[self]
   end
 
   # delegate any not-explicitly-handled methods to @array, if possible.
