@@ -171,7 +171,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   protected
 
-  attr_reader :head, :tail
+  attr_reader :head, :array, :tail
 
   def lazy_possible?(list, *args)
     raise ArgumentError("wrong number of arguments (#{args.size} for 1)") if args.size > 1
