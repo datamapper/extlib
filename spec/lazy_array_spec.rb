@@ -191,6 +191,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 
     describe '#dup' do
       it_should_return_plain(:dup)
+      it_should_not_be_a_kicker(:dup) unless loaded
 
       it 'should dup the original array lazy' do
         dup = @lazy_array.dup
