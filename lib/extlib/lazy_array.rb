@@ -88,30 +88,30 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def first(*args)
-    if lazy_possible?(@head, *args)
-      @head.first(*args)
-    elsif loaded?
+    if loaded?
       @array.first(*args)
+    elsif lazy_possible?(@head, *args)
+      @head.first(*args)
     else
       super
     end
   end
 
   def last(*args)
-    if lazy_possible?(@tail, *args)
-      @tail.last(*args)
-    elsif loaded?
+    if loaded?
       @array.last(*args)
+    elsif lazy_possible?(@tail, *args)
+      @tail.last(*args)
     else
       super
     end
   end
 
   def shift
-    if lazy_possible?(@head)
-      @head.shift
-    elsif loaded?
+    if loaded?
       @array.shift
+    elsif lazy_possible?(@head)
+      @head.shift
     else
       super
     end
@@ -145,10 +145,10 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def pop
-    if lazy_possible?(@tail)
-      @tail.pop
-    elsif loaded?
+    if loaded?
       @array.pop
+    elsif lazy_possible?(@tail)
+      @tail.pop
     else
       super
     end
@@ -175,7 +175,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def lazy_possible?(list, *args)
     raise ArgumentError("wrong number of arguments (#{args.size} for 1)") if args.size > 1
-    !loaded? && ((args.empty? && list.any?) || (args.any? && args.first <= list.size))
+    (args.empty? && list.any?) || (args.any? && args.first <= list.size)
   end
 
   private
