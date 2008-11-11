@@ -4,9 +4,9 @@ class LazyArray  # borrowed partially from StrokeDB
   include Enumerable
 
   # these methods should return self or nil
-  RETURN_SELF = [ :concat, :collect!,
-    :each, :each_index, :each_with_index, :insert, :map!,
-    :reject!, :reverse!, :reverse_each, :sort! ]
+  RETURN_SELF = [ :concat, :collect!, :each, :each_index,
+    :each_with_index, :insert, :map!, :reject!, :reverse!,
+    :reverse_each, :sort! ]
 
   RETURN_SELF.each do |method|
     class_eval <<-EOS, __FILE__, __LINE__
@@ -107,21 +107,12 @@ class LazyArray  # borrowed partially from StrokeDB
     end
   end
 
-  def shift
-    if loaded?
-      @array.shift
-    elsif lazy_possible?(@head)
-      @head.shift
-    else
-      super
-    end
-  end
 
-  def unshift(*args)
+  def <<(arg)
     if loaded?
-      @array.unshift(*args)
+      @array << arg
     else
-      @head.unshift(*args)
+      @tail << arg
     end
     self
   end
@@ -135,11 +126,11 @@ class LazyArray  # borrowed partially from StrokeDB
     self
   end
 
-  def <<(arg)
+  def unshift(*args)
     if loaded?
-      @array << arg
+      @array.unshift(*args)
     else
-      @tail << arg
+      @head.unshift(*args)
     end
     self
   end
@@ -153,6 +144,24 @@ class LazyArray  # borrowed partially from StrokeDB
       super
     end
   end
+
+  def shift
+    if loaded?
+      @array.shift
+    elsif lazy_possible?(@head)
+      @head.shift
+    else
+      super
+    end
+  end
+
+  # TODO: update #at to use head/tail when possible
+  # TODO: update #slice to use head/tail when possible  (also alias #slice to #[])
+  # TODO: update #[]= to use head/tail when possible    (also alias #[]= to #splice)
+  # TODO: update #concat to use head/tail when possible
+  # TODO: update #insert to use head/tail when possible
+  # TODO: update #delete to use head/tail when possible
+  # TODO: update #delete_at to use head/tail when possible
 
   def freeze
     if loaded?
