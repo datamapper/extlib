@@ -165,17 +165,12 @@ module Extlib
               instance.instance_variable_set(:@__allocated_in_pool, Time.now)
               @used[instance.object_id] = instance
             else
-              # Let's see whether we have multiple threads
-              # If we do, there is a chance we might be released
-              # at some point in the future and thus we wait.
-              # If there are no other threads, we exhaust the pool
-              # here and there is no more hope... So we throw an
-              # exception.
-              if ThreadGroup::Default.list.size <= 2
-                raise ThreadStopError.new(size)
-              else
-                wait.wait(lock)
-              end
+              # Wait for another thread to release an instance.
+              # If we exhaust the pool and don't release the active instance,
+              # we'll wait here forever, so it's *very* important to always
+              # release your services and *never* exhaust the pool within
+              # a single thread.
+              wait.wait(lock)
             end
           end
         end until instance
