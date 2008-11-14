@@ -233,9 +233,7 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def shift
-    if loaded?
-      @array.shift
-    elsif lazy_possible?(@head)
+    if lazy_possible?(@head)
       @head.shift
     else
       super
