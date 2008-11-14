@@ -4,7 +4,7 @@ class LazyArray  # borrowed partially from StrokeDB
   include Enumerable
 
   # these methods should return self or nil
-  RETURN_SELF = [ :collect!, :each, :each_index, :each_with_index, :map!, :reject!, :reverse_each, :sort! ]
+  RETURN_SELF = [ :collect!, :each, :each_index, :each_with_index, :map!, :reject!, :reverse_each, :sort! ].freeze
 
   RETURN_SELF.each do |method|
     class_eval <<-EOS, __FILE__, __LINE__
@@ -12,15 +12,6 @@ class LazyArray  # borrowed partially from StrokeDB
         lazy_load
         results = @array.#{method}(*args, &block)
         results.kind_of?(Array) ? self : results
-      end
-    EOS
-  end
-
-  (Array.public_instance_methods(false).map { |m| m.to_sym } - RETURN_SELF - [ :taguri= ]).each do |method|
-    class_eval <<-EOS, __FILE__, __LINE__
-      def #{method}(*args, &block)
-        lazy_load
-        @array.#{method}(*args, &block)
       end
     EOS
   end
@@ -272,6 +263,11 @@ class LazyArray  # borrowed partially from StrokeDB
     mark_loaded
     @array.clear
     self
+  end
+
+  def to_a
+    lazy_load
+    @array.to_a
   end
 
   def load_with(&block)

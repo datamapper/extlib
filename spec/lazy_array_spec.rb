@@ -1721,6 +1721,16 @@ end
       end
     end
 
+    should_respond_to(:to_a)
+
+    describe '#to_a', state do
+      action { subject.to_a }
+
+      should_return_kind_of(Array)
+      should_return_copy
+      should_be_a_kicker
+    end
+
     should_respond_to(:unshift)
 
     describe '#unshift', state do
