@@ -288,7 +288,7 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def respond_to?(method, include_private = false)
-    super || @array.respond_to?(method, include_private)
+    super || @array.respond_to?(method)
   end
 
   def freeze
