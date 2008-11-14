@@ -197,7 +197,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def push(*entries)
     if loaded?
-      @array.push(*entries)
+      super
     else
       @tail.push(*entries)
     end
