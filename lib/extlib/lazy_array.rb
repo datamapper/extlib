@@ -225,9 +225,7 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def pop
-    if loaded?
-      @array.pop
-    elsif lazy_possible?(@tail)
+    if lazy_possible?(@tail)
       @tail.pop
     else
       super
