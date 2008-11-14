@@ -252,7 +252,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def delete_if(&block)
     if loaded?
-      @array.delete_if(&block)
+      super
     else
       @reapers ||= []
       @reapers << block
