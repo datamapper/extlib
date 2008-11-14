@@ -88,8 +88,8 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def include?(entry)
-    (lazy_possible?(@head) && @head.include?(entry)) ||
     (lazy_possible?(@tail) && @tail.include?(entry)) ||
+    (lazy_possible?(@head) && @head.include?(entry)) ||
     super
   end
 
@@ -98,11 +98,9 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def any?
-    if loaded?
-      @array.any?
-    else
-      @tail.any? || @head.any? || super
-    end
+    (lazy_possible?(@tail) && @tail.any?) ||
+    (lazy_possible?(@head) && @head.any?) ||
+    super
   end
 
   def [](*args)
