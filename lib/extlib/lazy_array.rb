@@ -54,50 +54,32 @@ class LazyArray  # borrowed partially from StrokeDB
   def fetch(*args, &block)
     index = args.first
 
-    if loaded?
-      @array.fetch(*args, &block)
-    elsif index >= 0
-      if lazy_possible?(@head, index + 1)
-        @head.fetch(*args, &block)
-      else
-        super
-      end
+    if index >= 0 && lazy_possible?(@head, index + 1)
+      @head.fetch(*args, &block)
+    elsif index < 0 && lazy_possible?(@tail, index.abs)
+      @tail.fetch(*args, &block)
     else
-      if lazy_possible?(@tail, index.abs)
-        @tail.fetch(*args, &block)
-      else
-        super
-      end
+      super
     end
   end
 
   def values_at(*args)
-    if loaded?
-      @array.values_at(*args)
+    accumulator = []
+
+    lazy_possible = args.all? do |arg|
+      index, length = extract_slice_arguments(arg)
+
+      if index >= 0 && lazy_possible?(@head, index + (length || 1))
+        accumulator.concat(head.values_at(*arg))
+      elsif index < 0 && lazy_possible?(@tail, index.abs)
+        accumulator.concat(tail.values_at(*arg))
+      end
+    end
+
+    if lazy_possible
+      accumulator
     else
-      accumulator = []
-
-      lazy_possible = args.all? do |arg|
-        index, length = extract_slice_arguments(arg)
-
-        if index >= 0
-          if lazy_possible?(@head, index + (length || 1))
-            accumulator.concat(head.values_at(*arg))
-            true
-          end
-        else
-          if lazy_possible?(@tail, index.abs)
-            accumulator.concat(tail.values_at(*arg))
-            true
-          end
-        end
-      end
-
-      if lazy_possible
-        accumulator
-      else
-        super
-      end
+      super
     end
   end
 
@@ -388,7 +370,7 @@ class LazyArray  # borrowed partially from StrokeDB
   attr_reader :head, :tail
 
   def lazy_possible?(list, need_length = 1)
-    need_length <= list.size
+    !loaded? && need_length <= list.size
   end
 
   private
