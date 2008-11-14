@@ -206,7 +206,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def unshift(*entries)
     if loaded?
-      @array.unshift(*entries)
+      super
     else
       @head.unshift(*entries)
     end
