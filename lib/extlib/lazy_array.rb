@@ -177,7 +177,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def <<(entry)
     if loaded?
-      @array << entry
+      super
     else
       @tail << entry
     end
