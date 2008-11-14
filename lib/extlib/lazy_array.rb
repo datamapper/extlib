@@ -34,9 +34,7 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def last(*args)
-    if loaded?
-      @array.last(*args)
-    elsif lazy_possible?(@tail, *args)
+    if lazy_possible?(@tail, *args)
       @tail.last(*args)
     else
       super
