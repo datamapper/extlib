@@ -42,20 +42,12 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def at(index)
-    if loaded?
-      @array.at(index)
-    elsif index >= 0
-      if lazy_possible?(@head, index + 1)
-        @head.at(index)
-      else
-        super
-      end
+    if index >= 0 && lazy_possible?(@head, index + 1)
+      @head.at(index)
+    elsif index < 0 && lazy_possible?(@tail, index.abs)
+      @tail.at(index)
     else
-      if lazy_possible?(@tail, index.abs)
-        @tail.at(index)
-      else
-        super
-      end
+      super
     end
   end
 
