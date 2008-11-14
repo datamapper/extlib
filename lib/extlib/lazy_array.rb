@@ -26,9 +26,7 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def first(*args)
-    if loaded?
-      @array.first(*args)
-    elsif lazy_possible?(@head, *args)
+    if lazy_possible?(@head, *args)
       @head.first(*args)
     else
       super
