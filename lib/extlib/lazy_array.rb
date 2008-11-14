@@ -188,7 +188,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def concat(other)
     if loaded?
-      @array.concat(other)
+      super
     else
       @tail.concat(other)
     end
