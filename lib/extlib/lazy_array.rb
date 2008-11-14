@@ -1,12 +1,10 @@
 class LazyArray  # borrowed partially from StrokeDB
-  instance_methods.each { |m| undef_method m unless %w[ __id__ __send__ send class dup object_id kind_of? respond_to? assert_kind_of should should_not instance_variable_set instance_variable_get extend ].include?(m.to_s) }
+  instance_methods.each { |m| undef_method m unless %w[ __id__ __send__ send class dup object_id kind_of? respond_to? equal? assert_kind_of should should_not instance_variable_set instance_variable_get extend ].include?(m.to_s) }
 
   include Enumerable
 
   # these methods should return self or nil
-  RETURN_SELF = [ :concat, :collect!, :each, :each_index,
-    :each_with_index, :insert, :map!, :reject!, :reverse!,
-    :reverse_each, :sort! ]
+  RETURN_SELF = [ :collect!, :each, :each_index, :each_with_index, :map!, :reject!, :reverse_each, :sort! ]
 
   RETURN_SELF.each do |method|
     class_eval <<-EOS, __FILE__, __LINE__
@@ -25,66 +23,6 @@ class LazyArray  # borrowed partially from StrokeDB
         @array.#{method}(*args, &block)
       end
     EOS
-  end
-
-  def replace(other)
-    mark_loaded
-    @array.replace(other.entries)
-    self
-  end
-
-  def clear
-    mark_loaded
-    @array.clear
-    self
-  end
-
-  def eql?(other)
-    lazy_load
-    @array.eql?(other.entries)
-  end
-
-  alias == eql?
-
-  def load_with(&block)
-    @load_with_proc = block
-    self
-  end
-
-  def loaded?
-    @loaded == true
-  end
-
-  def kind_of?(klass)
-    super || @array.kind_of?(klass)
-  end
-
-  def respond_to?(method, include_private = false)
-    super || @array.respond_to?(method, include_private)
-  end
-
-  def to_proc
-    @load_with_proc
-  end
-
-  def include?(arg)
-    if loaded?
-      @array.include?(arg)
-    else
-      @tail.include?(arg) || @head.include?(arg) || super
-    end
-  end
-
-  def delete_if(&block)
-    if loaded?
-      @array.delete_if(&block)
-    else
-      @reapers ||= []
-      @reapers << block
-      @head.delete_if(&block)
-      @tail.delete_if(&block)
-    end
-    self
   end
 
   def first(*args)
@@ -107,30 +45,251 @@ class LazyArray  # borrowed partially from StrokeDB
     end
   end
 
-
-  def <<(arg)
+  def at(index)
     if loaded?
-      @array << arg
+      @array.at(index)
+    elsif index >= 0
+      if lazy_possible?(@head, index + 1)
+        @head.at(index)
+      else
+        super
+      end
     else
-      @tail << arg
+      if lazy_possible?(@tail, index.abs)
+        @tail.at(index)
+      else
+        super
+      end
+    end
+  end
+
+  def fetch(*args, &block)
+    index = args.first
+
+    if loaded?
+      @array.fetch(*args, &block)
+    elsif index >= 0
+      if lazy_possible?(@head, index + 1)
+        @head.fetch(*args, &block)
+      else
+        super
+      end
+    else
+      if lazy_possible?(@tail, index.abs)
+        @tail.fetch(*args, &block)
+      else
+        super
+      end
+    end
+  end
+
+  def values_at(*args)
+    if loaded?
+      @array.values_at(*args)
+    else
+      accumulator = []
+
+      lazy_possible = args.all? do |arg|
+        index, length = extract_slice_arguments(arg)
+
+        if index >= 0
+          if lazy_possible?(@head, index + (length || 1))
+            accumulator.concat(head.values_at(*arg))
+            true
+          end
+        else
+          if lazy_possible?(@tail, index.abs)
+            accumulator.concat(tail.values_at(*arg))
+            true
+          end
+        end
+      end
+
+      if lazy_possible
+        accumulator
+      else
+        super
+      end
+    end
+  end
+
+  def index(entry)
+    if loaded?
+      @array.index(entry)
+    else
+      @head.index(entry) || super
+    end
+  end
+
+  def include?(entry)
+    if loaded?
+      @array.include?(entry)
+    else
+      @tail.include?(entry) || @head.include?(entry) || super
+    end
+  end
+
+  def empty?
+    !any?
+  end
+
+  def any?
+    if loaded?
+      @array.any?
+    else
+      @tail.any? || @head.any? || super
+    end
+  end
+
+  def [](*args)
+    index, length = extract_slice_arguments(*args)
+
+    if length.nil?
+      return at(index)
+    end
+
+    length ||= 1
+
+    if loaded?
+      @array.slice(*args)
+    elsif index >= 0
+      if lazy_possible?(@head, index + length)
+        @head.slice(*args)
+      else
+        super
+      end
+    else
+      if lazy_possible?(@tail, index.abs - 1 + length)
+        @tail.slice(*args)
+      else
+        super
+      end
+    end
+  end
+
+  alias slice []
+
+  def slice!(*args)
+    index, length = extract_slice_arguments(*args)
+
+    length ||= 1
+
+    if loaded?
+      @array.slice!(*args)
+    elsif index >= 0
+      if lazy_possible?(@head, index + length)
+        @head.slice!(*args)
+      else
+        super
+      end
+    else
+      if lazy_possible?(@tail, index.abs - 1 + length)
+        @tail.slice!(*args)
+      else
+        super
+      end
+    end
+  end
+
+  def []=(*args)
+    index, length = extract_slice_arguments(*args[0..-2])
+
+    length ||= 1
+
+    if loaded?
+      @array.[]=(*args)
+    elsif index >= 0
+      if lazy_possible?(@head, index + length)
+        @head.[]=(*args)
+      else
+        super
+      end
+    else
+      if lazy_possible?(@tail, index.abs - 1 + length)
+        @tail.[]=(*args)
+      else
+        super
+      end
+    end
+  end
+
+  alias splice []=
+
+  def reverse
+    dup.reverse!
+  end
+
+  def reverse!
+    # reverse without kicking if possible
+    if loaded?
+      @array = @array.reverse
+    else
+      @head, @tail = @tail.reverse, @head.reverse
+
+      proc = @load_with_proc
+
+      @load_with_proc = lambda do |v|
+        proc.call(v)
+        v.instance_variable_get(:@array).reverse!
+      end
+    end
+
+    self
+  end
+
+  def <<(entry)
+    if loaded?
+      @array << entry
+    else
+      @tail << entry
     end
     self
   end
 
-  def push(*args)
+  alias add <<
+
+  def concat(other)
     if loaded?
-      @array.push(*args)
+      @array.concat(other)
     else
-      @tail.push(*args)
+      @tail.concat(other)
     end
     self
   end
 
-  def unshift(*args)
+  def push(*entries)
     if loaded?
-      @array.unshift(*args)
+      @array.push(*entries)
     else
-      @head.unshift(*args)
+      @tail.push(*entries)
+    end
+    self
+  end
+
+  def unshift(*entries)
+    if loaded?
+      @array.unshift(*entries)
+    else
+      @head.unshift(*entries)
+    end
+    self
+  end
+
+  def insert(index, *entries)
+    if loaded?
+      @array.insert(index, *entries)
+    elsif index >= 0
+      if lazy_possible?(@head, index)
+        @head.insert(index, *entries)
+      else
+        super
+      end
+    else
+      if lazy_possible?(@tail, index.abs - 1)
+        @tail.insert(index, *entries)
+      else
+        super
+      end
     end
     self
   end
@@ -155,13 +314,64 @@ class LazyArray  # borrowed partially from StrokeDB
     end
   end
 
-  # TODO: update #at to use head/tail when possible
-  # TODO: update #slice to use head/tail when possible  (also alias #slice to #[])
-  # TODO: update #[]= to use head/tail when possible    (also alias #[]= to #splice)
-  # TODO: update #concat to use head/tail when possible
-  # TODO: update #insert to use head/tail when possible
-  # TODO: update #delete to use head/tail when possible
-  # TODO: update #delete_at to use head/tail when possible
+  def delete_at(index)
+    if loaded?
+      @array.delete_at(index)
+    elsif index >= 0
+      if lazy_possible?(@head, index + 1)
+        @head.delete_at(index)
+      else
+        super
+      end
+    else
+      if lazy_possible?(@tail, index.abs)
+        @tail.delete_at(index)
+      else
+        super
+      end
+    end
+  end
+
+  def delete_if(&block)
+    if loaded?
+      @array.delete_if(&block)
+    else
+      @reapers ||= []
+      @reapers << block
+      @head.delete_if(&block)
+      @tail.delete_if(&block)
+    end
+    self
+  end
+
+  def replace(other)
+    mark_loaded
+    @array.replace(other.entries)
+    self
+  end
+
+  def clear
+    mark_loaded
+    @array.clear
+    self
+  end
+
+  def load_with(&block)
+    @load_with_proc = block
+    self
+  end
+
+  def loaded?
+    @loaded == true
+  end
+
+  def kind_of?(klass)
+    super || @array.kind_of?(klass)
+  end
+
+  def respond_to?(method, include_private = false)
+    super || @array.respond_to?(method, include_private)
+  end
 
   def freeze
     if loaded?
@@ -178,12 +388,19 @@ class LazyArray  # borrowed partially from StrokeDB
     @frozen == true
   end
 
+  def eql?(other)
+    lazy_load
+    @array.eql?(other.entries)
+  end
+
+  alias == eql?
+
   protected
 
   attr_reader :head, :tail
 
-  def lazy_possible?(list, length = nil)
-    (length.nil? && list.any?) || (length && length <= list.size)
+  def lazy_possible?(list, need_length = 1)
+    need_length <= list.size
   end
 
   private
@@ -198,20 +415,19 @@ class LazyArray  # borrowed partially from StrokeDB
   def initialize_copy(original)
     if original.loaded?
       mark_loaded
-      @array = original.entries
+      @array = @array.dup
       @head = @tail = nil
     else
-      @head  = original.send(:head).dup
-      @tail  = original.send(:tail).dup
-      @array = []
-      load_with(&original)
+      @head  = @head.dup
+      @tail  = @tail.dup
+      @array = @array.dup
     end
   end
 
   def lazy_load
     return if loaded?
     mark_loaded
-    do_load
+    @load_with_proc[self]
     @array.unshift(*@head)
     @array.concat(@tail)
     @head = @tail = nil
@@ -223,8 +439,33 @@ class LazyArray  # borrowed partially from StrokeDB
     @loaded = true
   end
 
-  def do_load
-    @load_with_proc[self]
+  ##
+  # Extract arguments for #slice an #slice! and return index and length
+  #
+  # @param [Integer, Array(Integer), Range] *args the index,
+  #   index and length, or range indicating first and last position
+  #
+  # @return [Integer] the index
+  # @return [Integer,NilClass] the length, if any
+  #
+  # @api private
+  def extract_slice_arguments(*args)
+    first_arg, second_arg = args
+
+    if args.size == 2 && first_arg.kind_of?(Integer) && second_arg.kind_of?(Integer)
+      return first_arg, second_arg
+    elsif args.size == 1
+      if first_arg.kind_of?(Integer)
+        return first_arg
+      elsif first_arg.kind_of?(Range)
+        index = first_arg.first
+        length  = first_arg.last - index
+        length += 1 unless first_arg.exclude_end?
+        return index, length
+      end
+    end
+
+    raise ArgumentError, "arguments may be 1 or 2 Integers, or 1 Range object, was: #{args.inspect}", caller(1)
   end
 
   # delegate any not-explicitly-handled methods to @array, if possible.
