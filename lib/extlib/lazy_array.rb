@@ -241,20 +241,12 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def delete_at(index)
-    if loaded?
-      @array.delete_at(index)
-    elsif index >= 0
-      if lazy_possible?(@head, index + 1)
-        @head.delete_at(index)
-      else
-        super
-      end
+    if index >= 0 && lazy_possible?(@head, index + 1)
+      @head.delete_at(index)
+    elsif index < 0 && lazy_possible?(@tail, index.abs)
+      @tail.delete_at(index)
     else
-      if lazy_possible?(@tail, index.abs)
-        @tail.delete_at(index)
-      else
-        super
-      end
+      super
     end
   end
 
