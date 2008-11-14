@@ -142,20 +142,12 @@ class LazyArray  # borrowed partially from StrokeDB
 
     length ||= 1
 
-    if loaded?
-      @array.[]=(*args)
-    elsif index >= 0
-      if lazy_possible?(@head, index + length)
-        @head.[]=(*args)
-      else
-        super
-      end
+    if index >= 0 &&  lazy_possible?(@head, index + length)
+      @head.[]=(*args)
+    elsif index < 0 && lazy_possible?(@tail, index.abs - 1 + length)
+      @tail.[]=(*args)
     else
-      if lazy_possible?(@tail, index.abs - 1 + length)
-        @tail.[]=(*args)
-      else
-        super
-      end
+      super
     end
   end
 
