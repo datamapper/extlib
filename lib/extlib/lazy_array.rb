@@ -214,20 +214,12 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def insert(index, *entries)
-    if loaded?
-      @array.insert(index, *entries)
-    elsif index >= 0
-      if lazy_possible?(@head, index)
-        @head.insert(index, *entries)
-      else
-        super
-      end
+    if index >= 0 && lazy_possible?(@head, index)
+      @head.insert(index, *entries)
+    elsif index < 0 && lazy_possible?(@tail, index.abs - 1)
+      @tail.insert(index, *entries)
     else
-      if lazy_possible?(@tail, index.abs - 1)
-        @tail.insert(index, *entries)
-      else
-        super
-      end
+      super
     end
     self
   end
