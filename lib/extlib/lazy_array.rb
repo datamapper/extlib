@@ -16,11 +16,24 @@ class LazyArray  # borrowed partially from StrokeDB
     EOS
   end
 
-  def first(*args)
-    if lazy_possible?(@head, *args)
-      @head.first(*args)
-    else
-      super
+  # this avoids a strange bug in Ruby 1.8.6 where
+  # it cannot delegate to super()
+  if RUBY_VERSION <= '1.8.6'
+    def first(*args)
+      if lazy_possible?(@head, *args)
+        @head.first(*args)
+      else
+        lazy_load
+        @array.first(*args)
+      end
+    end
+  else
+    def first(*args)
+      if lazy_possible?(@head, *args)
+        @head.first(*args)
+      else
+        super
+      end
     end
   end
 
