@@ -332,11 +332,11 @@ class LazyArray  # borrowed partially from StrokeDB
 
   private
 
-  def initialize(*args, &block)
-    @load_with_proc = proc { |v| v }
+  def initialize
+    @load_with_proc = lambda { |v| v }
     @head           = []
     @tail           = []
-    @array          = Array.new(*args, &block)
+    @array          = []
   end
 
   def initialize_copy(original)
