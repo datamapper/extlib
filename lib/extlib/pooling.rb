@@ -191,6 +191,7 @@ module Extlib
         lock.synchronize do
           instance.instance_variable_set(:@__pool, nil)
           @used.delete(instance.object_id)
+          wait.signal
         end
         nil
       end
