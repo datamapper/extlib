@@ -147,13 +147,13 @@ end
     subject { @lazy_array }
 
     describe 'when frozen', state do
+      before { subject.freeze }
+
       it 'should still be able to kick' do
-        subject.freeze
         lambda { subject.entries }.should_not raise_error
       end
 
       it 'should not allow any modifications' do
-        subject.freeze
         lambda { subject << @steve }.should raise_error(TypeError)
       end
     end
