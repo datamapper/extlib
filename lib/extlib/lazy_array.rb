@@ -3,21 +3,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   include Enumerable
 
-  # these methods should return self or nil
-  RETURN_SELF = [ :collect!, :each, :each_index, :each_with_index, :map!, :reject!, :reverse_each, :sort! ].freeze
-
-  RETURN_SELF.each do |method|
-    class_eval <<-EOS, __FILE__, __LINE__
-      def #{method}(*args, &block)
-        lazy_load
-        results = @array.#{method}(*args, &block)
-        results.kind_of?(Array) ? self : results
-      end
-    EOS
-  end
-
-  # this avoids a strange bug in Ruby 1.8.6 where
-  # it cannot delegate to super()
+  # this avoids a strange Ruby 1.8.6 bug where it cannot delegate to super() in #first
   if RUBY_VERSION <= '1.8.6'
     def first(*args)
       if lazy_possible?(@head, *args)
@@ -194,7 +180,7 @@ class LazyArray  # borrowed partially from StrokeDB
     if loaded?
       super
     else
-      @tail.concat(other)
+      @tail.concat(other.entries)
     end
     self
   end
@@ -282,6 +268,8 @@ class LazyArray  # borrowed partially from StrokeDB
     lazy_load
     @array.to_a
   end
+
+  alias to_ary to_a
 
   def load_with(&block)
     @load_with_proc = block
@@ -400,7 +388,8 @@ class LazyArray  # borrowed partially from StrokeDB
   def method_missing(method, *args, &block)
     if @array.respond_to?(method)
       lazy_load
-      @array.send(method, *args, &block)
+      results = @array.send(method, *args, &block)
+      results.equal?(@array) ? self : results
     else
       super
     end
