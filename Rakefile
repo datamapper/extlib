@@ -28,6 +28,14 @@ GEM_VERSION = Extlib::VERSION + PKG_BUILD
 
 RELEASE_NAME    = "REL #{GEM_VERSION}"
 
+WINDOWS = (RUBY_PLATFORM =~ /win32|mingw|bccwin|cygwin/) rescue nil
+JRUBY   = (RUBY_PLATFORM =~ /java/) rescue nil
+
+# sudo is used by default, except on Windows, or if SUDOLESS env is true
+SUDO = WINDOWS ? '' : ('sudo' unless ENV['SUDOLESS'])
+# RCov is run by default, except on the JRuby platform, or if NO_RCOV env is true
+RUN_RCOV = JRUBY ? false : (ENV.has_key?('NO_RCOV') ? ENV['NO_RCOV'] != 'true' : true)
+
 require "lib/extlib/tasks/release"
 
 spec = Gem::Specification.new do |s|
@@ -70,7 +78,7 @@ namespace :extlib do
     t.spec_files = Pathname.glob(ENV['FILES'] || 'spec/**/*_spec.rb')
 
     begin
-      t.rcov = ENV.has_key?('NO_RCOV') ? ENV['NO_RCOV'] != 'true' : true
+      t.rcov = RUN_RCOV
       t.rcov_opts << '--exclude' << 'spec'
       t.rcov_opts << '--text-summary'
       t.rcov_opts << '--sort' << 'coverage' << '--sort-reverse'
@@ -95,10 +103,6 @@ task :doc do
   end
 end
 
-WINDOWS = (RUBY_PLATFORM =~ /win32|mingw|bccwin|cygwin/) rescue nil
-SUDO    = WINDOWS ? '' : ('sudo' unless ENV['SUDOLESS'])
-
-
 desc "Install #{GEM_NAME}"
 task :install => :package do
   sh %{#{SUDO} gem install --local pkg/#{GEM_NAME}-#{GEM_VERSION} --no-update-sources}
@@ -106,7 +110,7 @@ end
 
 if WINDOWS
   namespace :dev do
-    desc 'Install for development (for windows)'
+    desc 'Install for development (for Windows)'
     task :winstall => :gem do
       system %{gem install --no-rdoc --no-ri -l pkg/#{GEM_NAME}-#{GEM_VERSION}.gem}
     end
