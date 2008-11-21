@@ -1,9 +1,9 @@
 class Hash
   class << self
     # Converts valid XML into a Ruby Hash structure.
-    # 
+    #
     # Mixed content is treated as text and any tags in it are left unparsed
-    # 
+    #
     # Any attributes other than type on a node containing a text node will be
     # discarded
     #
@@ -14,11 +14,11 @@ class Hash
     #     Returns a Time object. See Time documentation for valid Time strings.
     #   date::
     #     Returns a Date object. See Date documentation for valid Date strings.
-    # 
+    #
     # Keys are automatically converted to +snake_case+
-    # 
+    #
     # [Simple]
-    #   
+    #
     #   <user gender='m'>
     #     <age type='integer'>35</age>
     #     <name>Home Simpson</name>
@@ -26,9 +26,9 @@ class Hash
     #     <joined-at type='datetime'>2000-04-28 23:01</joined-at>
     #     <is-cool type='boolean'>true</is-cool>
     #   </user>
-    #   
+    #
     # Becomes:
-    #   
+    #
     #   { "user" => {
     #       "gender"    => "m",
     #       "age"       => 35,
@@ -38,37 +38,37 @@ class Hash
     #       "is_cool"   => true
     #     }
     #   }
-    # 
+    #
     # [Mixed Content]
-    # 
+    #
     #   <story>
     #     A Quick <em>brown</em> Fox
     #   </story>
-    #   
+    #
     # Evaluates to:
-    #   
+    #
     #   { "story" => "A Quick <em>brown</em> Fox" }
-    # 
+    #
     # [Attributes other than type on a node containing text]
-    # 
+    #
     #   <story is-good='false'>
     #     A Quick <em>brown</em> Fox
     #   </story>
-    # 
+    #
     # Are ignored:
-    # 
+    #
     #   { "story" => "A Quick <em>brown</em> Fox" }
-    # 
+    #
     # [Other attributes in addition to +type+]
-    # 
+    #
     #   <bicep unit='inches' type='integer'>60</bicep>
-    # 
+    #
     # Evaluates with a typecast to an integer. But unit attribute is ignored:
-    # 
+    #
     #   { "bicep" => 60 }
-    # 
+    #
     # @param [String] xml A string representation of valid XML.
-    # 
+    #
     # @return [Hash] A hash created by parsing +xml+
     def from_xml( xml )
       ToHashParser.from_xml(xml)
@@ -88,7 +88,7 @@ class Hash
 
   ##
   # Convert to URL query param string
-  # 
+  #
   #   { :name => "Bob",
   #     :address => {
   #       :street => '111 Ruby Ave.',
@@ -97,7 +97,7 @@ class Hash
   #     }
   #   }.to_params
   #     #=> "name=Bob&address[city]=Ruby Central&address[phones][]=111-111-1111&address[phones][]=222-222-2222&address[street]=111 Ruby Ave."
-  # 
+  #
   # @return [String] This hash as a query string
   #
   # @api public
@@ -109,14 +109,14 @@ class Hash
 
   ##
   # Convert a key, value pair into a URL query param string
-  # 
+  #
   #   normalize_param(:name, "Bob")   #=> "name=Bob&"
-  # 
+  #
   # @param [Object] key The key for the param.
   # @param [Object] value The value for the param.
-  # 
+  #
   # @return <String> This key value pair as a param
-  # 
+  #
   # @api public
   def normalize_param(key, value)
     param = ''
@@ -145,9 +145,9 @@ class Hash
 
   ##
   # Create a hash with *only* key/value pairs in receiver and +allowed+
-  # 
+  #
   #   { :one => 1, :two => 2, :three => 3 }.only(:one)    #=> { :one => 1 }
-  # 
+  #
   # @param [Array[String, Symbol]] *allowed The hash keys to include.
   #
   # @return [Hash] A new hash with only the selected keys.
@@ -161,10 +161,10 @@ class Hash
 
   ##
   # Create a hash with all key/value pairs in receiver *except* +rejected+
-  # 
+  #
   #    { :one => 1, :two => 2, :three => 3 }.except(:one)
   #     #=> { :two => 2, :three => 3 }
-  # 
+  #
   # @param [Array[String, Symbol]] *rejected The hash keys to exclude.
   #
   # @return [Hash] A new hash without the selected keys.

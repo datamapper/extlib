@@ -8,11 +8,11 @@ module Extlib
 
     ##
     # Create a new SimpleSet containing the unique members of _arr_
-    # 
+    #
     # @param [Array] arr Initial set values.
     #
     # @return [Array] The array the Set was initialized with
-    # 
+    #
     # @api public
     def initialize(arr = [])
       Array(arr).each {|x| self[x] = true}
@@ -20,11 +20,11 @@ module Extlib
 
     ##
     # Add a value to the set, and return it
-    # 
+    #
     # @param [Object] value Value to add to set.
     #
     # @return [SimpleSet] Receiver
-    # 
+    #
     # @api public
     def <<(value)
       self[value] = true
@@ -33,14 +33,14 @@ module Extlib
 
     ##
     # Merge _arr_ with receiver, producing the union of receiver & _arr_
-    # 
+    #
     #   s = Extlib::SimpleSet.new([:a, :b, :c])
     #   s.merge([:c, :d, :e, f])  #=> #<SimpleSet: {:e, :c, :f, :a, :d, :b}>
-    # 
+    #
     # @param [Array] arr Values to merge with set.
     #
     # @return [SimpleSet] The set after the Array was merged in.
-    # 
+    #
     # @api public
     def merge(arr)
       super(arr.inject({}) {|s,x| s[x] = true; s })
@@ -48,12 +48,12 @@ module Extlib
 
     ##
     # Get a human readable version of the set.
-    # 
+    #
     #   s = SimpleSet.new([:a, :b, :c])
     #   s.inspect                 #=> "#<SimpleSet: {:c, :a, :b}>"
-    # 
+    #
     # @return [String] A human readable version of the set.
-    # 
+    #
     # @api public
     def inspect
       "#<SimpleSet: {#{keys.map {|x| x.inspect}.join(", ")}}>"
