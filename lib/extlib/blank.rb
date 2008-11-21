@@ -22,7 +22,7 @@ class Numeric
   #   1.blank?          #=>  false
   #   6.54321.blank?    #=>  false
   #
-  # @return [TrueClass, FalseClass]
+  # @return [FalseClass]
   #
   # @api public
   def blank?
@@ -36,7 +36,7 @@ class NilClass
   #
   #   nil.blank?        #=>  true
   #
-  # @return [TrueClass, FalseClass]
+  # @return [TrueClass]
   #
   # @api public
   def blank?
@@ -50,7 +50,7 @@ class TrueClass
   #
   #   true.blank?       #=>  false
   #
-  # @return [TrueClass, FalseClass]
+  # @return [FalseClass]
   #
   # @api public
   def blank?
@@ -64,7 +64,7 @@ class FalseClass
   #
   #   false.blank?      #=>  true
   #
-  # @return [TrueClass, FalseClass]
+  # @return [TrueClass]
   #
   # @api public
   def blank?
