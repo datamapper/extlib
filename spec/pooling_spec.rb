@@ -115,21 +115,6 @@ describe "Extlib::Pooling" do
     bob.release
   end
 
-  it "should raise a ThreadStopError when the pool is exhausted in a single thread" do
-    lambda do
-      begin
-        bob = Person.new('Bob')
-        bobs = []
-        9.times do
-          bobs << Person.new('Bob')
-        end
-      ensure
-        bob.release
-        bobs.each { |b| b.release }
-      end
-    end.should raise_error(Extlib::Pooling::ThreadStopError)
-  end
-
   it "should allow multiple threads to access the pool" do
     t1 = Thread.new do
       bob = Person.new('Bob')
@@ -141,7 +126,7 @@ describe "Extlib::Pooling" do
       bob = Person.new('Bob')
       t1.join
       bob.release
-    end.should_not raise_error(Extlib::Pooling::ThreadStopError)
+    end.should_not raise_error
   end
 
   it "should allow you to flush a pool" do

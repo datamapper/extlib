@@ -82,9 +82,6 @@ module Extlib
     class InvalidResourceError < StandardError
     end
 
-    class ThreadStopError < StandardError
-    end
-
     def self.included(target)
       target.class_eval do
         class << self
