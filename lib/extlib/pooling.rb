@@ -178,8 +178,8 @@ module Extlib
       end
 
       def release(instance)
-        instance.instance_variable_set(:@__allocated_in_pool, Time.now)
         lock.synchronize do
+          instance.instance_variable_set(:@__allocated_in_pool, Time.now)
           @used.delete(instance.object_id)
           @available.push(instance)
           wait.signal
@@ -217,12 +217,11 @@ module Extlib
 
       def expired?
         @available.each do |instance|
-          if Extlib.exiting || instance.instance_variable_get(:@__allocated_in_pool) + Extlib::Pooling.scavenger_interval <= Time.now
+          if Extlib.exiting || instance.instance_variable_get(:@__allocated_in_pool) + Extlib::Pooling.scavenger_interval <= (Time.now + 0.02)
             instance.dispose
             @available.delete(instance)
           end
         end
-
         size == 0
       end
 
