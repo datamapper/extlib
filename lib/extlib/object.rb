@@ -149,19 +149,6 @@ class Object
     arrayish.include?(self)
   end
 
-  # @note
-  #   For instances of objects that don't override the #inspect method, there
-  #   is an encoded hash to uniquely identify the object. This method
-  #   reproduces this to be used in #inspect in order to keep the same look
-  #   as well as provide this information.
-  #   This is inessential, but may be useful.
-  #
-  # @return <String>
-  #   Returns the 16-byte encoded hash for the object
-  def encoded_hash
-    (self.hash * 2).to_s(16)
-  end
-
   # Add instance_variable_defined? for backward compatibility
   # @param variable<Symbol, String>
   #

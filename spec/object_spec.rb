@@ -94,8 +94,6 @@ describe Object do
     end
   end
 
-
-
   describe "#in?" do
     it 'returns true if object is included in collection' do
       @ary = [1, 2, 3]
@@ -111,20 +109,6 @@ describe Object do
       3.in?(@set).should be(true)
       4.in?(@set).should be(false)
       5.in?(@set).should be(true)
-    end
-  end
-
-  describe "#encoded_hash" do
-    it 'returns the encoded hash like the value in the default Object#inspect' do
-      o = Oi.new
-      original_inspect = o.inspect
-      original_inspect.should =~ %r{#<Oi:0x([a-z0-9]{6,})>}
-
-      o.foo = 1
-      o.inspect.should =~ %r{#<Oi:0x([a-z0-9]{6,}) @foo=1>}
-
-      class << o; def inspect; "#<Oi:0x#{self.encoded_hash}>"; end; end
-      o.inspect.should == original_inspect
     end
   end
 end
