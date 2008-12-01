@@ -86,7 +86,7 @@ module LazyArraySpec
       it 'should not change self' do
         # XXX: the following does not work with Array#delete_if, even when nothing removed (ruby bug?)
         #subject.freeze
-        #lambda { action }.should_not raise_error(TypeError)
+        #lambda { action }.should_not raise_error(RUBY_VERSION <= '1.8.7' ? TypeError : RuntimeError)
         lambda { action }.should_not change(subject, :entries)
       end
     end
@@ -154,7 +154,7 @@ end
       end
 
       it 'should not allow any modifications' do
-        lambda { subject << @steve }.should raise_error(TypeError)
+        lambda { subject << @steve }.should raise_error(RUBY_VERSION <= '1.8.7' ? TypeError : RuntimeError)
       end
     end
 
@@ -472,7 +472,7 @@ end
     describe '#each_with_index', state do
       before { @accumulator = [] }
 
-      action { subject.each_with_index { |(e,i)| @accumulator << [ e, i ] } }
+      action { subject.each_with_index { |*args| @accumulator << args } }
 
       should_return_subject
       should_be_a_kicker
@@ -1848,7 +1848,7 @@ end
 
     describe 'a method mixed into Array' do
       before :all do
-        module Enumerable
+        Enumerable.class_eval do
           def lazy_spec
             true
           end
