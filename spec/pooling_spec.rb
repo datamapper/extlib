@@ -1,15 +1,16 @@
 require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 require 'timeout'
 
+module Extlib::Pooling
+  def self.scavenger_interval
+    1
+  end
+end
+
 describe "Extlib::Pooling" do
-  before(:all) do
+  before do
 
-    module Extlib::Pooling
-      def self.scavenger_interval
-        1
-      end
-    end
-
+    Object.send(:remove_const, :Person) if defined?(Person)
     class Person
       include Extlib::Pooling
 
@@ -24,6 +25,7 @@ describe "Extlib::Pooling" do
       end
     end
 
+    Object.send(:remove_const, :Overwriter) if defined?(Overwriter)
     class Overwriter
 
       def self.new(*args)
@@ -144,6 +146,7 @@ describe "Extlib::Pooling" do
   end
 
   it "should wake up the scavenger thread when exiting" do
+    pending 'Fix for Ruby 1.9.1 and JRuby' if RUBY_VERSION >= '1.9.1' || RUBY_PLATFORM =~ /java/
     bob = Person.new('Bob')
     bob.release
     Extlib.exiting = true
