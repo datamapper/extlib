@@ -86,7 +86,7 @@ module LazyArraySpec
       it 'should not change self' do
         # XXX: the following does not work with Array#delete_if, even when nothing removed (ruby bug?)
         #subject.freeze
-        #lambda { action }.should_not raise_error(RUBY_VERSION <= '1.8.7' ? TypeError : RuntimeError)
+        #lambda { action }.should_not raise_error(RUBY_VERSION >= '1.9.0' ? RuntimeError : TypeError)
         lambda { action }.should_not change(subject, :entries)
       end
     end
@@ -154,7 +154,7 @@ end
       end
 
       it 'should not allow any modifications' do
-        lambda { subject << @steve }.should raise_error(RUBY_VERSION <= '1.8.7' ? TypeError : RuntimeError)
+        lambda { subject << @steve }.should raise_error(RUBY_VERSION >= '1.9.0' ? RuntimeError : TypeError)
       end
     end
 
