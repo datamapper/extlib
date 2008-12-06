@@ -18,7 +18,7 @@ class Grandparent
   self._attribute = 1900
 end
 
-describe Class, "#inheritable_accessor" do 
+describe Class, "#inheritable_accessor" do
 
   after :each do
     Grandparent.send(:remove_instance_variable, "@last_name") rescue nil
@@ -130,7 +130,7 @@ class Model
   self.const_set("Version", Model.new)
 end
 
-describe Class, "#inheritable_accessor" do 
+describe Class, "#inheritable_accessor" do
   it "uses object_id for comparison" do
     Model.methods.should include("plugin_options")
     Model.plugin_options.should == :foo
