@@ -78,11 +78,12 @@ namespace :extlib do
     t.spec_files = Pathname.glob(ENV['FILES'] || 'spec/**/*_spec.rb')
 
     begin
+      gem 'rcov'
       t.rcov = RUN_RCOV
       t.rcov_opts << '--exclude' << 'spec'
       t.rcov_opts << '--text-summary'
       t.rcov_opts << '--sort' << 'coverage' << '--sort-reverse'
-    rescue Exception
+    rescue LoadError
       # rcov not installed
     end
   end
