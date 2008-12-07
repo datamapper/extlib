@@ -47,12 +47,12 @@ spec = Gem::Specification.new do |s|
   s.homepage     = PROJECT_URL
   s.summary      = PROJECT_SUMMARY
   s.description  = PROJECT_DESCRIPTION
-  s.require_path = "lib"
-  s.files        = ["LICENSE", "README", "Rakefile"] + Dir["lib/**/*"]
+  s.require_path = 'lib'
+  s.files        = %w[ LICENSE README Rakefile History.txt ] + Dir['lib/**/*'] + Dir['spec/**/*']
 
   # rdoc
   s.has_rdoc         = false
-  s.extra_rdoc_files = ["LICENSE", "README"]
+  s.extra_rdoc_files = %w[ LICENSE README History.txt ]
 
   # Dependencies
   # s.add_dependency "english", ">=0.2.0"
