@@ -22,7 +22,7 @@ end # class String
 #
 # sudo gem install english
 #
-gem 'english', '>=0.2.0'
+gem 'english', '~>0.3.1'
 require 'english/inflect'
 
 module Extlib
