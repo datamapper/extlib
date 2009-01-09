@@ -779,6 +779,26 @@ describe Extlib::Hook do
         inst.should_not_receive(:hello_world!)
         inst.hookable
       end
+
+      it 'should call different hooks in different children when they are defined there' do
+        @class.send(:define_method, :hello_world) {}
+
+        @child1 = Class.new(@class) do
+          before(:hello_world){ hi_dad! }
+        end
+
+        @child2 = Class.new(@class) do
+          before(:hello_world){ hi_mom! }
+        end
+
+        inst1 = @child1.new
+        inst2 = @child2.new
+        inst1.should_receive(:hi_dad!)
+        inst2.should_receive(:hi_mom!)
+        inst1.hello_world
+        inst2.hello_world
+      end
+
     end
 
   end
