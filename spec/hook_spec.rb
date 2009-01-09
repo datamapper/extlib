@@ -791,12 +791,20 @@ describe Extlib::Hook do
           before(:hello_world){ hi_mom! }
         end
 
+        @child3 = Class.new(@child1) do
+          before(:hello_world){ hi_grandma! }
+        end
+
         inst1 = @child1.new
         inst2 = @child2.new
-        inst1.should_receive(:hi_dad!)
-        inst2.should_receive(:hi_mom!)
+        inst3 = @child3.new
+        inst1.should_receive(:hi_dad!).once
+        inst2.should_receive(:hi_mom!).once
+        inst3.should_receive(:hi_dad!).once
+        inst3.should_receive(:hi_grandma!).once
         inst1.hello_world
         inst2.hello_world
+        inst3.hello_world
       end
 
     end
