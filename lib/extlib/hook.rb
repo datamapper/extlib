@@ -249,7 +249,7 @@ module Extlib
 
         source = %{class << self\n#{source}\nend} if scope == :class
 
-        hooks[target_method][:in].class_eval(source, __FILE__, __LINE__)
+        hooks[target_method][:in].class_eval(source, __FILE__, __LINE__ - 12)
       end
 
       # Returns ruby code that will invoke the hook. It checks the arity of the hook method
@@ -315,10 +315,23 @@ module Extlib
           raise ArgumentError, 'You need to pass :class or :instance as scope'
         end
 
-        register_hook(target_method, scope) unless registered_as_hook?(target_method, scope)
+        if registered_as_hook?(target_method, scope)
+          hooks = hooks_with_scope(scope)
 
-        hooks = hooks_with_scope(scope)
+          #if this hook is previously declared in a sibling or cousin we must move the :in class
+          #to the common ancestor to get both hooks to run.
+          if !(hooks[target_method][:in] <=> self)
+            while !(hooks[target_method][:in] <=> self) do
+              hooks[target_method][:in] = hooks[target_method][:in].superclass
+            end
+            define_advised_method(target_method, scope)
+          end
+        else
+          register_hook(target_method, scope)
+          hooks = hooks_with_scope(scope)
+        end
 
+        #if  we were passed a block, create a method out of it.
         if block
           method_sym = "__hooks_#{type}_#{quote_method(target_method)}_#{hooks[target_method][type].length}".to_sym
           if scope == :class
