@@ -18,6 +18,14 @@ class Grandparent
   self._attribute = 1900
 end
 
+class ClassWithInheritableSymbolAccessor
+  class_inheritable_accessor :symbol
+  self.symbol = :foo
+end
+
+class ClassInheritingSymbolAccessor < ClassWithInheritableSymbolAccessor
+end
+
 describe Class, "#inheritable_accessor" do
 
   after :each do
@@ -102,6 +110,14 @@ describe Class, "#inheritable_accessor" do
     Child.last_name.should == "Core"
   end
 
+end
+
+describe Class, "#inheritable_accessor (of type Symbol)" do
+  
+  it "should not raise" do
+    lambda { ClassInheritingSymbolAccessor.symbol }.should_not raise_error(TypeError)
+  end
+  
 end
 
 #
