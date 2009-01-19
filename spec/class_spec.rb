@@ -113,11 +113,11 @@ describe Class, "#inheritable_accessor" do
 end
 
 describe Class, "#inheritable_accessor (of type Symbol)" do
-  
+
   it "should not raise" do
     lambda { ClassInheritingSymbolAccessor.symbol }.should_not raise_error(TypeError)
   end
-  
+
 end
 
 #
