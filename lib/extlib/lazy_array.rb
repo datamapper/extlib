@@ -328,7 +328,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def eql?(other)
     return true if equal?(other)
-    return false unless other.kind_of?(Enumerable)
+    return false unless other.class.equal?(self.class)
 
     unless loaded?
       # compare the head against the beginning of other.  start at index
@@ -345,16 +345,19 @@ class LazyArray  # borrowed partially from StrokeDB
         return false unless @tail[i].eql?(other[i])
       end
 
-      # if still equal, we need to compare the entire array, so lazy load
       lazy_load
     end
 
-    @array.eql?(other)
+    # convert other to an Array before checking equality
+    @array.eql?(other.to_ary)
   end
 
   def ==(other)
     return true if equal?(other)
-    return false unless other.kind_of?(Enumerable)
+    return false unless other.respond_to?(:to_ary)
+
+    # if necessary, convert to something that can be compared
+    other = other.to_ary unless other.respond_to?(:[])
 
     unless loaded?
       # compare the head against the beginning of other.  start at index
@@ -371,7 +374,6 @@ class LazyArray  # borrowed partially from StrokeDB
         return false unless @tail[i] == other[i]
       end
 
-      # if still equal, we need to compare the entire array, so lazy load
       lazy_load
     end
 

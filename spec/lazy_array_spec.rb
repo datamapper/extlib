@@ -44,7 +44,7 @@ module LazyArraySpec
       end
 
       it 'should eql self' do
-        action.should eql(subject.entries)
+        action.should eql(subject)
       end
     end
 
@@ -560,7 +560,16 @@ end
 
       describe "##{method}", state do
         describe 'with an Enumerable containing the same entries' do
-          action { subject.send(method, [ @nancy, @bessie ]) }
+          before do
+            if method == :eql?
+              @other = LazyArray.new
+              @other.load_with { |la| la.push(@nancy, @bessie) }
+            else
+              @other = [ @nancy, @bessie ]
+            end
+          end
+
+          action { subject.send(method, @other) }
 
           should_return_true
           should_be_a_kicker
@@ -1060,7 +1069,7 @@ end
       should_not_change_subject
 
       it 'should return a reversed LazyArray' do
-        action.should eql([ @bessie, @nancy ])
+        action.should == [ @bessie, @nancy ]
       end
     end
 
@@ -1073,7 +1082,7 @@ end
       should_not_be_a_kicker
 
       it 'should return a reversed LazyArray' do
-        action.should eql([ @bessie, @nancy ])
+        action.should == [ @bessie, @nancy ]
       end
     end
 
@@ -1779,8 +1788,11 @@ end
       action { subject.to_a }
 
       should_return_kind_of(Array)
-      should_return_copy
       should_be_a_kicker
+
+      it 'should be equivalent to self' do
+        action.should == subject
+      end
     end
 
     should_respond_to(:unshift)
