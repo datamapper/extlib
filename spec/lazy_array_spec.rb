@@ -502,7 +502,7 @@ end
     describe '#each_with_index', state do
       before { @accumulator = [] }
 
-      action { subject.each_with_index { |*args| @accumulator << args } }
+      action { subject.each_with_index { |entry,index| @accumulator << [ entry, index ] } }
 
       should_return_subject
       should_be_a_kicker
