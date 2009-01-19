@@ -329,11 +329,54 @@ class LazyArray  # borrowed partially from StrokeDB
   def eql?(other)
     return true if equal?(other)
     return false unless other.kind_of?(Enumerable)
-    lazy_load
+
+    unless loaded?
+      # compare the head against the beginning of other.  start at index
+      # 0 and incrementally compare each entry. if other is a LazyArray
+      # this has a lesser likelyhood of triggering a lazy load
+      0.upto(@head.size - 1) do |i|
+        return false unless @head[i].eql?(other[i])
+      end
+
+      # compare the tail against the end of other.  start at index
+      # -1 and decrementally compare each entry. if other is a LazyArray
+      # this has a lesser likelyhood of triggering a lazy load
+      -1.downto(@tail.size * -1) do |i|
+        return false unless @tail[i].eql?(other[i])
+      end
+
+      # if still equal, we need to compare the entire array, so lazy load
+      lazy_load
+    end
+
     @array.eql?(other)
   end
 
-  alias == eql?
+  def ==(other)
+    return true if equal?(other)
+    return false unless other.kind_of?(Enumerable)
+
+    unless loaded?
+      # compare the head against the beginning of other.  start at index
+      # 0 and incrementally compare each entry. if other is a LazyArray
+      # this has a lesser likelyhood of triggering a lazy load
+      0.upto(@head.size - 1) do |i|
+        return false unless @head[i] == other[i]
+      end
+
+      # compare the tail against the end of other.  start at index
+      # -1 and decrementally compare each entry. if other is a LazyArray
+      # this has a lesser likelyhood of triggering a lazy load
+      -1.downto(@tail.size * -1) do |i|
+        return false unless @tail[i] == other[i]
+      end
+
+      # if still equal, we need to compare the entire array, so lazy load
+      lazy_load
+    end
+
+    @array == other
+  end
 
   protected
 

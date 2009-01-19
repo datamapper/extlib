@@ -555,23 +555,45 @@ end
       end
     end
 
-    should_respond_to(:eql?)
+    [ :eql?, :== ].each do |method|
+      should_respond_to(method)
 
-    describe '#eql?', state do
-      describe 'with an Enumerable containing the same entries' do
-        action { subject.eql?([ @nancy, @bessie ]) }
+      describe "##{method}", state do
+        describe 'with an Enumerable containing the same entries' do
+          action { subject.send(method, [ @nancy, @bessie ]) }
 
-        should_return_true
-        should_be_a_kicker
-        should_not_change_subject
-      end
+          should_return_true
+          should_be_a_kicker
+          should_not_change_subject
+        end
 
-      describe 'with an Enumerable containing different entries' do
-        action { subject.eql?(@other) }
+        describe 'with an Enumerable containing different entries' do
+          action { subject.send(method, @other) }
 
-        should_return_false
-        should_be_a_kicker
-        should_not_change_subject
+          should_return_false
+          should_be_a_kicker
+          should_not_change_subject
+        end
+
+        describe 'with an Enumerable with different entries than in head' do
+          before { subject.unshift(@nancy) }
+
+          action { subject.send(method, [ @steve ]) }
+
+          should_return_false
+          should_not_be_a_kicker
+          should_not_change_subject
+        end
+
+        describe 'with an Enumerable with different entries than in tail' do
+          before { subject.push(@nancy) }
+
+          action { subject.send(method, [ @steve ]) }
+
+          should_return_false
+          should_not_be_a_kicker
+          should_not_change_subject
+        end
       end
     end
 
