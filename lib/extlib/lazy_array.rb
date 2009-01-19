@@ -1,6 +1,17 @@
 class LazyArray  # borrowed partially from StrokeDB
   instance_methods.each { |m| undef_method m unless %w[ __id__ __send__ send class dup object_id kind_of? respond_to? equal? assert_kind_of should should_not instance_variable_set instance_variable_get extend ].include?(m.to_s) }
 
+  # add proxies for all Array and Enumerable methods
+  ((Array.instance_methods(false) | Enumerable.instance_methods(false)).map { |m| m.to_s } - %w[ taguri= ]).each do |method|
+    class_eval <<-EOS, __FILE__, __LINE__
+      def #{method}(*args, &block)
+        lazy_load
+        results = @array.#{method}(*args, &block)
+        results.equal?(@array) ? self : results
+      end
+    EOS
+  end
+
   # this avoids a strange Ruby 1.8.6 bug where it cannot delegate to super() in #first
   if RUBY_VERSION <= '1.8.6'
     def first(*args)
@@ -281,6 +292,8 @@ class LazyArray  # borrowed partially from StrokeDB
   def kind_of?(klass)
     super || @array.kind_of?(klass)
   end
+
+  alias is_a? kind_of?
 
   def respond_to?(method, include_private = false)
     super || @array.respond_to?(method)
