@@ -12,23 +12,12 @@ class LazyArray  # borrowed partially from StrokeDB
     EOS
   end
 
-  # this avoids a strange Ruby 1.8.6 bug where it cannot delegate to super() in #first
-  if RUBY_VERSION <= '1.8.6'
-    def first(*args)
-      if lazy_possible?(@head, *args)
-        @head.first(*args)
-      else
-        lazy_load
-        @array.first(*args)
-      end
-    end
-  else
-    def first(*args)
-      if lazy_possible?(@head, *args)
-        @head.first(*args)
-      else
-        super
-      end
+  def first(*args)
+    if lazy_possible?(@head, *args)
+      @head.first(*args)
+    else
+      lazy_load
+      @array.first(*args)
     end
   end
 
@@ -36,7 +25,8 @@ class LazyArray  # borrowed partially from StrokeDB
     if lazy_possible?(@tail, *args)
       @tail.last(*args)
     else
-      super
+      lazy_load
+      @array.last(*args)
     end
   end
 
@@ -46,7 +36,8 @@ class LazyArray  # borrowed partially from StrokeDB
     elsif index < 0 && lazy_possible?(@tail, index.abs)
       @tail.at(index)
     else
-      super
+      lazy_load
+      @array.at(index)
     end
   end
 
@@ -58,7 +49,8 @@ class LazyArray  # borrowed partially from StrokeDB
     elsif index < 0 && lazy_possible?(@tail, index.abs)
       @tail.fetch(*args, &block)
     else
-      super
+      lazy_load
+      @array.fetch(*args, &block)
     end
   end
 
@@ -78,28 +70,36 @@ class LazyArray  # borrowed partially from StrokeDB
     if lazy_possible
       accumulator
     else
-      super
+      lazy_load
+      @array.values_at(*args)
     end
   end
 
   def index(entry)
-    (lazy_possible?(@head) && @head.index(entry)) || super
+    (lazy_possible?(@head) && @head.index(entry)) || begin
+      lazy_load
+      @array.index(entry)
+    end
   end
 
   def include?(entry)
     (lazy_possible?(@tail) && @tail.include?(entry)) ||
-    (lazy_possible?(@head) && @head.include?(entry)) ||
-    super
+    (lazy_possible?(@head) && @head.include?(entry)) || begin
+      lazy_load
+      @array.include?(entry)
+    end
   end
 
   def empty?
     !any?
   end
 
-  def any?
-    (lazy_possible?(@tail) && @tail.any?) ||
-    (lazy_possible?(@head) && @head.any?) ||
-    super
+  def any?(&block)
+    (lazy_possible?(@tail) && @tail.any?(&block)) ||
+    (lazy_possible?(@head) && @head.any?(&block)) || begin
+      lazy_load
+      @array.any?(&block)
+    end
   end
 
   def [](*args)
@@ -112,11 +112,12 @@ class LazyArray  # borrowed partially from StrokeDB
     length ||= 1
 
     if index >= 0 && lazy_possible?(@head, index + length)
-      @head.slice(*args)
+      @head[*args]
     elsif index < 0 && lazy_possible?(@tail, index.abs - 1 + length)
-      @tail.slice(*args)
+      @tail[*args]
     else
-      super
+      lazy_load
+      @array[*args]
     end
   end
 
@@ -132,7 +133,8 @@ class LazyArray  # borrowed partially from StrokeDB
     elsif index < 0 && lazy_possible?(@tail, index.abs - 1 + length)
       @tail.slice!(*args)
     else
-      super
+      lazy_load
+      @array.slice!(*args)
     end
   end
 
@@ -146,7 +148,8 @@ class LazyArray  # borrowed partially from StrokeDB
     elsif index < 0 && lazy_possible?(@tail, index.abs - 1 + length)
       @tail.[]=(*args)
     else
-      super
+      lazy_load
+      @array.[]=(*args)
     end
   end
 
@@ -176,7 +179,8 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def <<(entry)
     if loaded?
-      super
+      lazy_load
+      @array << entry
     else
       @tail << entry
     end
@@ -187,16 +191,18 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def concat(other)
     if loaded?
-      super
+      lazy_load
+      @array.concat(other)
     else
-      @tail.concat(other.entries)
+      @tail.concat(other)
     end
     self
   end
 
   def push(*entries)
     if loaded?
-      super
+      lazy_load
+      @array.push(*entries)
     else
       @tail.push(*entries)
     end
@@ -205,7 +211,8 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def unshift(*entries)
     if loaded?
-      super
+      lazy_load
+      @array.unshift(*entries)
     else
       @head.unshift(*entries)
     end
@@ -218,7 +225,8 @@ class LazyArray  # borrowed partially from StrokeDB
     elsif index < 0 && lazy_possible?(@tail, index.abs - 1)
       @tail.insert(index, *entries)
     else
-      super
+      lazy_load
+      @array.insert(index, *entries)
     end
     self
   end
@@ -227,7 +235,8 @@ class LazyArray  # borrowed partially from StrokeDB
     if lazy_possible?(@tail)
       @tail.pop
     else
-      super
+      lazy_load
+      @array.pop
     end
   end
 
@@ -235,7 +244,8 @@ class LazyArray  # borrowed partially from StrokeDB
     if lazy_possible?(@head)
       @head.shift
     else
-      super
+      lazy_load
+      @array.shift
     end
   end
 
@@ -245,13 +255,15 @@ class LazyArray  # borrowed partially from StrokeDB
     elsif index < 0 && lazy_possible?(@tail, index.abs)
       @tail.delete_at(index)
     else
-      super
+      lazy_load
+      @array.delete_at(index)
     end
   end
 
   def delete_if(&block)
     if loaded?
-      super
+      lazy_load
+      @array.delete_if(&block)
     else
       @reapers ||= []
       @reapers << block
@@ -263,7 +275,7 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def replace(other)
     mark_loaded
-    @array.replace(other.entries)
+    @array.replace(other)
     self
   end
 
@@ -318,7 +330,7 @@ class LazyArray  # borrowed partially from StrokeDB
     return true if equal?(other)
     return false unless other.kind_of?(Enumerable)
     lazy_load
-    @array.eql?(other.entries)
+    @array.eql?(other)
   end
 
   alias == eql?

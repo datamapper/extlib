@@ -176,42 +176,72 @@ end
     should_respond_to(:any?)
 
     describe '#any?', state do
-      describe 'when the subject has entries that are not loaded' do
+      describe 'when not provided a block' do
         action { subject.any? }
 
-        should_return_true
-        should_be_a_kicker
-        should_not_change_subject
+        describe 'when the subject has entries that are not loaded' do
+          should_return_true
+          should_be_a_kicker
+          should_not_change_subject
+        end
+
+        describe 'when the subject has entries that are prepended' do
+          subject { LazyArray.new.unshift(@nancy) }
+
+          should_return_true
+          should_not_be_a_kicker
+          should_not_change_subject
+        end
+
+        describe 'when the subject has entries that are appended' do
+          subject { LazyArray.new << @nancy }
+
+          should_return_true
+          should_not_be_a_kicker
+          should_not_change_subject
+        end
+
+        describe 'when the subject has no entries' do
+          subject { LazyArray.new }
+
+          should_return_false
+          should_be_a_kicker
+          should_not_change_subject
+        end
       end
 
-      describe 'when the subject has entries that are prepended' do
-        subject { LazyArray.new.unshift(@nancy) }
+      describe 'when provided a block that always returns true' do
+        action { subject.any? { true } }
 
-        action { subject.any? }
+        describe 'when the subject has entries that are not loaded' do
+          should_return_true
+          should_be_a_kicker
+          should_not_change_subject
+        end
 
-        should_return_true
-        should_not_be_a_kicker
-        should_not_change_subject
-      end
+        describe 'when the subject has entries that are prepended' do
+          subject { LazyArray.new.unshift(@nancy) }
 
-      describe 'when the subject has entries that are appended' do
-        subject { LazyArray.new << @nancy }
+          should_return_true
+          should_not_be_a_kicker
+          should_not_change_subject
+        end
 
-        action { subject.any? }
+        describe 'when the subject has entries that are appended' do
+          subject { LazyArray.new << @nancy }
 
-        should_return_true
-        should_not_be_a_kicker
-        should_not_change_subject
-      end
+          should_return_true
+          should_not_be_a_kicker
+          should_not_change_subject
+        end
 
-      describe 'when the subject has no entries' do
-        subject { LazyArray.new }
+        describe 'when the subject has no entries' do
+          subject { LazyArray.new }
 
-        action { subject.any? }
-
-        should_return_false
-        should_be_a_kicker
-        should_not_change_subject
+          should_return_false
+          should_be_a_kicker
+          should_not_change_subject
+        end
       end
     end
 
