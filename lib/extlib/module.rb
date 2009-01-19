@@ -30,7 +30,11 @@ class Module
     constants.each do |const|
       # return the nested constant if available
       return const if parts.all? do |part|
-        const = const.const_defined?(part) ? const.const_get(part) : nil
+        const = if RUBY_VERSION >= '1.9.0'
+          const.const_defined?(part, false) ? const.const_get(part, false) : nil
+        else
+          const.const_defined?(part) ? const.const_get(part) : nil
+        end
       end
     end
 
