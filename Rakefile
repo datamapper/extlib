@@ -75,7 +75,7 @@ namespace :extlib do
   Spec::Rake::SpecTask.new(:spec) do |t|
     t.spec_opts << '--format' << 'specdoc' << '--colour'
     t.spec_opts << '--loadby' << 'random'
-    t.spec_files = Pathname.glob(ENV['FILES'] || 'spec/**/*_spec.rb')
+    t.spec_files = Pathname.glob(ENV['FILES'] || 'spec/**/*_spec.rb').map { |f| f.to_s }
 
     begin
       gem 'rcov'

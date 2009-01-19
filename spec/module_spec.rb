@@ -3,7 +3,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 describe Module do
 
   before(:all) do
-    module Foo
+    module ::Foo
       module ModBar
         module Noo
           module Too
@@ -15,10 +15,10 @@ describe Module do
       end
     end
 
-    class Baz
+    class ::Baz
     end
 
-    class Bar
+    class ::Bar
     end
   end
 
@@ -51,7 +51,7 @@ describe Module do
   it "should be able to deal with constants being added and removed" do
     Object.find_const('Bar') # First we load Bar with find_const
     Object.module_eval { remove_const('Bar') } # Now we delete it
-    module Bar; end; # Now we redefine it
+    module ::Bar; end; # Now we redefine it
     Object.find_const('Bar').should == Bar
   end
 

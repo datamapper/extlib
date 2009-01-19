@@ -1,8 +1,6 @@
 class LazyArray  # borrowed partially from StrokeDB
   instance_methods.each { |m| undef_method m unless %w[ __id__ __send__ send class dup object_id kind_of? respond_to? equal? assert_kind_of should should_not instance_variable_set instance_variable_get extend ].include?(m.to_s) }
 
-  include Enumerable
-
   # this avoids a strange Ruby 1.8.6 bug where it cannot delegate to super() in #first
   if RUBY_VERSION <= '1.8.6'
     def first(*args)
@@ -304,6 +302,8 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def eql?(other)
+    return true if equal?(other)
+    return false unless other.kind_of?(Enumerable)
     lazy_load
     @array.eql?(other.entries)
   end

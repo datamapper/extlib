@@ -283,7 +283,7 @@ module Extlib
           end
         EOD
 
-        if scope == :instance && !instance_methods(false).include?(target_method.to_s)
+        if scope == :instance && !instance_methods(false).map { |m| m.to_s }.include?(target_method.to_s)
           send(:alias_method, renamed_target, target_method)
 
           proxy_module = Module.new
@@ -341,7 +341,7 @@ module Extlib
         if block
           method_sym = "__hooks_#{type}_#{quote_method(target_method)}_#{hooks[target_method][type].length}".to_sym
           if scope == :class
-            (class << self; self; end;).instance_eval do
+            meta_class.instance_eval do
               define_method(method_sym, &block)
             end
           else
