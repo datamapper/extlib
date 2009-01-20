@@ -118,7 +118,7 @@ class Class
           return @#{ivar} if self.object_id == #{self.object_id} || defined?(@#{ivar})
           ivar = superclass.#{ivar}
           return nil if ivar.nil? && !#{self}.instance_variable_defined?("@#{ivar}")
-          @#{ivar} = ivar && !ivar.is_a?(Module) && !ivar.is_a?(Numeric) && !ivar.is_a?(TrueClass) && !ivar.is_a?(FalseClass) && !ivar.is_a?(Symbol) ? ivar.dup : ivar
+          @#{ivar} = ivar.try_dup
         end
       RUBY
       unless instance_reader == false
