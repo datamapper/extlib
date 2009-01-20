@@ -146,7 +146,6 @@ describe "Extlib::Pooling" do
   end
 
   it "should wake up the scavenger thread when exiting" do
-    pending 'Fix for JRuby' if RUBY_PLATFORM =~ /java/
     bob = Person.new('Bob')
     bob.release
     Extlib.exiting = true
