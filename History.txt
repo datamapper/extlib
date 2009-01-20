@@ -1,3 +1,21 @@
+=== 0.9.10 / 2009-01-19
+
+* 1 major enhancement:
+
+  * Ruby 1.9.1 compatibility
+
+* 1 minor enhancement:
+
+  * Updated LazyArray#eql? and LazyArray#== to compare without lazy
+    loading if possible.
+
+3 bug fixes:
+
+  * Fix for inheritance and hooks
+  * Fix for Class inheritable accessor to use #try_dup
+  * Fix for LazyArray to be more explicit in delegating to Array,
+    to lessen conflicts in subclasses
+
 === 0.9.9 / 2008-12-07
 
 * 1 major enhancement:
