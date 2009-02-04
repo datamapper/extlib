@@ -60,7 +60,7 @@ class LazyArray  # borrowed partially from StrokeDB
     lazy_possible = args.all? do |arg|
       index, length = extract_slice_arguments(arg)
 
-      if index >= 0 && lazy_possible?(@head, index + (length || 1))
+      if index >= 0 && lazy_possible?(@head, index + length)
         accumulator.concat(head.values_at(*arg))
       elsif index < 0 && lazy_possible?(@tail, index.abs)
         accumulator.concat(tail.values_at(*arg))
@@ -105,11 +105,9 @@ class LazyArray  # borrowed partially from StrokeDB
   def [](*args)
     index, length = extract_slice_arguments(*args)
 
-    if length.nil?
+    if length == 1 && args.size == 1 && args.first.kind_of?(Integer)
       return at(index)
     end
-
-    length ||= 1
 
     if index >= 0 && lazy_possible?(@head, index + length)
       @head[*args]
@@ -126,8 +124,6 @@ class LazyArray  # borrowed partially from StrokeDB
   def slice!(*args)
     index, length = extract_slice_arguments(*args)
 
-    length ||= 1
-
     if index >= 0 && lazy_possible?(@head, index + length)
       @head.slice!(*args)
     elsif index < 0 && lazy_possible?(@tail, index.abs - 1 + length)
@@ -140,8 +136,6 @@ class LazyArray  # borrowed partially from StrokeDB
 
   def []=(*args)
     index, length = extract_slice_arguments(*args[0..-2])
-
-    length ||= 1
 
     if index >= 0 &&  lazy_possible?(@head, index + length)
       @head.[]=(*args)
@@ -441,7 +435,7 @@ class LazyArray  # borrowed partially from StrokeDB
       return first_arg, second_arg
     elsif args.size == 1
       if first_arg.kind_of?(Integer)
-        return first_arg
+        return first_arg, 1
       elsif first_arg.kind_of?(Range)
         index = first_arg.first
         length  = first_arg.last - index
