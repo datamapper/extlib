@@ -320,6 +320,10 @@ class LazyArray  # borrowed partially from StrokeDB
     @frozen == true
   end
 
+  def equal?(other)
+    object_id == other.object_id
+  end
+
   def eql?(other)
     return true if equal?(other)
     return false unless other.class.equal?(self.class)
