@@ -2,14 +2,20 @@ class LazyArray  # borrowed partially from StrokeDB
   instance_methods.each { |m| undef_method m unless %w[ __id__ __send__ send class dup object_id kind_of? respond_to? equal? assert_kind_of should should_not instance_variable_set instance_variable_get extend ].include?(m.to_s) }
 
   # add proxies for all Array and Enumerable methods
-  ((Array.instance_methods(false) | Enumerable.instance_methods(false)).map { |m| m.to_s } - %w[ taguri= ]).each do |method|
-    class_eval <<-EOS, __FILE__, __LINE__
-      def #{method}(*args, &block)
-        lazy_load
-        results = @array.#{method}(*args, &block)
-        results.equal?(@array) ? self : results
-      end
-    EOS
+  (Array.instance_methods(false) | Enumerable.instance_methods(false)).each do |method|
+    target = if method.to_s[-1, 1] == '='
+      "send(:#{method}, *args, &block)"
+    else
+      "#{method}(*args, &block)"
+    end
+
+    class_eval <<-RUBY, __FILE__, __LINE__ + 1
+      def #{method}(*args, &block)                # def []=(*args, &block)
+        lazy_load                                 #   lazy_load
+        results = @array.#{target}                #   results = @array.send(:[]=, *args, &block)
+        results.equal?(@array) ? self : results   #   results.equal?(@array) ? self : results
+      end                                         # end
+    RUBY
   end
 
   def first(*args)
