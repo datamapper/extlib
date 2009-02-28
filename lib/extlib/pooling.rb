@@ -118,6 +118,10 @@ module Extlib
       @__pool.release(self) unless @__pool.nil?
     end
 
+    def detach
+      @__pool.delete(self) unless @__pool.nil?
+    end
+
     class Pool
       attr_reader :available
       attr_reader :used

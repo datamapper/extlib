@@ -153,6 +153,13 @@ describe "Extlib::Pooling" do
     Extlib::Pooling.scavenger?.should be_false
   end
 
+  it "should be able to detach an instance from the pool" do
+    bob = Person.new('Bob')
+    Person.__pools[['Bob']].size.should == 1
+    bob.detach
+    Person.__pools[['Bob']].size.should == 0
+  end
+
 end
 
 # describe Extlib::Pooling::ResourcePool do
