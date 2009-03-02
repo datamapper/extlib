@@ -2,7 +2,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 
 describe Extlib::Hook do
 
-  before(:each) do
+  before do
     @module = Module.new do
       def greet; greetings_from_module; end;
     end
@@ -405,7 +405,9 @@ describe Extlib::Hook do
           def self.method_with_args(one, two, three); end;
           def self.before_method_with_args(one, two, three); hi_mom!; end;
           before_class_method(:method_with_args, :before_method_with_args)
+          orig_verbose, $VERBOSE = $VERBOSE, false
           def self.before_method_with_args; hi_dad!; end;
+          $VERBOSE = orig_verbose
         end
 
         @class.should_not_receive(:hi_mom1)
@@ -440,7 +442,9 @@ describe Extlib::Hook do
           def self.method_with_args(word, lol); end;
           def self.before_method_with_args; hi_mom!; end;
           before_class_method(:method_with_args, :before_method_with_args)
+          orig_verbose, $VERBOSE = $VERBOSE, false
           def self.before_method_with_args(word, lol); hi_dad!(word, lol); end;
+          $VERBOSE = orig_verbose
         end
 
         @class.should_not_receive(:hi_mom!)
@@ -541,7 +545,9 @@ describe Extlib::Hook do
           def method_with_args(one, two, three); end;
           def before_method_with_args(one, two, three); hi_mom!; end;
           before(:method_with_args, :before_method_with_args)
+          orig_verbose, $VERBOSE = $VERBOSE, false
           def before_method_with_args; hi_dad!; end;
+          $VERBOSE = orig_verbose
         end
 
         inst = @class.new
@@ -578,7 +584,9 @@ describe Extlib::Hook do
           def method_with_args(word, lol); end;
           def before_method_with_args; hi_mom!; end;
           before(:method_with_args, :before_method_with_args)
+          orig_verbose, $VERBOSE = $VERBOSE, false
           def before_method_with_args(word, lol); hi_dad!(word, lol); end;
+          $VERBOSE = orig_verbose
         end
 
         inst = @class.new

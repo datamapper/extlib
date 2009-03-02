@@ -97,7 +97,7 @@ class Object
     current_module = self
     mod.each do |x|
       unless current_module.const_defined?(x)
-        current_module.class_eval "module #{x}; end"
+        current_module.class_eval "module #{x}; end", __FILE__, __LINE__
       end
       current_module = current_module.const_get(x)
     end

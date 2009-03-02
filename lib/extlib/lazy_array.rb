@@ -1,23 +1,6 @@
 class LazyArray  # borrowed partially from StrokeDB
   instance_methods.each { |m| undef_method m unless %w[ __id__ __send__ send class dup object_id kind_of? respond_to? equal? assert_kind_of should should_not instance_variable_set instance_variable_get extend ].include?(m.to_s) }
 
-  # add proxies for all Array and Enumerable methods
-  (Array.instance_methods(false) | Enumerable.instance_methods(false)).each do |method|
-    target = if method.to_s[-1, 1] == '='
-      "send(:#{method}, *args, &block)"
-    else
-      "#{method}(*args, &block)"
-    end
-
-    class_eval <<-RUBY, __FILE__, __LINE__ + 1
-      def #{method}(*args, &block)                # def []=(*args, &block)
-        lazy_load                                 #   lazy_load
-        results = @array.#{target}                #   results = @array.send(:[]=, *args, &block)
-        results.equal?(@array) ? self : results   #   results.equal?(@array) ? self : results
-      end                                         # end
-    RUBY
-  end
-
   def first(*args)
     if lazy_possible?(@head, *args)
       @head.first(*args)
@@ -265,7 +248,6 @@ class LazyArray  # borrowed partially from StrokeDB
       lazy_load
       @array.delete_if(&block)
     else
-      @reapers ||= []
       @reapers << block
       @head.delete_if(&block)
       @tail.delete_if(&block)
@@ -326,62 +308,31 @@ class LazyArray  # borrowed partially from StrokeDB
     @frozen == true
   end
 
-  def equal?(other)
-    object_id == other.object_id
-  end
-
-  def eql?(other)
-    return true if equal?(other)
-    return false unless other.class.equal?(self.class)
-
-    unless loaded?
-      # compare the head against the beginning of other.  start at index
-      # 0 and incrementally compare each entry. if other is a LazyArray
-      # this has a lesser likelyhood of triggering a lazy load
-      0.upto(@head.size - 1) do |i|
-        return false unless @head[i].eql?(other[i])
-      end
-
-      # compare the tail against the end of other.  start at index
-      # -1 and decrementally compare each entry. if other is a LazyArray
-      # this has a lesser likelyhood of triggering a lazy load
-      -1.downto(@tail.size * -1) do |i|
-        return false unless @tail[i].eql?(other[i])
-      end
-
-      lazy_load
+  def ==(other)
+    if equal?(other)
+      return true
     end
 
-    # convert other to an Array before checking equality
-    @array.eql?(other.to_ary)
-  end
-
-  def ==(other)
-    return true if equal?(other)
-    return false unless other.respond_to?(:to_ary)
+    unless other.respond_to?(:to_ary)
+      return false
+    end
 
     # if necessary, convert to something that can be compared
     other = other.to_ary unless other.respond_to?(:[])
 
-    unless loaded?
-      # compare the head against the beginning of other.  start at index
-      # 0 and incrementally compare each entry. if other is a LazyArray
-      # this has a lesser likelyhood of triggering a lazy load
-      0.upto(@head.size - 1) do |i|
-        return false unless @head[i] == other[i]
-      end
+    cmp?(other, :==)
+  end
 
-      # compare the tail against the end of other.  start at index
-      # -1 and decrementally compare each entry. if other is a LazyArray
-      # this has a lesser likelyhood of triggering a lazy load
-      -1.downto(@tail.size * -1) do |i|
-        return false unless @tail[i] == other[i]
-      end
-
-      lazy_load
+  def eql?(other)
+    if equal?(other)
+      return true
     end
 
-    @array == other
+    unless other.class.equal?(self.class)
+      return false
+    end
+
+    cmp?(other, :eql?)
   end
 
   protected
@@ -395,10 +346,13 @@ class LazyArray  # borrowed partially from StrokeDB
   private
 
   def initialize
+    @frozen         = false
+    @loaded         = false
     @load_with_proc = lambda { |v| v }
     @head           = []
     @tail           = []
     @array          = []
+    @reapers        = []
   end
 
   def initialize_copy(original)
@@ -467,5 +421,47 @@ class LazyArray  # borrowed partially from StrokeDB
     else
       super
     end
+  end
+
+  def cmp?(other, operator)
+    unless loaded?
+      # compare the head against the beginning of other.  start at index
+      # 0 and incrementally compare each entry. if other is a LazyArray
+      # this has a lesser likelyhood of triggering a lazy load
+      0.upto(@head.size - 1) do |i|
+        return false unless @head[i].send(operator, other[i])
+      end
+
+      # compare the tail against the end of other.  start at index
+      # -1 and decrementally compare each entry. if other is a LazyArray
+      # this has a lesser likelyhood of triggering a lazy load
+      -1.downto(@tail.size * -1) do |i|
+        return false unless @tail[i].send(operator, other[i])
+      end
+
+      lazy_load
+    end
+
+    @array.send(operator, other.to_ary)
+  end
+
+  # add proxies for all remaining Array and Enumerable methods
+  (Array.public_instance_methods(false) | Enumerable.public_instance_methods(false)).each do |method|
+    next if public_method_defined?(method)
+
+    target = if method.to_s[-1, 1] == '='
+      "send(:#{method}, *args, &block)"
+    else
+      "#{method}(*args, &block)"
+    end
+
+    class_eval <<-RUBY, __FILE__, __LINE__ + 1
+      public
+      def #{method}(*args, &block)                # def []=(*args, &block)
+        lazy_load                                 #   lazy_load
+        results = @array.#{target}                #   results = @array.send(:[]=, *args, &block)
+        results.equal?(@array) ? self : results   #   results.equal?(@array) ? self : results
+      end                                         # end
+    RUBY
   end
 end

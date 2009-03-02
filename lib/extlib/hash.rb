@@ -131,11 +131,11 @@ class Hash
     end
 
     stack.each do |parent, hash|
-      hash.each do |key, value|
-        if value.is_a?(Hash)
-          stack << ["#{parent}[#{key}]", value]
+      hash.each do |k, v|
+        if v.is_a?(Hash)
+          stack << ["#{parent}[#{k}]", v]
         else
-          param << normalize_param("#{parent}[#{key}]", value)
+          param << normalize_param("#{parent}[#{k}]", v)
         end
       end
     end

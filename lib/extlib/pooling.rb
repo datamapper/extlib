@@ -26,11 +26,11 @@ module Extlib
   module Pooling
 
     def self.scavenger?
-      @scavenger && @scavenger.alive?
+      defined?(@scavenger) && !@scavenger.nil? && @scavenger.alive?
     end
 
     def self.scavenger
-      if @scavenger.nil? || !@scavenger.alive?
+      unless scavenger?
         @scavenger = Thread.new do
           running = true
           while running do
@@ -72,7 +72,7 @@ module Extlib
       lock.synchronize do
         pools << pool
       end
-      Extlib::Pooling::scavenger
+      Extlib::Pooling.scavenger
     end
 
     def self.lock
@@ -136,7 +136,7 @@ module Extlib
 
         @available = []
         @used      = {}
-        Extlib::Pooling::append_pool(self)
+        Extlib::Pooling.append_pool(self)
       end
 
       def lock
@@ -213,7 +213,7 @@ module Extlib
       def dispose
         flush!
         @resource.__pools.delete(@args)
-        !Extlib::Pooling::pools.delete?(self).nil?
+        !Extlib::Pooling.pools.delete?(self).nil?
       end
 
       def expired?

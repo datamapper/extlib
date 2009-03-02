@@ -1,11 +1,8 @@
 require 'pathname'
 require 'rubygems'
 
-__DIR__ = File.expand_path(File.dirname(__FILE__))
-$LOAD_PATH.unshift(__DIR__) unless $LOAD_PATH.include?(__DIR__)
-
 # for Pathname /
-require File.expand_path(File.join(__DIR__, 'extlib', 'pathname'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'extlib', 'pathname'))
 
 dir = Pathname(__FILE__).dirname.expand_path / 'extlib'
 
@@ -51,7 +48,8 @@ module Extlib
   end
 
   def self.exiting
-    @exiting
+    return @exiting if defined?(@exiting)
+    @exiting = false
   end
 
 end

@@ -1913,6 +1913,7 @@ end
     describe 'a method mixed into Array' do
       before :all do
         Enumerable.class_eval do
+          remove_method :lazy_spec if method_defined?(:lazy_spec) || private_method_defined?(:lazy_spec)
           def lazy_spec
             true
           end

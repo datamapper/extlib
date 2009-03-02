@@ -2,8 +2,11 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 require 'timeout'
 
 module Extlib::Pooling
-  def self.scavenger_interval
-    1
+  class << self
+    remove_method :scavenger_interval if method_defined?(:scavenger_interval) || private_method_defined?(:scavenger_interval)
+    def scavenger_interval
+      1
+    end
   end
 end
 
@@ -11,7 +14,7 @@ describe "Extlib::Pooling" do
   before do
 
     Object.send(:remove_const, :Person) if defined?(Person)
-    class Person
+    class ::Person
       include Extlib::Pooling
 
       attr_accessor :name
@@ -26,7 +29,7 @@ describe "Extlib::Pooling" do
     end
 
     Object.send(:remove_const, :Overwriter) if defined?(Overwriter)
-    class Overwriter
+    class ::Overwriter
 
       def self.new(*args)
         instance = allocate
@@ -52,13 +55,16 @@ describe "Extlib::Pooling" do
         @overwritten = value
       end
 
-      def self.pool_size
-        pool_size = if RUBY_PLATFORM =~ /java/
-          20
-        else
-          2
+      class << self
+        remove_method :pool_size if method_defined?(:pool_size) || private_method_defined?(:pool_size)
+        def pool_size
+          pool_size = if RUBY_PLATFORM =~ /java/
+            20
+          else
+            2
+          end
+          pool_size
         end
-        pool_size
       end
 
       def dispose

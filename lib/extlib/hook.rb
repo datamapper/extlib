@@ -235,21 +235,26 @@ module Extlib
         after_hooks  = hooks[target_method][:after]
         after_hooks  = after_hooks.map{ |info| inline_call(info, scope) }.join("\n")
 
-        source = %{
+        before_hook_name = hook_method_name(target_method, 'execute_before', 'hook_stack')
+        after_hook_name  = hook_method_name(target_method, 'execute_after',  'hook_stack')
+
+        hooks[target_method][:in].class_eval <<-RUBY, __FILE__, __LINE__ + 1
+          #{scope == :class ? 'class << self' : ''}
+
           private
 
-          def #{hook_method_name(target_method, 'execute_before', 'hook_stack')}(*args)
+          remove_method :#{before_hook_name} if method_defined?(:#{before_hook_name}) || private_method_defined?(:#{before_hook_name})
+          def #{before_hook_name}(*args)
             #{before_hooks}
           end
 
-          def #{hook_method_name(target_method, 'execute_after', 'hook_stack')}(*args)
+          remove_method :#{after_hook_name} if method_defined?(:#{after_hook_name}) || private_method_defined?(:#{after_hook_name})
+          def #{after_hook_name}(*args)
             #{after_hooks}
           end
-        }
 
-        source = %{class << self\n#{source}\nend} if scope == :class
-
-        hooks[target_method][:in].class_eval(source, __FILE__, __LINE__ - 12)
+          #{scope == :class ? 'end' : ''}
+        RUBY
       end
 
       # Returns ruby code that will invoke the hook. It checks the arity of the hook method
@@ -321,14 +326,25 @@ module Extlib
           #if this hook is previously declared in a sibling or cousin we must move the :in class
           #to the common ancestor to get both hooks to run.
           if !(hooks[target_method][:in] <=> self)
-            hooks[target_method][:in].class_eval(
-              %{def #{hook_method_name(target_method, 'execute_before', 'hook_stack')}(*args);super;end\n} +
-              %{def #{hook_method_name(target_method, 'execute_after', 'hook_stack')}(*args);super;end},
-              __FILE__,__LINE__ - 2
-            )
+            before_hook_name = hook_method_name(target_method, 'execute_before', 'hook_stack')
+            after_hook_name  = hook_method_name(target_method, 'execute_after',  'hook_stack')
+
+            hooks[target_method][:in].class_eval <<-RUBY, __FILE__, __LINE__ + 1
+              remove_method :#{before_hook_name} if method_defined?(:#{before_hook_name}) || private_method_defined?(:#{before_hook_name})
+              def #{before_hook_name}(*args)
+                super
+              end
+
+              remove_method :#{after_hook_name} if method_defined?(:#{after_hook_name}) || private_method_defined?(:#{after_hook_name})
+              def #{after_hook_name}(*args)
+                super
+              end
+            RUBY
+
             while !(hooks[target_method][:in] <=> self) do
               hooks[target_method][:in] = hooks[target_method][:in].superclass
             end
+
             define_hook_stack_execution_methods(target_method, scope)
             hooks[target_method][:in].class_eval{define_advised_method(target_method, scope)}
           end
