@@ -167,6 +167,31 @@ describe Mash do
 
 
 
+  describe "#symbolize_keys" do
+    it 'returns instance of Mash' do
+      Mash.new(@hash).symbolize_keys.should be_an_instance_of(Hash)
+    end
+
+    it 'converts keys to symbols' do
+      mash = Mash.new(@hash)
+      converted  = mash.symbolize_keys
+
+      converted_keys = converted.keys.sort{|k1, k2| k1.to_s <=> k2.to_s}
+      orig_keys = mash.keys.map{|k| k.to_sym}.sort{|i1, i2| i1.to_s <=> i2.to_s}
+
+      converted_keys.should == orig_keys
+    end
+
+    it 'preserves value' do
+      mash = Mash.new(@hash)
+      converted = mash.symbolize_keys
+
+      mash.values.sort.should == converted.values.sort
+    end
+  end
+
+
+
   describe "#delete" do
     it 'converts Symbol key into String before deleting' do
       mash = Mash.new(@hash)

@@ -112,6 +112,13 @@ class Mash < Hash
   # @return <Mash> This mash unchanged.
   def stringify_keys!; self end
 
+  # @return <Hash> The mash as a Hash with symbolized keys.
+  def symbolize_keys
+    h = Hash.new(default)
+    each { |key, val| h[key.to_sym] = val }
+    h
+  end
+
   # @return <Hash> The mash as a Hash with string keys.
   def to_hash
     Hash.new(default).merge(self)
