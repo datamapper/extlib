@@ -104,9 +104,13 @@ task :doc do
   end
 end
 
+def sudo_gem(cmd)
+  sh "#{SUDO} #{RUBY} -S gem #{cmd}", :verbose => false
+end
+
 desc "Install #{GEM_NAME}"
 task :install => :package do
-  sh %{#{SUDO} gem install --local pkg/#{GEM_NAME}-#{GEM_VERSION} --no-update-sources}
+  sudo_gem %{install --local pkg/#{GEM_NAME}-#{GEM_VERSION} --no-update-sources}
 end
 
 if WINDOWS
