@@ -9,7 +9,10 @@ require "fileutils"
 require Pathname('spec/rake/spectask')
 require Pathname('lib/extlib/version')
 
-ROOT = Pathname(__FILE__).dirname.expand_path
+ROOT    = Pathname(__FILE__).dirname.expand_path
+JRUBY   = RUBY_PLATFORM =~ /java/
+WINDOWS = Gem.win_platform?
+SUDO    = (WINDOWS || JRUBY) ? '' : ('sudo' unless ENV['SUDOLESS'])
 
 ##############################################################################
 # Package && release
@@ -26,15 +29,7 @@ GEM_NAME    = "extlib"
 PKG_BUILD   = ENV['PKG_BUILD'] ? '.' + ENV['PKG_BUILD'] : ''
 GEM_VERSION = Extlib::VERSION + PKG_BUILD
 
-RELEASE_NAME    = "REL #{GEM_VERSION}"
-
-WINDOWS = (RUBY_PLATFORM =~ /win32|mingw|bccwin|cygwin/) rescue nil
-JRUBY   = (RUBY_PLATFORM =~ /java/) rescue nil
-
-# sudo is used by default, except on Windows, or if SUDOLESS env is true
-SUDO = WINDOWS ? '' : ('sudo' unless ENV['SUDOLESS'])
-# RCov is run by default, except on the JRuby platform, or if NO_RCOV env is true
-RUN_RCOV = JRUBY ? false : (ENV.has_key?('NO_RCOV') ? ENV['NO_RCOV'] != 'true' : true)
+RELEASE_NAME = "REL #{GEM_VERSION}"
 
 require "lib/extlib/tasks/release"
 
@@ -78,7 +73,7 @@ namespace :extlib do
 
     begin
       gem 'rcov'
-      t.rcov = RUN_RCOV
+      t.rcov = JRUBY ? false : (ENV.has_key?('NO_RCOV') ? ENV['NO_RCOV'] != 'true' : true)
       t.rcov_opts << '--exclude' << 'spec'
       t.rcov_opts << '--text-summary'
       t.rcov_opts << '--sort' << 'coverage' << '--sort-reverse'
@@ -109,7 +104,7 @@ end
 
 desc "Install #{GEM_NAME}"
 task :install => :package do
-  sudo_gem %{install --local pkg/#{GEM_NAME}-#{GEM_VERSION} --no-update-sources}
+  sudo_gem "install --local pkg/#{GEM_NAME}-#{GEM_VERSION}"
 end
 
 if WINDOWS
