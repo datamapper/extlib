@@ -141,9 +141,9 @@ class Object
   # itself
   #
   # @return <Object>
-  def try_call
+  def try_call(*args)
     if self.respond_to?(:call)
-      self.call
+      self.call(*args)
     else
       self
     end
