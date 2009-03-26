@@ -136,6 +136,19 @@ class Object
     self.dup
   end
 
+  # If receiver is callable, calls it and
+  # returns result. If not, just returns receiver
+  # itself
+  #
+  # @return <Object>
+  def try_call
+    if self.respond_to?(:call)
+      self.call
+    else
+      self
+    end
+  end
+
   # @param arrayish<#include?> Container to check, to see if it includes the object.
   # @param *more<Array>:: additional args, will be flattened into arrayish
   #
