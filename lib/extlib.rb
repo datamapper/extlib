@@ -1,6 +1,8 @@
 require 'pathname'
 require 'rubygems'
 
+$LOAD_PATH.unshift(File.dirname(__FILE__))
+
 # for Pathname /
 require File.expand_path(File.join(File.dirname(__FILE__), 'extlib', 'pathname'))
 
