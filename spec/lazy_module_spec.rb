@@ -1,11 +1,11 @@
 require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
-require 'extlib/trait'
+require 'extlib/lazy_module'
 
-describe Trait do
+describe LazyModule do
   describe "instantiated with a block" do
     it "defers block body evaluation" do
       lambda do
-        Trait.new do
+        LazyModule.new do
           raise "Will only be evaluated when mixed in"
         end
       end.should_not raise_error
@@ -15,7 +15,7 @@ describe Trait do
 
   describe "included into hosting class" do
     before :all do
-      KlazzyTrait = Trait.new do
+      KlazzyLazyModule = LazyModule.new do
         def self.klassy
           "Klazz"
         end
@@ -26,7 +26,7 @@ describe Trait do
       end
 
       @klass = Class.new do
-        include KlazzyTrait
+        include KlazzyLazyModule
       end
     end
 

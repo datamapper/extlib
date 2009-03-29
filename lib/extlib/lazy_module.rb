@@ -1,4 +1,4 @@
-class Trait < Module
+class LazyModule < Module
   def self.new(&blk)
     # passing no-op block overrides &blk
     m = super{ }
