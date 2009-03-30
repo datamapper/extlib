@@ -23,7 +23,7 @@ class Time
   # @return [Time] Receiver
   #
   # @api public
-  remove_method :to_time if method_defined?(:to_time) || private_method_defined?(:to_time)
+  remove_method :to_time if instance_methods.any? { |m| m.to_sym == :to_time }
   def to_time
     self
   end
@@ -36,7 +36,7 @@ class Time
   # @return [DateTime] DateTime object representing the same moment as receiver
   #
   # @api public
-  remove_method :to_datetime if method_defined?(:to_datetime) || private_method_defined?(:to_datetime)
+  remove_method :to_datetime if instance_methods.any? { |m| m.to_sym == :to_datetime }
   def to_datetime
     DateTime.parse self.to_s
   end

@@ -3,7 +3,7 @@ require 'timeout'
 
 module Extlib::Pooling
   class << self
-    remove_method :scavenger_interval if method_defined?(:scavenger_interval) || private_method_defined?(:scavenger_interval)
+    remove_method :scavenger_interval if instance_methods.any? { |m| m.to_sym == :scavenger_interval }
     def scavenger_interval
       1
     end
@@ -56,7 +56,7 @@ describe "Extlib::Pooling" do
       end
 
       class << self
-        remove_method :pool_size if method_defined?(:pool_size) || private_method_defined?(:pool_size)
+        remove_method :pool_size if instance_methods.any? { |m| m.to_sym == :pool_size }
         def pool_size
           pool_size = if RUBY_PLATFORM =~ /java/
             20
