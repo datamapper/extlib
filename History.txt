@@ -1,6 +1,22 @@
 === 0.9.11 / not released
 
-  * No changes this version
+* 1 major enhancement:
+
+  * Added LazyModule, providing similar capabilities to traits in
+    Smalltalk
+
+* 5 minor enhancements:
+
+  * Added Array#to_hash and Array#to_mash
+  * Silenced warnings when running in verbose mode
+  * Add ByteArray for representing binary data explicitly
+  * Alias Pathname#to_s to Pathname#to_str when not defined
+  * Added Object#try_call
+
+* 2 bug fixes:
+
+  * Updated Module.find_const to use const_missing if constant not found
+  * Fixed LazyArray#equal? to compare object_ids
 
 === 0.9.10 / 2009-01-19
 
@@ -13,7 +29,7 @@
   * Updated LazyArray#eql? and LazyArray#== to compare without lazy
     loading if possible.
 
-3 bug fixes:
+* 3 bug fixes:
 
   * Fix for inheritance and hooks
   * Fix for Class inheritable accessor to use #try_dup
