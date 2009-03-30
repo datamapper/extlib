@@ -8,7 +8,7 @@ class LazyModule < Module
     m.lazy_evaluated_body = blk
     m
   end
-  
+
   module ClassMethods
     attr_accessor :lazy_evaluated_body
     def included(host)
