@@ -19,7 +19,7 @@ class Module
       constants = []
 
       name.split('::').each do |part|
-        const = constants.first || Object
+        const = constants.last || Object
         constants << const.const_get(part)
       end
 
