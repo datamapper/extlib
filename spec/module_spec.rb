@@ -48,6 +48,10 @@ describe Module do
     Foo::ModBar.find_const('Noo::Too')
   end
 
+  it "should find constants outside of nested constants" do
+    Foo::ModBar::Noo::Too.find_const("Zed")
+  end
+
   it "should be able to deal with constants being added and removed" do
     Object.find_const('Bar') # First we load Bar with find_const
     Object.module_eval { remove_const('Bar') } # Now we delete it
