@@ -45,7 +45,7 @@ describe Module do
   end
 
   it "should find nested constants on nested constants" do
-    Foo::ModBar.find_const('Noo::Too')
+    Foo::ModBar.find_const('Noo::Too').should == Foo::ModBar::Noo::Too
   end
 
   it "should find constants outside of nested constants" do
