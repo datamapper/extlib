@@ -155,7 +155,7 @@ describe "Extlib::Pooling" do
     bob = Person.new('Bob')
     bob.release
     Extlib.exiting = true
-    sleep(0.1)
+    sleep(0.2)
     Extlib::Pooling.scavenger?.should be_false
   end
 

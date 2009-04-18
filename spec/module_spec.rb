@@ -51,7 +51,7 @@ describe Module do
   end
 
   it "should find constants outside of nested constants" do
-    Foo::ModBar::Noo::Too.find_const("Zed")
+    Foo::ModBar::Noo::Too.find_const("Zed").should == Foo::Zed
   end
 
   it 'should be able to find past the second nested level' do
