@@ -243,12 +243,12 @@ module Extlib
 
           private
 
-          remove_method :#{before_hook_name} if instance_methods.any? { |m| m.to_sym == :#{before_hook_name} }
+          remove_method :#{before_hook_name} if instance_methods(false).any? { |m| m.to_sym == :#{before_hook_name} }
           def #{before_hook_name}(*args)
             #{before_hooks}
           end
 
-          remove_method :#{after_hook_name} if instance_methods.any? { |m| m.to_sym == :#{after_hook_name} }
+          remove_method :#{after_hook_name} if instance_methods(false).any? { |m| m.to_sym == :#{after_hook_name} }
           def #{after_hook_name}(*args)
             #{after_hooks}
           end
@@ -330,12 +330,12 @@ module Extlib
             after_hook_name  = hook_method_name(target_method, 'execute_after',  'hook_stack')
 
             hooks[target_method][:in].class_eval <<-RUBY, __FILE__, __LINE__ + 1
-              remove_method :#{before_hook_name} if instance_methods.any? { |m| m.to_sym == :#{before_hook_name} }
+              remove_method :#{before_hook_name} if instance_methods(false).any? { |m| m.to_sym == :#{before_hook_name} }
               def #{before_hook_name}(*args)
                 super
               end
 
-              remove_method :#{after_hook_name} if instance_methods.any? { |m| m.to_sym == :#{before_hook_name} }
+              remove_method :#{after_hook_name} if instance_methods(false).any? { |m| m.to_sym == :#{before_hook_name} }
               def #{after_hook_name}(*args)
                 super
               end

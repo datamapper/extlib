@@ -1913,7 +1913,7 @@ end
     describe 'a method mixed into Array' do
       before :all do
         Enumerable.class_eval do
-          remove_method :lazy_spec if instance_methods.any? { |m| m.to_sym == :lazy_spec }
+          remove_method :lazy_spec if instance_methods(false).any? { |m| m.to_sym == :lazy_spec }
           def lazy_spec
             true
           end
