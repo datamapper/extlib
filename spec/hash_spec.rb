@@ -177,18 +177,18 @@ describe Hash, "from_xml" do
 
   it "should undasherize keys as tags" do
     xml = "<tag-1>Stuff</tag-1>"
-    Hash.from_xml(xml).keys.should include( 'tag_1' )
+    Hash.from_xml(xml).should have_key('tag_1')
   end
 
   it "should undasherize keys as attributes" do
     xml = "<tag1 attr-1='1'></tag1>"
-    Hash.from_xml(xml)['tag1'].keys.should include( 'attr_1')
+    Hash.from_xml(xml)['tag1'].should have_key('attr_1')
   end
 
   it "should undasherize keys as tags and attributes" do
     xml = "<tag-1 attr-1='1'></tag-1>"
-    Hash.from_xml(xml).keys.should include( 'tag_1' )
-    Hash.from_xml(xml)['tag_1'].keys.should include( 'attr_1')
+    Hash.from_xml(xml).should have_key('tag_1' )
+    Hash.from_xml(xml)['tag_1'].should have_key('attr_1')
   end
 
   it "should render nested content correctly" do

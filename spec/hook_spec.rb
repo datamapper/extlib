@@ -52,9 +52,9 @@ describe Extlib::Hook do
         end
 
         @another_class.register_class_hooks :method_one, :method_two, :method_three
-        @another_class.class_hooks.keys.should include(:method_one)
-        @another_class.class_hooks.keys.should include(:method_two)
-        @another_class.class_hooks.keys.should include(:method_three)
+        @another_class.class_hooks.should have_key(:method_one)
+        @another_class.class_hooks.should have_key(:method_two)
+        @another_class.class_hooks.should have_key(:method_three)
       end
 
       it "should not allow a method that does not exist to be registered as hookable" do
@@ -158,9 +158,9 @@ describe Extlib::Hook do
         end
 
         @another_class.register_instance_hooks :method_one, :method_two, :method_three
-        @another_class.instance_hooks.keys.should include(:method_one)
-        @another_class.instance_hooks.keys.should include(:method_two)
-        @another_class.instance_hooks.keys.should include(:method_three)
+        @another_class.instance_hooks.should have_key(:method_one)
+        @another_class.instance_hooks.should have_key(:method_two)
+        @another_class.instance_hooks.should have_key(:method_three)
       end
 
       it "should not allow a method that does not exist to be registered as hookable" do
