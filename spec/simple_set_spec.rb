@@ -19,12 +19,12 @@ describe Extlib::SimpleSet do
   describe "#<<" do
     it "adds value to the set" do
       @s << "Hello"
-      @s.to_a.should include("Hello")
+      @s.to_a.should be_include("Hello")
     end
 
     it 'sets true mark on the key' do
       @s << "Fun"
-      @s["Fun"].should be(true)
+      @s["Fun"].should be_true
     end
   end
 

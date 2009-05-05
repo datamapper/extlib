@@ -1,4 +1,13 @@
-=== 0.9.11 / not released
+=== 0.9.12 / 2009-05-05
+
+* 4 bug fixes
+
+  * Fixed constant lookup for nested constructs
+  * Moved ByteArray to the Extlib module
+  * Fix specs for recent RSpec versions
+  * Fix compatibility with ActiveSupport
+
+=== 0.9.11 / 2009-03-29
 
 * 1 major enhancement:
 

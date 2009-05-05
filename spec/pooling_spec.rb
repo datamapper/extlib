@@ -3,7 +3,7 @@ require 'timeout'
 
 module Extlib::Pooling
   class << self
-    remove_method :scavenger_interval if method_defined?(:scavenger_interval) || private_method_defined?(:scavenger_interval)
+    remove_method :scavenger_interval if instance_methods(false).any? { |m| m.to_sym == :scavenger_interval }
     def scavenger_interval
       1
     end
@@ -56,7 +56,7 @@ describe "Extlib::Pooling" do
       end
 
       class << self
-        remove_method :pool_size if method_defined?(:pool_size) || private_method_defined?(:pool_size)
+        remove_method :pool_size if instance_methods(false).any? { |m| m.to_sym == :pool_size }
         def pool_size
           pool_size = if RUBY_PLATFORM =~ /java/
             20
@@ -431,7 +431,7 @@ end
 #   it "acquires new instances from pool" do
 #     @instance_one = DisposableResource.new
 #
-#     DisposableResource.pool.acquired?(@instance_one).should be(true)
+#     DisposableResource.pool.acquired?(@instance_one).should be_true
 #   end
 #
 #   it "flushed existing pool on re-initialization" do
@@ -483,10 +483,10 @@ end
 #
 #   it "returns true when object's last aquisition time is greater than limit" do
 #     @t1 = DisposableResource.new
-#     DisposableResource.pool.time_to_release?(@t1).should be(false)
+#     DisposableResource.pool.time_to_release?(@t1).should be_false
 #
 #     sleep 3
-#     DisposableResource.pool.time_to_release?(@t1).should be(true)
+#     DisposableResource.pool.time_to_release?(@t1).should be_true
 #   end
 # end
 #

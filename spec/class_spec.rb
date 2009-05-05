@@ -148,10 +148,10 @@ end
 
 describe Class, "#inheritable_accessor" do
   it "uses object_id for comparison" do
-    Model.methods.map { |m| m.to_s }.should include("plugin_options")
+    Model.methods.map { |m| m.to_sym }.should be_include(:plugin_options)
     Model.plugin_options.should == :foo
 
-    Model::Version.methods.map { |m| m.to_s }.should include("plugin_options")
+    Model::Version.methods.map { |m| m.to_sym }.should be_include(:plugin_options)
     Model::Version.plugin_options.should == :foo
   end
 end

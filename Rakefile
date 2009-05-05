@@ -22,8 +22,8 @@ PROJECT_URL         = "http://extlib.rubyforge.org"
 PROJECT_SUMMARY     = "Support library for DataMapper and Merb."
 PROJECT_DESCRIPTION = PROJECT_SUMMARY
 
-AUTHOR = "Sam Smoot"
-EMAIL  = "ssmoot@gmail.com"
+AUTHOR = "Dan Kubb"
+EMAIL  = "dan.kubb@gmail.com"
 
 GEM_NAME    = "extlib"
 PKG_BUILD   = ENV['PKG_BUILD'] ? '.' + ENV['PKG_BUILD'] : ''
