@@ -1,6 +1,8 @@
 class LazyArray  # borrowed partially from StrokeDB
   instance_methods.each { |m| undef_method m unless %w[ __id__ __send__ send class dup object_id kind_of? respond_to? equal? assert_kind_of should should_not instance_variable_set instance_variable_get extend ].include?(m.to_s) }
 
+  attr_reader :head, :tail
+
   def first(*args)
     if lazy_possible?(@head, *args)
       @head.first(*args)
@@ -334,10 +336,6 @@ class LazyArray  # borrowed partially from StrokeDB
 
     cmp?(other, :eql?)
   end
-
-  protected
-
-  attr_reader :head, :tail
 
   def lazy_possible?(list, need_length = 1)
     !loaded? && need_length <= list.size
