@@ -158,18 +158,16 @@ end
       end
     end
 
-    [ :add, :<< ].each do |method|
-      should_respond_to(method)
+    should_respond_to(:<<)
 
-      describe "##{method}" do
-        action { subject.send(method, @steve) }
+    describe '#<<' do
+      action { subject << @steve }
 
-        should_return_subject
-        should_not_be_a_kicker
+      should_return_subject
+      should_not_be_a_kicker
 
-        it 'should append an entry' do
-          subject.send(method, @steve).should == [ @nancy, @bessie, @steve ]
-        end
+      it 'should append an entry' do
+        (subject << @steve).should == [ @nancy, @bessie, @steve ]
       end
     end
 

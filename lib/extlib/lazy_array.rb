@@ -172,8 +172,6 @@ class LazyArray  # borrowed partially from StrokeDB
     self
   end
 
-  alias add <<
-
   def concat(other)
     if loaded?
       lazy_load
