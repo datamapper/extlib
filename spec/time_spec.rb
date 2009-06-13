@@ -20,3 +20,10 @@ describe Time, "#to_time" do
     time.to_time.should == time
   end
 end
+
+describe Time, "#to_datetime" do
+  it "should return an equivalent DateTime" do
+    time = Time.now
+    time.to_datetime.should == DateTime.parse(time.to_s)
+  end
+end
