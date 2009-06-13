@@ -1,5 +1,4 @@
 require 'pathname'
-require 'rubygems'
 
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 
