@@ -38,6 +38,6 @@ class Time
   # @api public
   remove_method :to_datetime if instance_methods(false).any? { |m| m.to_sym == :to_datetime }
   def to_datetime
-    DateTime.parse self.to_s
+    DateTime.new(year, month, day, hour, min, sec)
   end
 end
