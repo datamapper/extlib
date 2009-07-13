@@ -128,7 +128,7 @@ class LazyArray  # borrowed partially from StrokeDB
   def []=(*args)
     index, length = extract_slice_arguments(*args[0..-2])
 
-    if index >= 0 &&  lazy_possible?(@head, index + length)
+    if index >= 0 && lazy_possible?(@head, index + length)
       @head.[]=(*args)
     elsif index < 0 && lazy_possible?(@tail, index.abs - 1 + length)
       @tail.[]=(*args)
@@ -352,15 +352,9 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def initialize_copy(original)
-    if original.loaded?
-      mark_loaded
-      @array = @array.dup
-      @head = @tail = nil
-    else
-      @head  = @head.dup
-      @tail  = @tail.dup
-      @array = @array.dup
-    end
+    @head  = @head.try_dup
+    @tail  = @tail.try_dup
+    @array = @array.try_dup
   end
 
   def lazy_load
