@@ -16,7 +16,7 @@ module Extlib
       def classify(name)
         words = name.to_s.sub(/.*\./, '').split('_')
         words[-1] = singularize(words[-1])
-        words.inject('') { |result, word| result+=word.capitalize }
+        words.collect { |word| word.capitalize }.join
       end
 
       # By default, camelize converts strings to UpperCamelCase.
