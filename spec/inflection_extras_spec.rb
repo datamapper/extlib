@@ -2,8 +2,12 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 
 describe Extlib::Inflection do
   describe "#classify" do
-    it 'classifies data_mapper as DataMaper' do
+    it 'classifies data_mapper as DataMapper' do
       Extlib::Inflection.classify('data_mapper').should == 'DataMapper'
+    end
+
+    it "classifies enlarged_testes as EnlargedTestis" do
+      Extlib::Inflection.classify('enlarged_testes').should == 'EnlargedTestis'
     end
 
     it "singularizes string first: classifies data_mappers as egg_and_hams as EggAndHam" do

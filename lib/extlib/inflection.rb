@@ -10,10 +10,13 @@ module Extlib
       #
       # @example
       #   "egg_and_hams".classify #=> "EggAndHam"
+      #   "enlarged_testes".classify #=> "EnlargedTestis"
       #   "post".classify #=> "Post"
       #
       def classify(name)
-        camelize(singularize(name.to_s.sub(/.*\./, '')))
+        words = name.to_s.sub(/.*\./, '').split('_')
+        words[-1] = singularize(words[-1])
+        words.inject('') { |result, word| result+=word.capitalize }
       end
 
       # By default, camelize converts strings to UpperCamelCase.
@@ -253,7 +256,7 @@ module Extlib
 
       attr_reader :singular_of, :plural_of
 
-      # Convert an English word from plurel to singular.
+      # Convert an English word from plural to singular.
       #
       #   "boys".singular      #=> boy
       #   "tomatoes".singular  #=> tomato
@@ -281,7 +284,7 @@ module Extlib
       #
       alias_method(:singularize, :singular)
 
-      # Convert an English word from singular to plurel.
+      # Convert an English word from singular to plural.
       #
       #   "boy".plural     #=> boys
       #   "tomato".plural  #=> tomatoes
