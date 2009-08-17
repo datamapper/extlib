@@ -68,10 +68,13 @@ module Extlib
       #
       # @example
       #   "RawScaledScorer".tableize #=> "raw_scaled_scorers"
+      #   "EnlargedTestis".tableize #=> "enlarged_testes"
       #   "egg_and_ham".tableize #=> "egg_and_hams"
       #   "fancyCategory".tableize #=> "fancy_categories"
       def tableize(class_name)
-        pluralize(class_name.to_const_path.gsub(/\//, '_'))
+        words = class_name.to_const_path.gsub(/\//, '_').split('_')
+        words[-1] = pluralize(words[-1])
+        words.join('_')
       end
 
       # Creates a foreign key name from a class name.
