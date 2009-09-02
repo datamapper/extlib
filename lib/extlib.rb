@@ -1,42 +1,35 @@
 require 'pathname'
 
-$LOAD_PATH.unshift(File.dirname(__FILE__))
-
 # for Pathname /
-require File.expand_path(File.join(File.dirname(__FILE__), 'extlib', 'pathname'))
+require 'extlib/pathname'
+require 'extlib/class.rb'
+require 'extlib/object'
+require 'extlib/object_space'
+require 'extlib/array'
+require 'extlib/string'
+require 'extlib/symbol'
+require 'extlib/hash'
+require 'extlib/mash'
+require 'extlib/virtual_file'
+require 'extlib/logger'
+require 'extlib/time'
+require 'extlib/datetime'
+require 'extlib/assertions'
+require 'extlib/blank'
+require 'extlib/boolean'
+require 'extlib/byte_array'
+require 'extlib/inflection'
+require 'extlib/lazy_array'
+require 'extlib/module'
+require 'extlib/nil'
+require 'extlib/numeric'
+require 'extlib/blank'
+require 'extlib/simple_set'
+require 'extlib/struct'
+require 'extlib/symbol'
 
-dir = Pathname(__FILE__).dirname.expand_path / 'extlib'
-
-require dir / 'class.rb'
-require dir / 'object'
-require dir / 'object_space'
-
-require dir / 'array'
-require dir / 'string'
-require dir / 'symbol'
-require dir / 'hash'
-require dir / 'mash'
-require dir / 'virtual_file'
-require dir / 'logger'
-require dir / 'time'
-require dir / 'datetime'
-
-require dir / 'assertions'
-require dir / 'blank'
-require dir / 'boolean'
-require dir / 'byte_array'
-require dir / 'inflection'
-require dir / 'lazy_array'
-require dir / 'module'
-require dir / 'nil'
-require dir / 'numeric'
-require dir / 'blank'
-require dir / 'simple_set'
-require dir / 'struct'
-require dir / 'symbol'
-
-Extlib.autoload('Hook', (dir / 'hook').to_s)
-Extlib.autoload('Pooling', (dir / 'pooling').to_s)
+Extlib.autoload('Hook', 'extlib/hook')
+Extlib.autoload('Pooling', 'extlib/pooling')
 
 module Extlib
 
