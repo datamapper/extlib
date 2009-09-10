@@ -214,21 +214,21 @@ class LazyArray  # borrowed partially from StrokeDB
     self
   end
 
-  def pop
-    if lazy_possible?(@tail)
-      @tail.pop
+  def pop(*args)
+    if lazy_possible?(@tail, *args)
+      @tail.pop(*args)
     else
       lazy_load
-      @array.pop
+      @array.pop(*args)
     end
   end
 
-  def shift
-    if lazy_possible?(@head)
-      @head.shift
+  def shift(*args)
+    if lazy_possible?(@head, *args)
+      @head.shift(*args)
     else
       lazy_load
-      @array.shift
+      @array.shift(*args)
     end
   end
 
