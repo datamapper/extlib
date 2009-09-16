@@ -1,3 +1,11 @@
+=== 0.9.13 / 2009-10-15
+
+* 3 minor enhancements:
+  * Updated LazyArray#head, #tail and #lazy_possible? to be public
+  * Refactored Time#to_datetime to not use DateTime.parse
+  * Updated Logger to use Array#join instead of Array#to_s to make
+    it compatible with Ruby 1.9
+
 === 0.9.12 / 2009-05-05
 
 * 4 bug fixes
