@@ -1,4 +1,4 @@
-=== 0.9.13 / 2009-10-15
+=== 0.9.13 / 2009-09-15
 
 * 3 minor enhancements:
   * Updated LazyArray#head, #tail and #lazy_possible? to be public
