@@ -1,13 +1,12 @@
-#!/usr/bin/env ruby
 require 'pathname'
 require 'rubygems'
 require 'rubygems/installer'
 require 'rake'
-require "rake/clean"
-require "rake/gempackagetask"
-require "fileutils"
-require Pathname('spec/rake/spectask')
-require Pathname('lib/extlib/version')
+require 'rake/clean'
+require 'rake/gempackagetask'
+require 'fileutils'
+require 'spec/rake/spectask'
+require 'lib/extlib/version'
 
 ROOT    = Pathname(__FILE__).dirname.expand_path
 JRUBY   = RUBY_PLATFORM =~ /java/
@@ -17,21 +16,21 @@ SUDO    = (WINDOWS || JRUBY) ? '' : ('sudo' unless ENV['SUDOLESS'])
 ##############################################################################
 # Package && release
 ##############################################################################
-RUBY_FORGE_PROJECT  = "extlib"
-PROJECT_URL         = "http://extlib.rubyforge.org"
-PROJECT_SUMMARY     = "Support library for DataMapper and Merb."
+RUBY_FORGE_PROJECT  = 'extlib'
+PROJECT_URL         = 'http://extlib.rubyforge.org'
+PROJECT_SUMMARY     = 'Support library for DataMapper and Merb.'
 PROJECT_DESCRIPTION = PROJECT_SUMMARY
 
-AUTHOR = "Dan Kubb"
-EMAIL  = "dan.kubb@gmail.com"
+AUTHOR = 'Dan Kubb'
+EMAIL  = 'dan.kubb@gmail.com'
 
-GEM_NAME    = "extlib"
+GEM_NAME    = 'extlib'
 PKG_BUILD   = ENV['PKG_BUILD'] ? '.' + ENV['PKG_BUILD'] : ''
 GEM_VERSION = Extlib::VERSION + PKG_BUILD
 
 RELEASE_NAME = "REL #{GEM_VERSION}"
 
-require "lib/extlib/tasks/release"
+require 'lib/extlib/tasks/release'
 
 spec = Gem::Specification.new do |s|
   s.name         = GEM_NAME
@@ -45,12 +44,11 @@ spec = Gem::Specification.new do |s|
   s.require_path = 'lib'
   s.files        = %w[ LICENSE README Rakefile History.txt ] + Dir['lib/**/*'] + Dir['spec/**/*']
 
-  # rdoc
   s.has_rdoc         = false
   s.extra_rdoc_files = %w[ LICENSE README History.txt ]
 
-  # Dependencies
-  # s.add_dependency "english", ">=0.2.0"
+  s.add_development_dependency 'rspec', '~>1.2'
+  s.add_development_dependency 'yard',  '~>0.2'
 end
 
 Rake::GemPackageTask.new(spec) do |package|
@@ -87,7 +85,7 @@ end
 ##############################################################################
 # Documentation
 ##############################################################################
-desc "Generate documentation"
+desc 'Generate documentation'
 task :doc do
   begin
     require 'yard'
@@ -119,27 +117,27 @@ end
 namespace :ci do
 
   task :prepare do
-    rm_rf ROOT + "ci"
-    mkdir_p ROOT + "ci"
-    mkdir_p ROOT + "ci/doc"
-    mkdir_p ROOT + "ci/cyclomatic"
-    mkdir_p ROOT + "ci/token"
+    rm_rf ROOT + 'ci'
+    mkdir_p ROOT + 'ci'
+    mkdir_p ROOT + 'ci/doc'
+    mkdir_p ROOT + 'ci/cyclomatic'
+    mkdir_p ROOT + 'ci/token'
   end
 
   task :publish do
-    out = ENV['CC_BUILD_ARTIFACTS'] || "out"
+    out = ENV['CC_BUILD_ARTIFACTS'] || 'out'
     mkdir_p out unless File.directory? out
 
-    mv "ci/rspec_report.html", "#{out}/rspec_report.html"
-    mv "ci/coverage", "#{out}/coverage"
-    mv "ci/doc", "#{out}/doc"
-    mv "ci/cyclomatic", "#{out}/cyclomatic_complexity"
-    mv "ci/token", "#{out}/token_complexity"
+    mv 'ci/rspec_report.html', "#{out}/rspec_report.html"
+    mv 'ci/coverage', "#{out}/coverage"
+    mv 'ci/doc', "#{out}/doc"
+    mv 'ci/cyclomatic', "#{out}/cyclomatic_complexity"
+    mv 'ci/token', "#{out}/token_complexity"
   end
 
   task :spec => :prepare do
     Rake::Task[:spec].invoke
-    mv ROOT + "coverage", ROOT + "ci/coverage"
+    mv ROOT + 'coverage', ROOT + 'ci/coverage'
     Rake::Task[:gem]
     Gem::Installer.new("pkg/#{GEM_NAME}-#{GEM_VERSION}.gem").install
   end
@@ -150,16 +148,16 @@ namespace :ci do
   end
 
   task :saikuro do
-    system "saikuro -c -i lib -y 0 -w 10 -e 15 -o ci/cyclomatic"
+    system 'saikuro -c -i lib -y 0 -w 10 -e 15 -o ci/cyclomatic'
     mv 'ci/cyclomatic/index_cyclo.html', 'ci/cyclomatic/index.html'
 
-    system "saikuro -t -i lib -y 0 -w 20 -e 30 -o ci/token"
+    system 'saikuro -t -i lib -y 0 -w 20 -e 30 -o ci/token'
     mv 'ci/token/index_token.html', 'ci/token/index.html'
   end
 
 end
 
-task :ci => ["ci:spec"]
+task :ci => ['ci:spec']
 
 desc 'Default: run spec examples'
 task :default => 'spec'
@@ -169,9 +167,9 @@ task :default => 'spec'
 ##############################################################################
 
 namespace :benchmark do
-  desc "Runs benchmarks"
+  desc 'Runs benchmarks'
   task :run do
-    files = Dir["benchmarks/**/*.rb"]
+    files = Dir['benchmarks/**/*.rb']
 
     files.each do |f|
       system "ruby #{f}"
