@@ -114,51 +114,6 @@ if WINDOWS
   end
 end
 
-namespace :ci do
-
-  task :prepare do
-    rm_rf ROOT + 'ci'
-    mkdir_p ROOT + 'ci'
-    mkdir_p ROOT + 'ci/doc'
-    mkdir_p ROOT + 'ci/cyclomatic'
-    mkdir_p ROOT + 'ci/token'
-  end
-
-  task :publish do
-    out = ENV['CC_BUILD_ARTIFACTS'] || 'out'
-    mkdir_p out unless File.directory? out
-
-    mv 'ci/rspec_report.html', "#{out}/rspec_report.html"
-    mv 'ci/coverage', "#{out}/coverage"
-    mv 'ci/doc', "#{out}/doc"
-    mv 'ci/cyclomatic', "#{out}/cyclomatic_complexity"
-    mv 'ci/token', "#{out}/token_complexity"
-  end
-
-  task :spec => :prepare do
-    Rake::Task[:spec].invoke
-    mv ROOT + 'coverage', ROOT + 'ci/coverage'
-    Rake::Task[:gem]
-    Gem::Installer.new("pkg/#{GEM_NAME}-#{GEM_VERSION}.gem").install
-  end
-
-  task :doc do
-    require 'yard'
-    sh 'yardoc'
-  end
-
-  task :saikuro do
-    system 'saikuro -c -i lib -y 0 -w 10 -e 15 -o ci/cyclomatic'
-    mv 'ci/cyclomatic/index_cyclo.html', 'ci/cyclomatic/index.html'
-
-    system 'saikuro -t -i lib -y 0 -w 20 -e 30 -o ci/token'
-    mv 'ci/token/index_token.html', 'ci/token/index.html'
-  end
-
-end
-
-task :ci => ['ci:spec']
-
 desc 'Default: run spec examples'
 task :default => 'spec'
 
