@@ -51,7 +51,7 @@ module Extlib
       #   "employee_salary" #=> "Employee salary"
       #   "author_id" #=> "Author"
       def humanize(lower_case_and_underscored_word)
-        lower_case_and_underscored_word.to_s.gsub(/_id$/, "").gsub(/_/, " ").capitalize
+        lower_case_and_underscored_word.to_s.gsub(/_id$/, '').tr('_', ' ').capitalize
       end
 
       # Removes the module part from the expression in the string
@@ -72,7 +72,7 @@ module Extlib
       #   "egg_and_ham".tableize #=> "egg_and_hams"
       #   "fancyCategory".tableize #=> "fancy_categories"
       def tableize(class_name)
-        words = class_name.to_const_path.gsub(/\//, '_').split('_')
+        words = class_name.to_const_path.tr('/', '_').split('_')
         words[-1] = pluralize(words[-1])
         words.join('_')
       end
