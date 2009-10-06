@@ -419,14 +419,14 @@ class LazyArray  # borrowed partially from StrokeDB
       # 0 and incrementally compare each entry. if other is a LazyArray
       # this has a lesser likelyhood of triggering a lazy load
       0.upto(@head.size - 1) do |i|
-        return false unless @head[i].send(operator, other[i])
+        return false unless @head[i].__send__(operator, other[i])
       end
 
       # compare the tail against the end of other.  start at index
       # -1 and decrementally compare each entry. if other is a LazyArray
       # this has a lesser likelyhood of triggering a lazy load
       -1.downto(@tail.size * -1) do |i|
-        return false unless @tail[i].send(operator, other[i])
+        return false unless @tail[i].__send__(operator, other[i])
       end
 
       lazy_load
