@@ -77,6 +77,7 @@ describe String, "#snake_case" do
     "CNN".snake_case.should == "cnn"
     "CNNNews".snake_case.should == "cnn_news"
     "HeadlineCNNNews".snake_case.should == "headline_cnn_news"
+    "NameACRONYM".snake_case.should == "name_acronym"
   end
 
   it "does NOT change one word lowercase" do

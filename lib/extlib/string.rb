@@ -36,9 +36,10 @@ class String
   #
   # @api public
   def snake_case
-    return self.downcase if self =~ /^[A-Z]+$/
-    self.gsub(/([A-Z]+)(?=[A-Z][a-z]?)|\B[A-Z]/, '_\&') =~ /_*(.*)/
-      return $+.downcase
+    return downcase if match(/\A[A-Z]+\z/)
+    gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').
+    gsub(/([a-z])([A-Z])/, '\1_\2').
+    downcase
   end
 
   ##
