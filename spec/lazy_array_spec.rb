@@ -146,6 +146,10 @@ end
 
     subject { @lazy_array }
 
+    it 'should be an Enumerable' do
+      (Enumerable === subject).should be_true
+    end
+
     describe 'when frozen', state do
       before { subject.freeze }
 
