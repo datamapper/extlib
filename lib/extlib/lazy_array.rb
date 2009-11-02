@@ -84,7 +84,11 @@ class LazyArray  # borrowed partially from StrokeDB
   end
 
   def empty?
-    !any?
+    (@tail.nil? || @tail.empty?) &&
+    (@head.nil? || @head.empty?) && begin
+      lazy_load
+      @array.empty?
+    end
   end
 
   def any?(&block)

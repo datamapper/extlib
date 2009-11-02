@@ -555,6 +555,17 @@ end
         should_be_a_kicker
         should_not_change_subject
       end
+
+      describe 'when the subject has only nil entries' do
+        subject { LazyArray.new << nil }
+
+        action { subject.empty? }
+
+        should_return_false
+        should_not_be_a_kicker
+        should_not_change_subject
+      end
+
     end
 
     [ :eql?, :== ].each do |method|
