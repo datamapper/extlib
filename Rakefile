@@ -6,7 +6,7 @@ require 'rake/clean'
 require 'rake/gempackagetask'
 require 'fileutils'
 require 'spec/rake/spectask'
-require 'lib/extlib/version'
+require File.expand_path('../lib/extlib/version', __FILE__)
 
 ROOT    = Pathname(__FILE__).dirname.expand_path
 JRUBY   = RUBY_PLATFORM =~ /java/
@@ -30,7 +30,7 @@ GEM_VERSION = Extlib::VERSION + PKG_BUILD
 
 RELEASE_NAME = "REL #{GEM_VERSION}"
 
-require 'lib/extlib/tasks/release'
+require File.expand_path('../lib/extlib/tasks/release', __FILE__)
 
 spec = Gem::Specification.new do |s|
   s.name         = GEM_NAME
