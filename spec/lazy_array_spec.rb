@@ -991,6 +991,16 @@ end
       end
     end
 
+    should_respond_to(:nil?)
+
+    describe '#nil?' do
+      action { subject.nil? }
+
+      should_return_expected_value { false }
+
+      should_not_be_a_kicker
+    end
+
     should_respond_to(:pop)
 
     describe '#pop', state do
