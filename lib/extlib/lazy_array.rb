@@ -1,8 +1,6 @@
 class LazyArray  # borrowed partially from StrokeDB
   include Enumerable
 
-  instance_methods.each { |method| undef_method method unless %w[ __id__ __send__ send class dup object_id kind_of? respond_to? equal? nil? assert_kind_of should should_not instance_variable_set instance_variable_get extend ].include?(method.to_s) }
-
   attr_reader :head, :tail
 
   def first(*args)
@@ -407,6 +405,16 @@ class LazyArray  # borrowed partially from StrokeDB
     raise ArgumentError, "arguments may be 1 or 2 Integers, or 1 Range object, was: #{args.inspect}", caller(1)
   end
 
+  def each
+    lazy_load
+    if block_given?
+      @array.each { |entry| yield entry }
+      self
+    else
+      @array.each
+    end
+  end
+
   # delegate any not-explicitly-handled methods to @array, if possible.
   # this is handy for handling methods mixed-into Array like group_by
   def method_missing(method, *args, &block)
@@ -439,25 +447,5 @@ class LazyArray  # borrowed partially from StrokeDB
     end
 
     @array.send(operator, other.to_ary)
-  end
-
-  # add proxies for all remaining Array and Enumerable methods
-  (Array.public_instance_methods(false) | Enumerable.public_instance_methods(false)).each do |method|
-    next if public_method_defined?(method)
-
-    target = if method.to_s[-1, 1] == '='
-      "send(:#{method}, *args, &block)"
-    else
-      "#{method}(*args, &block)"
-    end
-
-    class_eval <<-RUBY, __FILE__, __LINE__ + 1
-      public
-      def #{method}(*args, &block)                # def []=(*args, &block)
-        lazy_load                                 #   lazy_load
-        results = @array.#{target}                #   results = @array.send(:[]=, *args, &block)
-        results.equal?(@array) ? self : results   #   results.equal?(@array) ? self : results
-      end                                         # end
-    RUBY
   end
 end
