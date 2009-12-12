@@ -47,7 +47,7 @@ class Mash < Hash
   #   A hash to update values in the mash with. The keys and the values will be
   #   converted to Mash format.
   #
-  # @return <Mash> The updated mash.
+  # @return [Mash] The updated mash.
   def update(other_hash)
     other_hash.each_pair { |key, value| regular_writer(convert_key(key), convert_value(value)) }
     self
@@ -57,7 +57,7 @@ class Mash < Hash
 
   # @param key<Object> The key to check for. This will be run through convert_key.
   #
-  # @return <TrueClass, FalseClass> True if the key exists in the mash.
+  # @return [Boolean] True if the key exists in the mash.
   def key?(key)
     super(convert_key(key))
   end
@@ -70,7 +70,7 @@ class Mash < Hash
   # @param key<Object> The key to fetch. This will be run through convert_key.
   # @param *extras<Array> Default value.
   #
-  # @return <Object> The value at key or the default value.
+  # @return [Object] The value at key or the default value.
   def fetch(key, *extras)
     super(convert_key(key), *extras)
   end
@@ -78,14 +78,14 @@ class Mash < Hash
   # @param *indices<Array>
   #   The keys to retrieve values for. These will be run through +convert_key+.
   #
-  # @return <Array> The values at each of the provided keys
+  # @return [Array] The values at each of the provided keys
   def values_at(*indices)
     indices.collect {|key| self[convert_key(key)]}
   end
 
   # @param hash<Hash> The hash to merge with the mash.
   #
-  # @return <Mash> A new mash with the hash values merged in.
+  # @return [Mash] A new mash with the hash values merged in.
   def merge(hash)
     self.dup.update(hash)
   end
@@ -98,7 +98,7 @@ class Mash < Hash
 
   # @param *rejected<Array[(String, Symbol)] The mash keys to exclude.
   #
-  # @return <Mash> A new mash without the selected keys.
+  # @return [Mash] A new mash without the selected keys.
   #
   # @example
   #   { :one => 1, :two => 2, :three => 3 }.except(:one)
@@ -109,17 +109,17 @@ class Mash < Hash
 
   # Used to provide the same interface as Hash.
   #
-  # @return <Mash> This mash unchanged.
+  # @return [Mash] This mash unchanged.
   def stringify_keys!; self end
 
-  # @return <Hash> The mash as a Hash with symbolized keys.
+  # @return [Hash] The mash as a Hash with symbolized keys.
   def symbolize_keys
     h = Hash.new(default)
     each { |key, val| h[key.to_sym] = val }
     h
   end
 
-  # @return <Hash> The mash as a Hash with string keys.
+  # @return [Hash] The mash as a Hash with string keys.
   def to_hash
     Hash.new(default).merge(self)
   end
@@ -127,7 +127,7 @@ class Mash < Hash
   protected
   # @param key<Object> The key to convert.
   #
-  # @param <Object>
+  # @param [Object]
   #   The converted key. If the key was a symbol, it will be converted to a
   #   string.
   #
@@ -138,7 +138,7 @@ class Mash < Hash
 
   # @param value<Object> The value to convert.
   #
-  # @return <Object>
+  # @return [Object]
   #   The converted value. A Hash or an Array of hashes, will be converted to
   #   their Mash equivalents.
   #

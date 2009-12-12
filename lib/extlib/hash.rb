@@ -115,7 +115,7 @@ class Hash
   # @param [Object] key The key for the param.
   # @param [Object] value The value for the param.
   #
-  # @return <String> This key value pair as a param
+  # @return [String] This key value pair as a param
   #
   # @api public
   def normalize_param(key, value)
@@ -176,7 +176,7 @@ class Hash
     hash
   end
 
-  # @return <String> The hash as attributes for an XML tag.
+  # @return [String] The hash as attributes for an XML tag.
   #
   # @example
   #   { :one => 1, "two"=>"TWO" }.to_xml_attributes
@@ -209,7 +209,7 @@ class Hash
   # Converts all keys into string values. This is used during reloading to
   # prevent problems when classes are no longer declared.
   #
-  # @return <Array> An array of they hash's keys
+  # @return [Array] An array of they hash's keys
   #
   # @example
   #   hash = { One => 1, Two => 2 }.proctect_keys!
@@ -234,7 +234,7 @@ class Hash
   # Destructively and non-recursively convert each key to an uppercase string,
   # deleting nil values along the way.
   #
-  # @return <Hash> The newly environmentized hash.
+  # @return [Hash] The newly environmentized hash.
   #
   # @example
   #   { :name => "Bob", :contact => { :email => "bob@bob.com" } }.environmentize_keys!
@@ -361,7 +361,7 @@ class REXMLUtilityNode
   #   "date"::
   #     Parses +value+ using Date.parse
   #
-  # @return <Integer, TrueClass, FalseClass, Time, Date, Object>
+  # @return [Integer, Boolean, Time, Date, Object]
   #   The result of typecasting +value+.
   #
   # @note
@@ -377,7 +377,7 @@ class REXMLUtilityNode
   #
   # @param value<#gsub> An XML fragment.
   #
-  # @return <#gsub> The XML fragment after converting entities.
+  # @return [#gsub] The XML fragment after converting entities.
   def translate_xml_entities(value)
     value.gsub(/&lt;/,   "<").
           gsub(/&gt;/,   ">").
@@ -401,7 +401,7 @@ class REXMLUtilityNode
 
   # Converts the node into a readable HTML node.
   #
-  # @return <String> The HTML node in text form.
+  # @return [String] The HTML node in text form.
   def to_html
     attributes.merge!(:type => @type ) if @type
     "<#{name}#{attributes.to_xml_attributes}>#{@nil_element ? '' : inner_html}</#{name}>"

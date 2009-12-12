@@ -1,7 +1,7 @@
 class Object
   # Extracts the singleton class, so that metaprogramming can be done on it.
   #
-  # @return <Class> The meta class.
+  # @return [Class] The meta class.
   #
   # @example [Setup]
   #   class MyString < String; end
@@ -60,7 +60,7 @@ class Object
 
   # @param name<String> The name of the constant to get, e.g. "Merb::Router".
   #
-  # @return <Object> The constant corresponding to the name.
+  # @return [Object] The constant corresponding to the name.
   def full_const_get(name)
     list = name.split("::")
     list.shift if list.first.blank?
@@ -76,7 +76,7 @@ class Object
   # @param name<String> The name of the constant to get, e.g. "Merb::Router".
   # @param value<Object> The value to assign to the constant.
   #
-  # @return <Object> The constant corresponding to the name.
+  # @return [Object] The constant corresponding to the name.
   def full_const_set(name, value)
     list = name.split("::")
     toplevel = list.first.blank?
@@ -91,7 +91,7 @@ class Object
   #
   # @param name<String> The name of the full module name to make
   #
-  # @return <NilClass>
+  # @return [nil]
   def make_module(str)
     mod = str.split("::")
     current_module = self
@@ -114,7 +114,7 @@ class Object
   #     Check whether the object quacks_like? at least one of the options in the
   #     array.
   #
-  # @return <TrueClass, FalseClass>
+  # @return [Boolean]
   #   True if the object quacks like duck.
   def quacks_like?(duck)
     case duck
@@ -131,7 +131,7 @@ class Object
 
   # Override this in a child if it cannot be dup'ed
   #
-  # @return <Object>
+  # @return [Object]
   def try_dup
     self.dup
   end
@@ -140,7 +140,7 @@ class Object
   # returns result. If not, just returns receiver
   # itself
   #
-  # @return <Object>
+  # @return [Object]
   def try_call(*args)
     if self.respond_to?(:call)
       self.call(*args)
@@ -152,7 +152,7 @@ class Object
   # @param arrayish<#include?> Container to check, to see if it includes the object.
   # @param *more<Array>:: additional args, will be flattened into arrayish
   #
-  # @return <TrueClass, FalseClass>
+  # @return [Boolean]
   #   True if the object is included in arrayish (+ more)
   #
   # @example 1.in?([1,2,3]) #=> true
@@ -165,7 +165,7 @@ class Object
   # Add instance_variable_defined? for backward compatibility
   # @param variable<Symbol, String>
   #
-  # @return <TrueClass, FalseClass>
+  # @return [Boolean]
   #   True if the object has the given instance variable defined
   unless respond_to?(:instance_variable_defined?)
     def instance_variable_defined?(variable)

@@ -28,8 +28,8 @@
 class Class
   # Defines class-level and instance-level attribute reader.
   #
-  # @param *syms<Array> Array of attributes to define reader for.
-  # @return <Array[#to_s]> List of attributes that were made into cattr_readers
+  # @param [*syms<Array] Array of attributes to define reader for.
+  # @return [Array<#to_s>] List of attributes that were made into cattr_readers
   #
   # @api public
   #
@@ -56,9 +56,9 @@ class Class
 
   # Defines class-level (and optionally instance-level) attribute writer.
   #
-  # @param <Array[*#to_s, Hash{:instance_writer => Boolean}]> Array of attributes to define writer for.
+  # @param [Array<*#to_s, Hash{:instance_writer => Boolean}>] Array of attributes to define writer for.
   # @option syms :instance_writer<Boolean> if true, instance-level attribute writer is defined.
-  # @return <Array[#to_s]> List of attributes that were made into cattr_writers
+  # @return [Array<#to_s>] List of attributes that were made into cattr_writers
   #
   # @api public
   def cattr_writer(*syms)
@@ -88,7 +88,7 @@ class Class
   #
   # @param *syms<Array[*#to_s, Hash{:instance_writer => Boolean}]> Array of attributes to define accessor for.
   # @option syms :instance_writer<Boolean> if true, instance-level attribute writer is defined.
-  # @return <Array[#to_s]> List of attributes that were made into accessors
+  # @return [Array<#to_s>] List of attributes that were made into accessors
   #
   # @api public
   def cattr_accessor(*syms)
@@ -100,7 +100,7 @@ class Class
   # each subclass has a copy of parent's attribute.
   #
   # @param *syms<Array[#to_s]> Array of attributes to define inheritable reader for.
-  # @return <Array[#to_s]> Array of attributes converted into inheritable_readers.
+  # @return [Array<#to_s>] Array of attributes converted into inheritable_readers.
   #
   # @api public
   #
@@ -139,7 +139,7 @@ class Class
   # @param *syms<Array[*#to_s, Hash{:instance_writer => Boolean}]> Array of attributes to
   #   define inheritable writer for.
   # @option syms :instance_writer<Boolean> if true, instance-level inheritable attribute writer is defined.
-  # @return <Array[#to_s]> An Array of the attributes that were made into inheritable writers.
+  # @return [Array<#to_s>] An Array of the attributes that were made into inheritable writers.
   #
   # @api public
   #
@@ -167,7 +167,7 @@ class Class
   # @param *syms<Array[*#to_s, Hash{:instance_writer => Boolean}]> Array of attributes to
   #   define inheritable accessor for.
   # @option syms :instance_writer<Boolean> if true, instance-level inheritable attribute writer is defined.
-  # @return <Array[#to_s]> An Array of attributes turned into inheritable accessors.
+  # @return [Array<#to_s>] An Array of attributes turned into inheritable accessors.
   #
   # @api public
   def class_inheritable_accessor(*syms)
