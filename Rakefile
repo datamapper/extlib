@@ -22,7 +22,7 @@ begin
 
   Jeweler::GemcutterTasks.new
   Jeweler::RubyforgeTasks.new do |rubyforge|
-    rubyforge.doc_task = 'yardoc'
+    rubyforge.doc_task = 'yard'
   end
 
   FileList['tasks/**/*.rake'].each { |task| load task }
