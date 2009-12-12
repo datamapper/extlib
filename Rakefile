@@ -21,9 +21,6 @@ begin
   end
 
   Jeweler::GemcutterTasks.new
-  Jeweler::RubyforgeTasks.new do |rubyforge|
-    rubyforge.doc_task = 'yard'
-  end
 
   FileList['tasks/**/*.rake'].each { |task| load task }
 rescue LoadError
