@@ -1,3 +1,5 @@
+require 'extlib/mash'
+
 class Array
 
   ##

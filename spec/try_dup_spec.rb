@@ -1,4 +1,5 @@
-require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
+require 'spec_helper'
+require 'extlib/try_dup'
 
 describe "try_dup" do
   it "returns a duplicate version on regular objects" do
@@ -38,7 +39,7 @@ describe "try_dup" do
   end
 
   it "returns self on modules" do
-    obj = Extlib
+    obj = Module.new
     oth = obj.try_dup
     obj.object_id.should == oth.object_id
   end

@@ -1,3 +1,7 @@
+require 'extlib/object'
+require 'extlib/class'
+require 'extlib/blank'
+
 class Module
   def find_const(const_name)
     if const_name[0..1] == '::'

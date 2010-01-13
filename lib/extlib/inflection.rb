@@ -1,3 +1,5 @@
+require 'extlib/string'
+
 module Extlib
 
   # = English Nouns Number Inflection.

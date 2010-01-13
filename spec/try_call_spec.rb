@@ -1,4 +1,5 @@
-require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
+require 'spec_helper'
+require 'extlib'
 
 describe "#try_call" do
   describe "with an Object" do

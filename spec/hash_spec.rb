@@ -1,6 +1,5 @@
-require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
-require "date"
-require 'bigdecimal'
+require 'spec_helper'
+require 'extlib/hash'
 
 describe Hash, "environmentize_keys!" do
   it "should transform keys to uppercase text" do

@@ -54,6 +54,7 @@ Gem::Specification.new do |s|
      "lib/extlib/struct.rb",
      "lib/extlib/symbol.rb",
      "lib/extlib/time.rb",
+     "lib/extlib/try_dup.rb",
      "lib/extlib/virtual_file.rb",
      "spec/array_spec.rb",
      "spec/blank_spec.rb",

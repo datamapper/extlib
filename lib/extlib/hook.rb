@@ -1,3 +1,7 @@
+require 'extlib/assertions'
+require 'extlib/class'
+require 'extlib/object'
+
 module Extlib
   #
   # TODO: Write more documentation!

@@ -1,5 +1,5 @@
-require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
-require 'timeout'
+require 'spec_helper'
+require 'extlib' # extlib/pooling is enough but specs rely on methods defined in extlib.rb
 
 module Extlib::Pooling
   class << self

@@ -1,3 +1,6 @@
+require 'set'
+require 'extlib/blank'
+
 class Object
   # Extracts the singleton class, so that metaprogramming can be done on it.
   #

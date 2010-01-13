@@ -1,4 +1,5 @@
-require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
+require 'spec_helper'
+require 'extlib/byte_array'
 
 describe Extlib::ByteArray do
   it 'should be a String' do

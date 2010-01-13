@@ -1,4 +1,5 @@
-require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
+require 'spec_helper'
+require 'extlib/virtual_file'
 
 describe VirtualFile do
   it 'inherits from StringIO' do

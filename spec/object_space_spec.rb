@@ -1,4 +1,5 @@
-require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
+require 'spec_helper'
+require 'extlib/object_space'
 
 describe ObjectSpace, "#classes" do
   it 'returns only classes, nothing else' do

@@ -1,4 +1,5 @@
-require "date"
+require 'date'
+require 'extlib/datetime'
 
 class Time
 

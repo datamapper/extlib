@@ -1,6 +1,5 @@
 require 'pathname'
 
-# for Pathname /
 require 'extlib/pathname'
 require 'extlib/class.rb'
 require 'extlib/object'
@@ -27,6 +26,7 @@ require 'extlib/blank'
 require 'extlib/simple_set'
 require 'extlib/struct'
 require 'extlib/symbol'
+require 'extlib/try_dup'
 
 Extlib.autoload('Hook', 'extlib/hook')
 Extlib.autoload('Pooling', 'extlib/pooling')

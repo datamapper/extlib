@@ -1,3 +1,5 @@
+require 'extlib/try_dup'
+
 class LazyArray  # borrowed partially from StrokeDB
   include Enumerable
 

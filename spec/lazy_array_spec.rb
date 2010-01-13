@@ -1,4 +1,8 @@
-require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
+require 'spec_helper'
+require 'extlib/lazy_array'
+
+# only needed for specs
+require 'extlib/class'
 
 module LazyArraySpec
   module GroupMethods

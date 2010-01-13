@@ -1,3 +1,5 @@
+require 'extlib/hash'
+
 # This class has dubious semantics and we only have it so that people can write
 # params[:key] instead of params['key'].
 class Mash < Hash

@@ -1,5 +1,5 @@
-require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
-require "set"
+require 'spec_helper'
+require 'extlib/object'
 
 module HactiveSupport
   class MemoizeConsideredUseless
@@ -27,8 +27,8 @@ describe Object do
 
   describe "#full_const_get" do
     it 'returns constant by FQ name in receiver namespace' do
-      Object.full_const_get("Extlib").should == Extlib
-      Object.full_const_get("Extlib::SimpleSet").should == Extlib::SimpleSet
+      Object.full_const_get("Oi").should == Oi
+      Object.full_const_get("Foo::Bar").should == Foo::Bar
     end
   end
 

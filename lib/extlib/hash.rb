@@ -1,3 +1,11 @@
+require "time"
+require 'bigdecimal'
+
+require 'extlib/object'
+require 'extlib/mash'
+require 'extlib/class'
+require 'extlib/string'
+
 class Hash
   class << self
     # Converts valid XML into a Ruby Hash structure.
