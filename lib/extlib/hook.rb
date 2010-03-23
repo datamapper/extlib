@@ -1,6 +1,7 @@
 require 'extlib/assertions'
 require 'extlib/class'
 require 'extlib/object'
+require 'extlib/local_object_space'
 
 module Extlib
   #
@@ -46,6 +47,7 @@ module Extlib
     end
 
     module ClassMethods
+      extend Extlib::LocalObjectSpace
       include Extlib::Assertions
       # Inject code that executes before the target class method.
       #
@@ -266,14 +268,15 @@ module Extlib
       # Returns ruby code that will invoke the hook. It checks the arity of the hook method
       # and passes arguments accordingly.
       def inline_call(method_info, scope)
+        Extlib::Hook::ClassMethods.hook_scopes << method_info[:from]
         name = method_info[:name]
 
         if scope == :instance
           args = method_defined?(name) && instance_method(name).arity != 0 ? '*args' : ''
-          %(#{name}(#{args}) if self.class <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
+          %(#{name}(#{args}) if self.class <= Extlib::Hook::ClassMethods.object_by_id(#{method_info[:from].object_id}))
         else
           args = respond_to?(name) && method(name).arity != 0 ? '*args' : ''
-          %(#{name}(#{args}) if self <= ObjectSpace._id2ref(#{method_info[:from].object_id}))
+          %(#{name}(#{args}) if self <= Extlib::Hook::ClassMethods.object_by_id(#{method_info[:from].object_id}))
         end
       end
 
