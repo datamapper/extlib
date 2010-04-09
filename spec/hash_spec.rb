@@ -509,10 +509,10 @@ end
 describe Hash, 'to_params' do
   {
     { "foo" => "bar", "baz" => "bat" } => "foo=bar&baz=bat",
-    { "foo" => [ "bar", "baz" ] } => "foo[]=bar&foo[]=baz",
-    { "foo" => [ {"bar" => "1"}, {"bar" => 2} ] } => "foo[][bar]=1&foo[][bar]=2",
-    { "foo" => { "bar" => [ {"baz" => 1}, {"baz" => "2"}  ] } } => "foo[bar][][baz]=1&foo[bar][][baz]=2",
-    { "foo" => {"1" => "bar", "2" => "baz"} } => "foo[1]=bar&foo[2]=baz"
+    { "foo" => [ "bar", "baz" ] } => "foo%5B%5D=bar&foo%5B%5D=baz",
+    { "foo" => [ {"bar" => "1"}, {"bar" => 2} ] } => "foo%5B%5D%5Bbar%5D=1&foo%5B%5D%5Bbar%5D=2",
+    { "foo" => { "bar" => [ {"baz" => 1}, {"baz" => "2"}  ] } } => "foo%5Bbar%5D%5B%5D%5Bbaz%5D=1&foo%5Bbar%5D%5B%5D%5Bbaz%5D=2",
+    { "foo" => {"1" => "bar", "2" => "baz"} } => "foo%5B1%5D=bar&foo%5B2%5D=baz"
   }.each do |hash, params|
     it "should covert hash: #{hash.inspect} to params: #{params.inspect}" do
       hash.to_params.split('&').sort.should == params.split('&').sort
@@ -521,6 +521,14 @@ describe Hash, 'to_params' do
 
   it 'should not leave a trailing &' do
     { :name => 'Bob', :address => { :street => '111 Ruby Ave.', :city => 'Ruby Central', :phones => ['111-111-1111', '222-222-2222'] } }.to_params.should_not match(/&$/)
+  end
+
+  it 'should encode query keys' do
+    { 'First & Last' => 'Alice Smith' }.to_params.should == "First%20%26%20Last=Alice%20Smith"
+  end
+
+  it 'should encode query values' do
+    { :name => 'Alice & Bob' }.to_params.should == "name=Alice%20%26%20Bob"
   end
 end
 

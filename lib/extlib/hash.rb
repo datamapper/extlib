@@ -126,6 +126,7 @@ class Hash
   # @return [String] This key value pair as a param
   #
   # @api public
+  URI_ENCODE_PATTERN = Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")
   def normalize_param(key, value)
     param = ''
     stack = []
@@ -135,7 +136,7 @@ class Hash
     elsif value.is_a?(Hash)
       stack << [key,value]
     else
-      param << "#{key}=#{value}&"
+      param << [key,value].map {|v| URI.encode(v.to_s, URI_ENCODE_PATTERN)}.join('=') + '&'
     end
 
     stack.each do |parent, hash|
