@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Dan Kubb"]
-  s.date = %q{2010-02-04}
+  s.date = %q{2010-03-30}
   s.description = %q{Support library for DataMapper and Merb}
   s.email = %q{dan.kubb@gmail.com}
   s.extra_rdoc_files = [
@@ -39,6 +39,7 @@ Gem::Specification.new do |s|
      "lib/extlib/inflection.rb",
      "lib/extlib/lazy_array.rb",
      "lib/extlib/lazy_module.rb",
+     "lib/extlib/local_object_space.rb",
      "lib/extlib/logger.rb",
      "lib/extlib/mash.rb",
      "lib/extlib/module.rb",
