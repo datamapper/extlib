@@ -15,7 +15,7 @@ begin
 
     gem.rubyforge_project = 'extlib'
 
-    gem.add_development_dependency 'json_pure', '~> 1.2.0'
+    gem.add_development_dependency 'json_pure', '~> 1.4'
     gem.add_development_dependency 'rspec',     '~> 1.3'
   end
 
