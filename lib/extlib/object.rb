@@ -95,14 +95,14 @@ class Object
   # @param name<String> The name of the full module name to make
   #
   # @return [nil]
-  def make_module(str)
-    mod = str.split("::")
+  def make_module(string)
     current_module = self
-    mod.each do |x|
-      unless current_module.const_defined?(x)
-        current_module.class_eval "module #{x}; end", __FILE__, __LINE__
+    string.split('::').each do |part|
+      current_module = if current_module.const_defined?(part)
+        current_module.const_get(part)
+      else
+        current_module.const_set(part, Module.new)
       end
-      current_module = current_module.const_get(x)
     end
     current_module
   end
