@@ -18,7 +18,7 @@ describe Module do
       end
     end
 
-    class ::Baz
+    class ::Bas
     end
 
     class ::Bar
@@ -40,7 +40,7 @@ describe Module do
 
   it "should find relative constants" do
     Foo.find_const('ModBar').should == Foo::ModBar
-    Foo.find_const('Baz').should == Baz
+    Foo.find_const('Bas').should == Bas
   end
 
   it "should find sibling constants" do
