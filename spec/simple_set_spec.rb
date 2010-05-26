@@ -25,7 +25,7 @@ describe Extlib::SimpleSet do
 
     it 'sets true mark on the key' do
       @s << "Fun"
-      @s["Fun"].should be_true
+      @s["Fun"].should be(true)
     end
   end
 

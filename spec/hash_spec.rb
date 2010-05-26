@@ -141,12 +141,12 @@ describe Hash, "from_xml" do
 
   it "should typecast a true boolean" do
     xml = "<tag type='boolean'>true</tag>"
-    Hash.from_xml(xml)['tag'].should be_true
+    Hash.from_xml(xml)['tag'].should be(true)
   end
 
   it "should typecast a false boolean" do
     ["false"].each do |w|
-      Hash.from_xml("<tag type='boolean'>#{w}</tag>")['tag'].should be_false
+      Hash.from_xml("<tag type='boolean'>#{w}</tag>")['tag'].should be(false)
     end
   end
 

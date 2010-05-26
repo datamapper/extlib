@@ -14,7 +14,7 @@ describe Mash do
     it 'converts all keys into strings when param is a Hash' do
       mash = Mash.new(@hash)
 
-      mash.keys.any? { |key| key.is_a?(Symbol) }.should be_false
+      mash.keys.any? { |key| key.is_a?(Symbol) }.should be(false)
     end
 
     it 'converts all pure Hash values into Mashes if param is a Hash' do
@@ -53,7 +53,7 @@ describe Mash do
       mash = Mash.new(@hash)
       mash.update("starry" => "night")
 
-      mash.keys.any? { |key| key.is_a?(Symbol) }.should be_false
+      mash.keys.any? { |key| key.is_a?(Symbol) }.should be(false)
     end
 
     it 'converts all Hash values into Mashes if param is a Hash' do
@@ -71,7 +71,7 @@ describe Mash do
       mash = Mash.new(@hash)
       mash[:hash] = { "starry" => "night" }
 
-      mash.keys.any? { |key| key.is_a?(Symbol) }.should be_false
+      mash.keys.any? { |key| key.is_a?(Symbol) }.should be(false)
     end
 
     it 'converts all Hash value into Mash' do
@@ -90,36 +90,36 @@ describe Mash do
     end
 
     it 'converts key before lookup' do
-      @mash.key?("mash").should be_true
-      @mash.key?(:mash).should be_true
+      @mash.key?("mash").should be(true)
+      @mash.key?(:mash).should be(true)
 
-      @mash.key?("hash").should be_true
-      @mash.key?(:hash).should be_true
+      @mash.key?("hash").should be(true)
+      @mash.key?(:hash).should be(true)
 
-      @mash.key?(:rainclouds).should be_false
-      @mash.key?("rainclouds").should be_false
+      @mash.key?(:rainclouds).should be(false)
+      @mash.key?("rainclouds").should be(false)
     end
 
     it 'is aliased as include?' do
-      @mash.include?("mash").should be_true
-      @mash.include?(:mash).should be_true
+      @mash.include?("mash").should be(true)
+      @mash.include?(:mash).should be(true)
 
-      @mash.include?("hash").should be_true
-      @mash.include?(:hash).should be_true
+      @mash.include?("hash").should be(true)
+      @mash.include?(:hash).should be(true)
 
-      @mash.include?(:rainclouds).should be_false
-      @mash.include?("rainclouds").should be_false
+      @mash.include?(:rainclouds).should be(false)
+      @mash.include?("rainclouds").should be(false)
     end
 
     it 'is aliased as member?' do
-      @mash.member?("mash").should be_true
-      @mash.member?(:mash).should be_true
+      @mash.member?("mash").should be(true)
+      @mash.member?(:mash).should be(true)
 
-      @mash.member?("hash").should be_true
-      @mash.member?(:hash).should be_true
+      @mash.member?("hash").should be(true)
+      @mash.member?(:hash).should be(true)
 
-      @mash.member?(:rainclouds).should be_false
-      @mash.member?("rainclouds").should be_false
+      @mash.member?(:rainclouds).should be(false)
+      @mash.member?("rainclouds").should be(false)
     end
   end # describe "#key?"
 
@@ -198,14 +198,14 @@ describe Mash do
       mash = Mash.new(@hash)
 
       mash.delete(:hash)
-      mash.key?("hash").should be_false
+      mash.key?("hash").should be(false)
     end
 
     it 'works with String keys as well' do
       mash = Mash.new(@hash)
 
       mash.delete("mash")
-      mash.key?("mash").should be_false
+      mash.key?("mash").should be(false)
     end
   end
 
@@ -216,22 +216,22 @@ describe Mash do
       mash = Mash.new(@hash)
 
       hashless_mash = mash.except(:hash)
-      hashless_mash.key?("hash").should be_false
+      hashless_mash.key?("hash").should be(false)
     end
 
     it "works with String keys as well" do
       mash = Mash.new(@hash)
 
       mashless_mash = mash.except("mash")
-      mashless_mash.key?("mash").should be_false
+      mashless_mash.key?("mash").should be(false)
     end
 
     it "works with multiple keys" do
       mash = Mash.new(@hash)
 
       mashless = mash.except("hash", :mash)
-      mashless.key?(:hash).should be_false
-      mashless.key?("mash").should be_false
+      mashless.key?(:hash).should be(false)
+      mashless.key?("mash").should be(false)
     end
 
     it "should return a mash" do

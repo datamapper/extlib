@@ -62,35 +62,35 @@ describe Object do
 
   describe "#quacks_like?" do
     it 'returns true if duck is a Symbol and receiver responds to it' do
-      SymbolicDuck.new.quacks_like?(:quack).should be_true
+      SymbolicDuck.new.quacks_like?(:quack).should be(true)
     end
 
     it 'returns false if duck is a Symbol and receiver DOES NOT respond to it' do
-      SymbolicDuck.new.quacks_like?(:wtf).should be_false
+      SymbolicDuck.new.quacks_like?(:wtf).should be(false)
     end
 
     it 'returns true if duck is a class and receiver is its instance' do
       receiver = ClassyDuck.new
-      receiver.quacks_like?(ClassyDuck).should be_true
+      receiver.quacks_like?(ClassyDuck).should be(true)
     end
 
     it 'returns false if duck is a class and receiver IS NOT its instance' do
       receiver = ClassyDuck.new
-      receiver.quacks_like?(SymbolicDuck).should be_false
+      receiver.quacks_like?(SymbolicDuck).should be(false)
     end
 
     it 'returns true if duck is an array and at least one of its members quacks like this duck' do
       receiver = ClassyDuck.new
       ary      = [ClassyDuck, SymbolicDuck]
 
-      receiver.quacks_like?(ary).should be_true
+      receiver.quacks_like?(ary).should be(true)
     end
 
     it 'returns false if duck is an array and none of its members quacks like this duck' do
       receiver = ClassyDuck.new
       ary      = [SymbolicDuck.new, SymbolicDuck]
 
-      receiver.quacks_like?(ary).should be_false
+      receiver.quacks_like?(ary).should be(false)
     end
   end
 
@@ -99,16 +99,16 @@ describe Object do
       @ary = [1, 2, 3]
       @set = Set.new([2, 3, 5])
 
-      1.in?(@ary).should be_true
-      2.in?(@ary).should be_true
-      3.in?(@ary).should be_true
-      4.in?(@ary).should be_false
+      1.in?(@ary).should be(true)
+      2.in?(@ary).should be(true)
+      3.in?(@ary).should be(true)
+      4.in?(@ary).should be(false)
 
-      1.in?(@set).should be_false
-      2.in?(@set).should be_true
-      3.in?(@set).should be_true
-      4.in?(@set).should be_false
-      5.in?(@set).should be_true
+      1.in?(@set).should be(false)
+      2.in?(@set).should be(true)
+      3.in?(@set).should be(true)
+      4.in?(@set).should be(false)
+      5.in?(@set).should be(true)
     end
   end
 end

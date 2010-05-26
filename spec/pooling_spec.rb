@@ -156,7 +156,7 @@ describe "Extlib::Pooling" do
     bob.release
     Extlib.exiting = true
     sleep(0.1)
-    Extlib::Pooling.scavenger?.should be_false
+    Extlib::Pooling.scavenger?.should be(false)
   end
 
   it "should be able to detach an instance from the pool" do
@@ -431,7 +431,7 @@ end
 #   it "acquires new instances from pool" do
 #     @instance_one = DisposableResource.new
 #
-#     DisposableResource.pool.acquired?(@instance_one).should be_true
+#     DisposableResource.pool.acquired?(@instance_one).should be(true)
 #   end
 #
 #   it "flushed existing pool on re-initialization" do
@@ -483,10 +483,10 @@ end
 #
 #   it "returns true when object's last aquisition time is greater than limit" do
 #     @t1 = DisposableResource.new
-#     DisposableResource.pool.time_to_release?(@t1).should be_false
+#     DisposableResource.pool.time_to_release?(@t1).should be(false)
 #
 #     sleep 3
-#     DisposableResource.pool.time_to_release?(@t1).should be_true
+#     DisposableResource.pool.time_to_release?(@t1).should be(true)
 #   end
 # end
 #
