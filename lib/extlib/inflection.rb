@@ -339,79 +339,79 @@ module Extlib
     word 'status'
 
     # Two arguments defines a singular and plural exception.
-    word 'status'    , 'status'
-    word 'Swiss'     , 'Swiss'
-    word 'life'      , 'lives'
-    word 'wife'      , 'wives'
-    word 'goose'     , 'geese'
-    word 'criterion' , 'criteria'
-    word 'alias'     , 'aliases'
-    word 'status'    , 'statuses'
-    word 'axis'      , 'axes'
-    word 'crisis'    , 'crises'
-    word 'testis'    , 'testes'
-    word 'potato'    , 'potatoes'
-    word 'tomato'    , 'tomatoes'
-    word 'buffalo'   , 'buffaloes'
-    word 'torpedo'   , 'torpedoes'
-    word 'quiz'      , 'quizzes'
-    word 'matrix'    , 'matrices'
-    word 'vertex'    , 'vertices'
-    word 'index'     , 'indices'
-    word 'ox'        , 'oxen'
-    word 'mouse'     , 'mice'
-    word 'louse'     , 'lice'
-    word 'thesis'    , 'theses'
-    word 'thief'     , 'thieves'
-    word 'analysis'  , 'analyses'
-    word 'erratum'   , 'errata'
-    word 'phenomenon', 'phenomena'
-    word 'octopus'   , 'octopi'
-    word 'thesaurus' , 'thesauri'
-    word 'movie'     , 'movies'
-    word 'cactus'    , 'cacti'
-    word 'plus'      , 'plusses'
-    word 'cross'     , 'crosses'
-    word 'medium'    , 'media'
-    word 'datum'     , 'data'
-    word 'basis'     , 'bases'
-    word 'diagnosis' , 'diagnoses'
+    word 'status'     , 'status'
+    word 'Swiss'      , 'Swiss'
+    word 'life'       , 'lives'
+    word 'wife'       , 'wives'
+    word 'goose'      , 'geese'
+    word 'criterion'  , 'criteria'
+    word 'alias'      , 'aliases'
+    word 'status'     , 'statuses'
+    word 'axis'       , 'axes'
+    word 'crisis'     , 'crises'
+    word 'testis'     , 'testes'
+    word 'potato'     , 'potatoes'
+    word 'tomato'     , 'tomatoes'
+    word 'buffalo'    , 'buffaloes'
+    word 'torpedo'    , 'torpedoes'
+    word 'quiz'       , 'quizzes'
+    word 'matrix'     , 'matrices'
+    word 'vertex'     , 'vertices'
+    word 'index'      , 'indices'
+    word 'ox'         , 'oxen'
+    word 'mouse'      , 'mice'
+    word 'louse'      , 'lice'
+    word 'thesis'     , 'theses'
+    word 'thief'      , 'thieves'
+    word 'analysis'   , 'analyses'
+    word 'erratum'    , 'errata'
+    word 'phenomenon' , 'phenomena'
+    word 'octopus'    , 'octopi'
+    word 'thesaurus'  , 'thesauri'
+    word 'movie'      , 'movies'
+    word 'cactus'     , 'cacti'
+    word 'plus'       , 'plusses'
+    word 'cross'      , 'crosses'
+    word 'medium'     , 'media'
+    word 'datum'      , 'data'
+    word 'basis'      , 'bases'
+    word 'diagnosis'  , 'diagnoses'
 
     # One-way singularization exception (convert plural to singular).
 
     # General rules.
-    rule 'person' , 'people', true
-    rule 'shoe'   , 'shoes', true
-    rule 'hive'   , 'hives', true
-    rule 'man'    , 'men', true
+    rule 'person' , 'people',   true
+    rule 'shoe'   , 'shoes',    true
+    rule 'hive'   , 'hives',    true
+    rule 'man'    , 'men',      true
     rule 'child'  , 'children', true
-    rule 'news'   , 'news', true
-    rule 'rf'   , 'rves'
-    rule 'af'   , 'aves'
-    rule 'ero'  , 'eroes'
-    rule 'man'  , 'men'
-    rule 'ch'   , 'ches'
-    rule 'sh'   , 'shes'
-    rule 'ss'   , 'sses'
-    rule 'ta'   , 'tum'
-    rule 'ia'   , 'ium'
-    rule 'ra'   , 'rum'
-    rule 'ay'   , 'ays'
-    rule 'ey'   , 'eys'
-    rule 'oy'   , 'oys'
-    rule 'uy'   , 'uys'
-    rule 'y'    , 'ies'
-    rule 'x'    , 'xes'
-    rule 'lf'   , 'lves'
-    rule 'ffe'  , 'ffes'
-    rule 'afe'  , 'aves'
-    rule 'ouse' , 'ouses'
+    rule 'news'   , 'news',     true
+    rule 'rf'     , 'rves'
+    rule 'af'     , 'aves'
+    rule 'ero'    , 'eroes'
+    rule 'man'    , 'men'
+    rule 'ch'     , 'ches'
+    rule 'sh'     , 'shes'
+    rule 'ss'     , 'sses'
+    rule 'ta'     , 'tum'
+    rule 'ia'     , 'ium'
+    rule 'ra'     , 'rum'
+    rule 'ay'     , 'ays'
+    rule 'ey'     , 'eys'
+    rule 'oy'     , 'oys'
+    rule 'uy'     , 'uys'
+    rule 'y'      , 'ies'
+    rule 'x'      , 'xes'
+    rule 'lf'     , 'lves'
+    rule 'ffe'    , 'ffes'
+    rule 'afe'    , 'aves'
+    rule 'ouse'   , 'ouses'
     # more cases of words ending in -oses not being singularized properly
     # than cases of words ending in -osis
-#    rule 'osis' , 'oses'
-    rule 'ox'   , 'oxes'
-    rule 'us'   , 'uses'
-    rule ''     , 's'
+#    rule 'osis'   , 'oses'
+    rule 'ox'     , 'oxes'
+    rule 'us'     , 'uses'
+    rule ''       , 's'
 
     # One-way singular rules.
 
@@ -425,7 +425,6 @@ module Extlib
     plural_rule 's'   , 'ses'
     plural_rule 'ive' , 'ives' # don't want to snag wife
     plural_rule 'fe'  , 'ves'  # don't want to snag perspectives
-
 
   end
 end
