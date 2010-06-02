@@ -186,15 +186,7 @@ describe Extlib::Inflection, "#singular" do
     "phenomena".singular.should == "phenomenon"
   end
 
-
-
-
-
   # ==== bugs, typos and reported issues
-
-
-
-
 
   # ==== rules
 

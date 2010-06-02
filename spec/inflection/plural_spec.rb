@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'extlib/inflection'
 
-describe Extlib::Inflection, "#singular" do
+describe Extlib::Inflection, "#plural" do
   it "pluralizes equipment => equipment" do
     "equipment".plural.should == "equipment"
   end
@@ -176,15 +176,7 @@ describe Extlib::Inflection, "#singular" do
     "phenomenon".plural.should == "phenomena"
   end
 
-
-
-
-
   # ==== bugs, typos and reported issues
-
-
-
-
 
   # ==== rules and most common cases
 
