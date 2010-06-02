@@ -60,7 +60,7 @@ describe Extlib::Inflection, "#singular" do
     "hovercraft".singular.should == "hovercraft"
   end
 
-  it "singularizes cactus => cacti" do
+  it "singularizes cacti => cactus" do
     "cacti".singular.should == "cactus"
   end
 

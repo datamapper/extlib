@@ -50,7 +50,7 @@ describe Extlib::Inflection, "#plural" do
     "hovercraft".plural.should == "hovercraft"
   end
 
-  it "pluralizes cacti => cactus" do
+  it "pluralizes cactus => cacti" do
     "cactus".plural.should == "cacti"
   end
 
