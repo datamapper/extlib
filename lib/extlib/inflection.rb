@@ -350,6 +350,7 @@ module Extlib
     word 'cross'      , 'crosses'
     word 'datum'      , 'data'
     word 'diagnosis'  , 'diagnoses'
+    word 'drive'      , 'drives'
     word 'erratum'    , 'errata'
     word 'goose'      , 'geese'
     word 'index'      , 'indices'

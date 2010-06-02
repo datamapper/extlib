@@ -186,6 +186,10 @@ describe Extlib::Inflection, "#singular" do
     "phenomena".singular.should == "phenomenon"
   end
 
+  it "singularizes drives => drive" do
+    "drives".singular.should == "drive"
+  end
+
   # ==== bugs, typos and reported issues
 
   # ==== rules

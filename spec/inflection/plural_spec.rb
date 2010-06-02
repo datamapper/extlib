@@ -176,6 +176,10 @@ describe Extlib::Inflection, "#plural" do
     "phenomenon".plural.should == "phenomena"
   end
 
+  it "pluralizes drive => drives" do
+    "drive".plural.should == "drives"
+  end
+
   # ==== bugs, typos and reported issues
 
   # ==== rules and most common cases
