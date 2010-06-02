@@ -64,6 +64,10 @@ describe Extlib::Inflection, "#singular" do
     "cacti".singular.should == "cactus"
   end
 
+  it "singularizes cactuses => cactus" do
+    "cactuses".singular.should == "cactus"
+  end
+
   it "singularizes thesauri => thesaurus" do
     "thesauri".singular.should == "thesaurus"
   end
@@ -148,6 +152,10 @@ describe Extlib::Inflection, "#singular" do
 
   it "singularizes indices => index" do
     "indices".singular.should == "index"
+  end
+
+  it "singularizes indexes => index" do
+    "indexes".singular.should == "index"
   end
 
   it "singularizes oxen => ox" do
