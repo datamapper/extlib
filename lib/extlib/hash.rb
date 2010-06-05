@@ -1,5 +1,6 @@
-require "time"
 require 'bigdecimal'
+require 'time'
+require 'uri'
 
 require 'extlib/object'
 require 'extlib/mash'
@@ -7,6 +8,8 @@ require 'extlib/class'
 require 'extlib/string'
 
 class Hash
+  URI_ENCODE_PATTERN = Regexp.new("[^#{URI::PATTERN::UNRESERVED}]").freeze
+
   class << self
     # Converts valid XML into a Ruby Hash structure.
     #
@@ -126,7 +129,6 @@ class Hash
   # @return [String] This key value pair as a param
   #
   # @api public
-  URI_ENCODE_PATTERN = Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")
   def normalize_param(key, value)
     param = ''
     stack = []
