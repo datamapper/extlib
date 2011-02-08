@@ -54,7 +54,7 @@ class Class
         end
       RUBY
     end
-  end
+  end unless Class.respond_to?(:cattr_reader)
 
   # Defines class-level (and optionally instance-level) attribute writer.
   #
@@ -84,7 +84,7 @@ class Class
         RUBY
       end
     end
-  end
+  end unless Class.respond_to?(:cattr_writer)
 
   # Defines class-level (and optionally instance-level) attribute accessor.
   #
@@ -96,7 +96,7 @@ class Class
   def cattr_accessor(*syms)
     cattr_reader(*syms)
     cattr_writer(*syms)
-  end
+  end unless Class.respond_to?(:cattr_accessor)
 
   # Defines class-level inheritable attribute reader. Attributes are available to subclasses,
   # each subclass has a copy of parent's attribute.
