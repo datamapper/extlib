@@ -112,7 +112,7 @@ class Class
   #   moving on). In particular, this makes the return value of this function
   #   less useful.
   def class_inheritable_reader(*ivars)
-    instance_reader = ivars.pop[:reader] if ivars.last.is_a?(Hash)
+    instance_reader = ivars.pop[:instance_reader] if ivars.last.is_a?(Hash)
 
     ivars.each do |ivar|
       self.class_eval <<-RUBY, __FILE__, __LINE__ + 1
