@@ -2,12 +2,12 @@ require 'rubygems'
 require 'rake'
 
 begin
-  gem 'jeweler', '~> 1.5.2'
+  gem 'jeweler', '~> 1.8.4'
   require 'jeweler'
 
   Jeweler::Tasks.new do |gem|
     gem.name        = 'extlib'
-    gem.summary     = 'Support library for DataMapper and Merb'
+    gem.summary     = 'Support library for Merb'
     gem.description = gem.summary
     gem.email       = 'dan.kubb@gmail.com'
     gem.homepage    = 'http://github.com/datamapper/extlib'
@@ -23,5 +23,5 @@ begin
 
   FileList['tasks/**/*.rake'].each { |task| load task }
 rescue LoadError
-  puts 'Jeweler (or a dependency) not available. Install it with: gem install jeweler -v 1.5.2'
+  puts 'Jeweler (or a dependency) not available. Install it with: gem install jeweler -v 1.8.4'
 end
