@@ -297,7 +297,7 @@ describe Hash, "from_xml" do
       'parent_id' => nil,
       'ad_revenue' => BigDecimal("1.50"),
       'optimum_viewing_angle' => 135.0,
-      'resident' => :yes
+      'resident' => 'yes'
     }
 
     Hash.from_xml(topic_xml)["topic"].each do |k,v|

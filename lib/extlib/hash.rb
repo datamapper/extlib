@@ -282,7 +282,6 @@ class REXMLUtilityNode
   self.typecasts["decimal"]       = lambda{|v| BigDecimal(v)}
   self.typecasts["double"]        = lambda{|v| v.nil? ? nil : v.to_f}
   self.typecasts["float"]         = lambda{|v| v.nil? ? nil : v.to_f}
-  self.typecasts["symbol"]        = lambda{|v| v.to_sym}
   self.typecasts["string"]        = lambda{|v| v.to_s}
   self.typecasts["base64Binary"]  = lambda{|v| v.unpack('m').first }
 
