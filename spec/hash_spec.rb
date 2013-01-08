@@ -254,7 +254,7 @@ describe Hash, "from_xml" do
       'approved'   => nil,
       'written_on' => nil,
       'viewed_at'  => nil,
-      'content'    => nil,
+      'content'    => { 'type' => 'yaml' },
       'parent_id'  => nil
     }
     Hash.from_xml(topic_xml)["topic"].should == expected_topic_hash
@@ -292,7 +292,7 @@ describe Hash, "from_xml" do
       # Changed this line where the key is :message.  The yaml specifies this as a symbol, and who am I to change what you specify
       # The line in ActiveSupport is
       # 'content' => { 'message' => "Have a nice day", 1 => "should be an integer", "array" => [{ "should-have-dashes" => true, "should_have_underscores" => true }] },
-      'content' => { :message => "Have a nice day", 1 => "should be an integer", "array" => [{ "should-have-dashes" => true, "should_have_underscores" => true }] },
+      'content' => "--- \n1: should be an integer\n:message: Have a nice day\narray: \n- should-have-dashes: true\n  should_have_underscores: true\n",
       'author_email_address' => "david@loudthinking.com",
       'parent_id' => nil,
       'ad_revenue' => BigDecimal("1.50"),
