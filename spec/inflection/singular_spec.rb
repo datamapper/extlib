@@ -499,4 +499,10 @@ describe Extlib::Inflection, "#singular" do
   it "singularizes rice => rice" do
     "rice".singular.should == "rice"
   end
+  
+  it "makes dup on result" do
+    (singular = "calls".singular).should == "call"
+    singular << "should_not_be_added_to_original"
+    "calls".singular.should == "call"
+  end
 end

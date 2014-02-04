@@ -282,7 +282,7 @@ module Extlib
         regex, hash = singularization_rules
         result.sub!(regex) {|m| hash[m]}
         singular_of[word] = result
-        return result
+        return result.dup
       end
 
       # Alias for #singular (a Railism).
