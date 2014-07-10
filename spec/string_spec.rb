@@ -57,6 +57,12 @@ describe String, "#camel_case" do
   it "leaves CamelCase as is" do
     "TestController".camel_case.should == "TestController"
   end
+
+  it "handle when section ends in a number" do
+    "ec2_instance".camel_case.should == "Ec2Instance"
+    "ec2".camel_case.should == "Ec2"
+    "s3_bucket_name".camel_case.should == "S3BucketName"
+  end
 end
 
 
@@ -79,6 +85,8 @@ describe String, "#snake_case" do
     "CNNNews".snake_case.should == "cnn_news"
     "HeadlineCNNNews".snake_case.should == "headline_cnn_news"
     "NameACRONYM".snake_case.should == "name_acronym"
+    "EC2".snake_case.should == "ec2"
+    "EC2Instance".snake_case.should == "ec2_instance"
   end
 
   it "does NOT change one word lowercase" do
@@ -87,6 +95,12 @@ describe String, "#snake_case" do
 
   it "leaves snake_case as is" do
     "merb_core".snake_case.should == "merb_core"
+  end
+
+  it "detects a capital after a number" do
+    "Ec2Instance".snake_case.should == "ec2_instance"
+    "Route53".snake_case.should == "route53"
+    "S3BucketName".snake_case.should == "s3_bucket_name"
   end
 end
 
